@@ -1,11 +1,9 @@
-# Streamlit Conversion Manifest
+# Streamlit V2.1.1 Syntax Hotfix Manifest
 
-- Source: Multi_Universe_AI_Chip_SupertrendPro_Institutional_V2_0_FULL.py
-- Streamlit version: 2.1.0
-- Original analytical functions preserved: 88 / 88
-- Colab runtime pip installation disabled
-- Cached data and analytics pipeline added
-- Sidebar universe and asset controls added
-- Executive, Universe, Institutional, Asset, SOX, ADR, Governance and Export tabs added
-- Full HTML, Excel and QS Engine export functions preserved
-- Yahoo Finance-only and no-synthetic-data rules preserved
+- Baseline: Streamlit V2.1.0
+- Corrected file: `app.py`
+- Corrected function: `institutional_engine_tab_html`
+- Root cause: escaped quotes/backslashes inside an f-string expression under Python 3.10
+- Resolution: precompute `uid` and `chart_html` outside the final f-string
+- Python compile validation: passed
+- Existing analytical functions and tabs: preserved

@@ -999,7 +999,21 @@ def institutional_engine_tab_html(inst_results):
             if "Article Shock" in uname: detail_tickers=list(ranking["Ticker"])
             for ticker in detail_tickers:
                 if ticker in data["details"]: charts.append(div(chart_institutional_asset(data["details"][ticker],ticker),False))
-        blocks.append(f'<div class="section"><h2>{uname} — SupertrendPro Institutional Integration</h2><div class="note"><b>Benchmark:</b> {data["benchmark"]}<br><b>Engine:</b> Smart Supertrend + MACD/ATR + Leading Signal Lab + Explainable 100-Point Institutional Score.<br><b>Execution:</b> signals are applied on the next bar and net returns deduct {INSTITUTIONAL_TRANSACTION_COST_BPS:.0f} bps transaction cost plus {INSTITUTIONAL_SLIPPAGE_BPS:.0f} bps slippage per side. No synthetic price or proxy security is used.</div><h3>Institutional Ranking</h3>{table(ranking,"inst_rank_"+str(abs(hash(uname))%100000))}<h3>Strategy Comparison</h3>{table(strategies,"inst_strat_"+str(abs(hash(uname))%100000))}<h3>Latest Factor Contributions</h3>{table(data["factors"],"inst_fac_"+str(abs(hash(uname))%100000))}<h3>Institutional Engine Exclusion Log</h3>{table(exclusions,"inst_exc_"+str(abs(hash(uname))%100000))}<h3>Interactive Institutional Charts</h3>{"".join([f"<div class=\"chart-block\">{c}</div>" for c in charts])}</div>')
+        uid = str(abs(hash(uname)) % 100000)
+        chart_html = "".join(f'<div class="chart-block">{c}</div>' for c in charts)
+        blocks.append(
+            f'<div class="section"><h2>{uname} — SupertrendPro Institutional Integration</h2>'
+            f'<div class="note"><b>Benchmark:</b> {data["benchmark"]}<br>'
+            f'<b>Engine:</b> Smart Supertrend + MACD/ATR + Leading Signal Lab + Explainable 100-Point Institutional Score.<br>'
+            f'<b>Execution:</b> signals are applied on the next bar and net returns deduct '
+            f'{INSTITUTIONAL_TRANSACTION_COST_BPS:.0f} bps transaction cost plus '
+            f'{INSTITUTIONAL_SLIPPAGE_BPS:.0f} bps slippage per side. No synthetic price or proxy security is used.</div>'
+            f'<h3>Institutional Ranking</h3>{table(ranking, "inst_rank_" + uid)}'
+            f'<h3>Strategy Comparison</h3>{table(strategies, "inst_strat_" + uid)}'
+            f'<h3>Latest Factor Contributions</h3>{table(data["factors"], "inst_fac_" + uid)}'
+            f'<h3>Institutional Engine Exclusion Log</h3>{table(exclusions, "inst_exc_" + uid)}'
+            f'<h3>Interactive Institutional Charts</h3>{chart_html}</div>'
+        )
     return "".join(blocks)
 
 def cross_listing_tab_html(cross):
