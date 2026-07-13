@@ -1,22 +1,33 @@
-# Multi-Universe AI / Chip + SupertrendPro Institutional — Streamlit V2.1.1
+# Multi-Universe AI / Chip + SupertrendPro Institutional Streamlit V2.2.0
 
-This hotfix corrects a Python 3.10 compilation error in `institutional_engine_tab_html()`.
+This release preserves the complete analytical codebase and rebuilds the Streamlit presentation layer for full-width institutional use.
 
-## Fix
+## Core changes
 
-The prior version built chart HTML inside an f-string expression using escaped quotes. Python 3.10 rejects backslashes inside f-string expression blocks. Chart markup is now prepared in a separate `chart_html` variable and inserted into the final HTML safely.
+- Every Plotly chart is rendered separately, vertically and at full width.
+- New dedicated EWMA Volatility tab with RiskMetrics lambda 0.94 and 0.97, rolling volatility comparisons, shock bands and cross-sectional ranking.
+- Added the requested SupertrendPro Institutional tabs:
+  - Strategy & Signal
+  - Market Data
+  - Technical Analytics
+  - Backtest & Risk
+  - Strategy Diagnostics
+  - Blue-Chip Screener
+  - Capital Gain Leaders
+  - Portfolio Lab
+  - Leading Signal Lab
+  - Institutional Decision Engine
+- Existing Executive Dashboard, SOX Diagnostics, ADR/Local, News & Governance and Export Center are preserved.
+- Thin institutional typography, professional KPI cards and hedge-fund style visual hierarchy.
+- Original analytics, report generation, Excel export, QS Engine, optimization, stress testing and cross-listing logic remain available.
 
-## Preserved
+## Deployment
 
-- All investment universes and benchmarks
-- Yahoo Finance real daily data policy
-- Institutional Decision Engine
-- Smart Supertrend and MACD/ATR backtests
-- SOX diagnostics
-- ADR/local cross-listing analysis
-- QS Engine, HTML and Excel exports
-- Hedge-fund Streamlit interface
+Upload the following to the root of the Streamlit Cloud repository:
 
-## Deploy
+- app.py
+- requirements.txt
+- runtime.txt
+- .streamlit/config.toml
 
-Upload `app.py`, `requirements.txt`, `runtime.txt`, and `.streamlit/config.toml` to the repository root, then reboot the Streamlit Cloud app.
+Then reboot the application.

@@ -778,7 +778,7 @@ def analyze_supertrend_institutional(results, ohlcv_map, close):
                 rows.append(row)
                 for sname,sstats in strategy_candidates.items(): strategy_rows.append({"Universe":uname,"Ticker":ticker,"Company":meta["name"],"Strategy":sname,**sstats,"Trade Count":len(st_trades) if sname=="Smart Supertrend" else (len(macd_trades) if sname=="MACD + ATR" else np.nan)})
                 f=factors.copy(); f.insert(0,"Ticker",ticker); f.insert(1,"Company",meta["name"]); f.insert(2,"Universe",uname); factor_rows.append(f)
-                details[ticker]={"meta":meta,"indicator":ind,"supertrend_backtest":st_bt,"macd_backtest":macd_bt,"leading_lab":lab_df,"score":score_df,"factors":factors,"decision":decision}
+                details[ticker]={"meta":meta,"indicator":ind,"supertrend_backtest":st_bt,"supertrend_trades":st_trades,"supertrend_stats":st_stats,"macd_backtest":macd_bt,"macd_trades":macd_trades,"macd_stats":macd_stats,"leading_lab":lab_df,"leading_stats":lab_stats,"score":score_df,"factors":factors,"decision":decision}
             except Exception as exc:
                 exclusions.append({"Ticker":ticker,"Company":meta["name"],"Reason":f"Institutional engine calculation failed: {exc}"})
         all_results[uname]={"ranking":pd.DataFrame(rows).sort_values(["Institutional Score","Confidence Score"],ascending=False) if rows else pd.DataFrame(),"strategies":pd.DataFrame(strategy_rows),"factors":pd.concat(factor_rows,ignore_index=True) if factor_rows else pd.DataFrame(),"exclusions":pd.DataFrame(exclusions),"details":details,"benchmark":benchmark}
@@ -1184,7 +1184,7 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing)
 # ============================================================
 # 8. STREAMLIT APPLICATION LAYER
 # ============================================================
-STREAMLIT_APP_VERSION = "2.1.0"
+STREAMLIT_APP_VERSION = "2.2.0"
 
 st.set_page_config(
     page_title="AI / Chip Institutional Platform",
@@ -1196,27 +1196,53 @@ st.set_page_config(
 STREAMLIT_CSS = """
 <style>
 :root {
-  --navy:#0b1f33; --navy2:#132f4c; --ink:#17212b; --muted:#667085;
-  --line:#dfe5ec; --card:#ffffff; --bg:#f5f7fa; --accent:#315f86;
+  --navy:#0a1d30; --navy2:#123552; --ink:#182230; --muted:#667085;
+  --line:#dde4eb; --card:#ffffff; --bg:#f4f6f8; --accent:#315f86;
+  --soft:#f8fafc; --positive:#16794a; --negative:#b42318;
 }
-html, body, [class*="css"] {font-family: Inter, Aptos, "Segoe UI", Arial, sans-serif;}
+html, body, [class*="css"] {
+  font-family: Inter, Aptos, "Segoe UI", Arial, sans-serif;
+  font-weight:300;
+  letter-spacing:.004em;
+}
 .stApp {background:var(--bg); color:var(--ink);}
-.block-container {max-width:none; padding-top:1.2rem; padding-left:1.5rem; padding-right:1.5rem;}
-.mk-masthead {background:linear-gradient(100deg,var(--navy),var(--navy2)); color:#fff; border-radius:14px; padding:24px 28px; margin-bottom:14px; border:1px solid rgba(255,255,255,.08);}
-.mk-kicker {font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:#b8c8d8; font-weight:500;}
-.mk-title {font-size:2rem; letter-spacing:-.025em; font-weight:350; margin:.25rem 0;}
-.mk-subtitle {font-size:.88rem; color:#d7e1ea; font-weight:300;}
-.mk-section {font-size:.74rem; letter-spacing:.13em; text-transform:uppercase; color:#315f86; font-weight:600; margin:1.2rem 0 .5rem;}
-div[data-testid="stMetric"] {background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; box-shadow:0 1px 2px rgba(16,24,40,.03);}
-div[data-testid="stMetricLabel"] {font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; color:var(--muted);}
-div[data-testid="stMetricValue"] {font-weight:400; color:var(--navy);}
-.stTabs [data-baseweb="tab-list"] {gap:.35rem; border-bottom:1px solid var(--line);}
-.stTabs [data-baseweb="tab"] {height:2.8rem; padding:0 .9rem; font-size:.77rem; letter-spacing:.035em; text-transform:uppercase; font-weight:450; color:#475467;}
-.stTabs [aria-selected="true"] {color:var(--navy)!important; border-bottom:2px solid var(--navy)!important;}
-section[data-testid="stSidebar"] {background:#eef2f6; border-right:1px solid var(--line);}
-.stButton>button, .stDownloadButton>button {border-radius:8px; border:1px solid #b8c4d0; font-weight:450;}
-[data-testid="stDataFrame"] {border:1px solid var(--line); border-radius:8px; overflow:hidden;}
-.mk-note {background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; padding:11px 13px; color:#475467; font-size:.84rem; line-height:1.55;}
+.block-container {max-width:none; padding-top:1rem; padding-left:1.35rem; padding-right:1.35rem; padding-bottom:3rem;}
+.mk-masthead {
+  background:linear-gradient(102deg,var(--navy),var(--navy2)); color:#fff;
+  border-radius:12px; padding:25px 30px 23px; margin-bottom:14px;
+  border:1px solid rgba(255,255,255,.08); box-shadow:0 4px 18px rgba(10,29,48,.10);
+}
+.mk-kicker {font-size:.68rem; letter-spacing:.20em; text-transform:uppercase; color:#b8c8d8; font-weight:500;}
+.mk-title {font-size:2.05rem; letter-spacing:-.030em; font-weight:300; margin:.30rem 0 .25rem;}
+.mk-subtitle {font-size:.84rem; color:#d7e1ea; font-weight:300; letter-spacing:.018em;}
+.mk-section {
+  font-size:.70rem; letter-spacing:.16em; text-transform:uppercase; color:#315f86;
+  font-weight:600; margin:1.55rem 0 .55rem; padding-bottom:.42rem; border-bottom:1px solid var(--line);
+}
+.mk-panel-title {font-size:1.05rem; color:var(--navy); font-weight:400; margin:1.25rem 0 .20rem; letter-spacing:-.01em;}
+.mk-panel-caption {font-size:.78rem; color:var(--muted); margin-bottom:.65rem;}
+div[data-testid="stMetric"] {
+  background:#fff; border:1px solid var(--line); border-radius:9px; padding:12px 14px;
+  box-shadow:0 1px 3px rgba(16,24,40,.035); min-height:92px;
+}
+div[data-testid="stMetricLabel"] {font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:500;}
+div[data-testid="stMetricValue"] {font-weight:350; color:var(--navy); font-size:1.38rem; letter-spacing:-.02em;}
+div[data-testid="stMetricDelta"] {font-size:.72rem;}
+.stTabs [data-baseweb="tab-list"] {gap:.25rem; border-bottom:1px solid var(--line); overflow-x:auto; flex-wrap:nowrap;}
+.stTabs [data-baseweb="tab"] {
+  height:2.75rem; padding:0 .78rem; font-size:.70rem; letter-spacing:.055em;
+  text-transform:uppercase; font-weight:450; color:#475467; white-space:nowrap;
+}
+.stTabs [aria-selected="true"] {color:var(--navy)!important; border-bottom:2px solid var(--navy)!important; background:rgba(49,95,134,.035);}
+section[data-testid="stSidebar"] {background:#edf1f5; border-right:1px solid var(--line);}
+section[data-testid="stSidebar"] * {font-weight:350;}
+.stButton>button, .stDownloadButton>button {border-radius:7px; border:1px solid #b8c4d0; font-weight:450;}
+[data-testid="stDataFrame"] {border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#fff;}
+.mk-note {background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; padding:12px 14px; color:#475467; font-size:.81rem; line-height:1.58;}
+.mk-warning {background:#fffaf0; border:1px solid #f1dfb8; border-left:3px solid #b7791f; border-radius:8px; padding:12px 14px; color:#5f4715; font-size:.81rem; line-height:1.58;}
+[data-testid="stPlotlyChart"] {background:#fff; border:1px solid var(--line); border-radius:10px; padding:3px; margin-bottom:1.15rem; box-shadow:0 1px 3px rgba(16,24,40,.025);}
+hr {border-color:var(--line)!important;}
+@media(max-width:1100px){.mk-title{font-size:1.65rem}.block-container{padding-left:.8rem;padding-right:.8rem}}
 </style>
 """
 st.markdown(STREAMLIT_CSS, unsafe_allow_html=True)
@@ -1229,7 +1255,14 @@ def _safe_metric_value(value, kind="number"):
     if kind == "money": return f"${float(value):,.0f}"
     if kind == "score": return f"{float(value):,.1f}"
     if kind == "int": return f"{int(value):,}"
+    if kind == "price": return f"{float(value):,.2f}"
     return f"{float(value):,.3f}" if isinstance(value, (float, np.floating)) else str(value)
+
+
+def _section(title, caption=""):
+    st.markdown(f'<div class="mk-section">{title}</div>', unsafe_allow_html=True)
+    if caption:
+        st.markdown(f'<div class="mk-panel-caption">{caption}</div>', unsafe_allow_html=True)
 
 
 def _show_df(df, height=420, key=None):
@@ -1240,8 +1273,318 @@ def _show_df(df, height=420, key=None):
 
 
 def _plot(fig, key=None):
-    # Streamlit controls width; legacy fixed chart heights remain as institutional defaults.
+    """All charts are rendered one-by-one at full width; no chart is placed in a column."""
     st.plotly_chart(fig, width="stretch", theme=None, config=PLOT_CONFIG, key=key)
+
+
+def _selected_detail(inst, selected_ticker):
+    return inst.get("details", {}).get(selected_ticker)
+
+
+# -------------------------------------------------------------------------
+# EWMA VOLATILITY ENGINE
+# -------------------------------------------------------------------------
+def compute_ewma_volatility_frame(close_or_returns, input_is_price=True):
+    s = pd.Series(close_or_returns, dtype=float).replace([np.inf, -np.inf], np.nan).dropna().sort_index()
+    if input_is_price:
+        r = np.log(s / s.shift(1))
+    else:
+        r = np.log1p(s.clip(lower=-0.999999))
+    r = r.replace([np.inf, -np.inf], np.nan)
+    out = pd.DataFrame(index=r.index)
+    out["Log Return"] = r
+    for lam in (0.94, 0.97):
+        var = r.pow(2).shift(1).ewm(alpha=1.0-lam, adjust=False, min_periods=20).mean()
+        out[f"EWMA {lam:.2f} Daily Sigma"] = np.sqrt(var)
+        out[f"EWMA {lam:.2f} Ann Vol"] = np.sqrt(var * TRADING_DAYS)
+    out["Rolling 20D Ann Vol"] = r.rolling(20, min_periods=20).std(ddof=1) * np.sqrt(TRADING_DAYS)
+    out["Rolling 63D Ann Vol"] = r.rolling(63, min_periods=40).std(ddof=1) * np.sqrt(TRADING_DAYS)
+    out["Rolling 252D Ann Vol"] = r.rolling(252, min_periods=126).std(ddof=1) * np.sqrt(TRADING_DAYS)
+    out["EWMA 0.94 Upper 2Sigma"] = 2.0 * out["EWMA 0.94 Daily Sigma"]
+    out["EWMA 0.94 Lower 2Sigma"] = -2.0 * out["EWMA 0.94 Daily Sigma"]
+    out["EWMA 0.94 20D Change"] = out["EWMA 0.94 Ann Vol"].pct_change(20)
+    out["EWMA 0.94 Percentile 252D"] = out["EWMA 0.94 Ann Vol"].rolling(252, min_periods=63).apply(
+        lambda a: float(pd.Series(a).rank(pct=True).iloc[-1]), raw=False
+    )
+    return out
+
+
+def chart_ewma_volatility_levels(vol_df, title):
+    fig = go.Figure()
+    specs = [
+        ("EWMA 0.94 Ann Vol", "EWMA λ=0.94", "#0f4c81", 2.3, "solid"),
+        ("EWMA 0.97 Ann Vol", "EWMA λ=0.97", "#7c3aed", 2.0, "dot"),
+        ("Rolling 20D Ann Vol", "Rolling 20D", "#f59e0b", 1.4, "dash"),
+        ("Rolling 63D Ann Vol", "Rolling 63D", "#475467", 1.4, "solid"),
+        ("Rolling 252D Ann Vol", "Rolling 252D", "#111827", 1.5, "dot"),
+    ]
+    for col, name, color, width, dash in specs:
+        if col in vol_df.columns:
+            fig.add_trace(go.Scatter(x=vol_df.index, y=vol_df[col], mode="lines", name=name, line=dict(color=color, width=width, dash=dash)))
+    fig.update_yaxes(title="Annualized volatility", tickformat=".1%")
+    return layout(fig, title + " — EWMA and Rolling Volatility", CHART_EXTRA_LARGE_HEIGHT)
+
+
+def chart_ewma_return_shocks(vol_df, title):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=vol_df.index, y=vol_df["Log Return"], mode="lines", name="Daily Log Return", line=dict(color="#334155", width=1.0)))
+    fig.add_trace(go.Scatter(x=vol_df.index, y=vol_df["EWMA 0.94 Upper 2Sigma"], mode="lines", name="EWMA +2σ", line=dict(color="#b42318", width=1.2, dash="dash")))
+    fig.add_trace(go.Scatter(x=vol_df.index, y=vol_df["EWMA 0.94 Lower 2Sigma"], mode="lines", name="EWMA -2σ", line=dict(color="#16794a", width=1.2, dash="dash"), fill="tonexty", fillcolor="rgba(49,95,134,.045)"))
+    upper = vol_df[vol_df["Log Return"] > vol_df["EWMA 0.94 Upper 2Sigma"]]
+    lower = vol_df[vol_df["Log Return"] < vol_df["EWMA 0.94 Lower 2Sigma"]]
+    if not upper.empty:
+        fig.add_trace(go.Scatter(x=upper.index, y=upper["Log Return"], mode="markers", name="Upper Shock", marker=dict(symbol="triangle-up", size=8, color="#b42318")))
+    if not lower.empty:
+        fig.add_trace(go.Scatter(x=lower.index, y=lower["Log Return"], mode="markers", name="Lower Shock", marker=dict(symbol="triangle-down", size=8, color="#16794a")))
+    fig.update_yaxes(title="Daily log return", tickformat=".2%")
+    return layout(fig, title + " — EWMA Return Shock Bands", CHART_FULL_HEIGHT)
+
+
+def build_ewma_snapshot(inst):
+    rows = []
+    for ticker, detail in inst.get("details", {}).items():
+        score = detail.get("score", pd.DataFrame())
+        if score.empty or "Close" not in score:
+            continue
+        v = compute_ewma_volatility_frame(score["Close"], input_is_price=True).dropna(subset=["EWMA 0.94 Ann Vol"])
+        if v.empty:
+            continue
+        last = v.iloc[-1]
+        pctile = last.get("EWMA 0.94 Percentile 252D", np.nan)
+        regime = "HIGH" if pd.notna(pctile) and pctile >= .75 else ("LOW" if pd.notna(pctile) and pctile <= .25 else "NORMAL")
+        rows.append({
+            "Ticker": ticker,
+            "Company": detail["meta"].get("name", ticker),
+            "EWMA 0.94 Ann Vol": last.get("EWMA 0.94 Ann Vol"),
+            "EWMA 0.97 Ann Vol": last.get("EWMA 0.97 Ann Vol"),
+            "Rolling 20D Ann Vol": last.get("Rolling 20D Ann Vol"),
+            "Rolling 63D Ann Vol": last.get("Rolling 63D Ann Vol"),
+            "20D Vol Change": last.get("EWMA 0.94 20D Change"),
+            "Vol Percentile 252D": pctile,
+            "Volatility Regime": regime,
+            "Institutional Score": detail.get("decision", {}).get("Institutional Score"),
+            "Recommendation": detail.get("decision", {}).get("Recommendation"),
+        })
+    return pd.DataFrame(rows).sort_values("EWMA 0.94 Ann Vol", ascending=False) if rows else pd.DataFrame()
+
+
+# -------------------------------------------------------------------------
+# FULL-WIDTH ASSET CHARTS
+# -------------------------------------------------------------------------
+def chart_strategy_signal(detail, ticker, strategy_name):
+    bt = detail["supertrend_backtest"].copy() if strategy_name == "Smart Supertrend" else detail["macd_backtest"].copy()
+    fig = go.Figure()
+    fig.add_trace(go.Candlestick(x=bt.index, open=bt["Open"], high=bt["High"], low=bt["Low"], close=bt["Close"], name="Adjusted OHLC", increasing_line_color="#16794a", decreasing_line_color="#b42318"))
+    if "ATR_Stop" in bt.columns:
+        fig.add_trace(go.Scatter(x=bt.index, y=bt["ATR_Stop"], mode="lines", name="ATR Trailing Stop", line=dict(color="#f97316", width=1.2, dash="dot")))
+    if "ST_Line" in bt.columns:
+        fig.add_trace(go.Scatter(x=bt.index, y=bt["ST_Line"], mode="lines", name="Smart Supertrend", line=dict(color="#7c3aed", width=1.4)))
+    for col, name, color in [("EMA_20", "EMA 20", "#2563eb"), ("EMA_50", "EMA 50", "#f59e0b"), ("EMA_200", "EMA 200", "#111827")]:
+        if col in bt.columns:
+            fig.add_trace(go.Scatter(x=bt.index, y=bt[col], mode="lines", name=name, line=dict(color=color, width=1.1, dash="dot" if col == "EMA_200" else "solid")))
+    if "Signal" in bt.columns:
+        buys = bt[bt["Signal"] == 1]
+        sells = bt[bt["Signal"] == -1]
+        if not buys.empty:
+            fig.add_trace(go.Scatter(x=buys.index, y=buys["Low"] * .985, mode="markers", name="BUY", marker=dict(symbol="triangle-up", size=12, color="#16794a", line=dict(width=1, color="white"))))
+        if not sells.empty:
+            fig.add_trace(go.Scatter(x=sells.index, y=sells["High"] * 1.015, mode="markers", name="SELL", marker=dict(symbol="triangle-down", size=12, color="#b42318", line=dict(width=1, color="white"))))
+    fig.update_layout(xaxis_rangeslider_visible=False)
+    return layout(fig, f"{ticker} — {strategy_name} | Price, Signals and ATR Risk Control", CHART_EXTRA_LARGE_HEIGHT)
+
+
+def chart_strategy_equity(detail, ticker, strategy_name):
+    bt = detail["supertrend_backtest"].copy() if strategy_name == "Smart Supertrend" else detail["macd_backtest"].copy()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=bt.index, y=bt.get("Strategy Equity"), mode="lines", name=f"{strategy_name} Net Equity", line=dict(color="#0f766e", width=2.2)))
+    fig.add_trace(go.Scatter(x=bt.index, y=bt.get("Buy Hold Equity"), mode="lines", name="Buy & Hold", line=dict(color="#64748b", width=1.5, dash="dot")))
+    return layout(fig, f"{ticker} — {strategy_name} Net Equity vs Buy & Hold", CHART_FULL_HEIGHT)
+
+
+def chart_strategy_drawdown(detail, ticker, strategy_name):
+    bt = detail["supertrend_backtest"].copy() if strategy_name == "Smart Supertrend" else detail["macd_backtest"].copy()
+    strategy_eq = pd.Series(bt.get("Strategy Equity"), index=bt.index, dtype=float)
+    buyhold_eq = pd.Series(bt.get("Buy Hold Equity"), index=bt.index, dtype=float)
+    sdd = strategy_eq / strategy_eq.cummax() - 1
+    bdd = buyhold_eq / buyhold_eq.cummax() - 1
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=sdd.index, y=sdd, mode="lines", name="Strategy Drawdown", fill="tozeroy", line=dict(color="#b42318", width=1.7)))
+    fig.add_trace(go.Scatter(x=bdd.index, y=bdd, mode="lines", name="Buy & Hold Drawdown", line=dict(color="#64748b", width=1.3, dash="dot")))
+    fig.update_yaxes(tickformat=".1%", title="Drawdown")
+    return layout(fig, f"{ticker} — Drawdown Comparison", CHART_FULL_HEIGHT)
+
+
+def chart_technical_price(detail, ticker):
+    x = detail["score"].copy().sort_index()
+    fig = go.Figure()
+    fig.add_trace(go.Candlestick(x=x.index, open=x["Open"], high=x["High"], low=x["Low"], close=x["Close"], name="Adjusted OHLC", increasing_line_color="#16794a", decreasing_line_color="#b42318"))
+    for col, name, color, dash in [
+        ("BB_UPPER", "BB Upper", "rgba(59,130,246,.55)", "dot"), ("BB_MID", "BB Mid", "rgba(59,130,246,.75)", "dash"), ("BB_LOWER", "BB Lower", "rgba(59,130,246,.55)", "dot"),
+        ("EMA_20", "EMA 20", "#2563eb", "solid"), ("EMA_50", "EMA 50", "#f59e0b", "solid"), ("EMA_200", "EMA 200", "#111827", "dash"), ("ST_Line", "Smart Supertrend", "#7c3aed", "dot")]:
+        if col in x.columns:
+            fig.add_trace(go.Scatter(x=x.index, y=x[col], mode="lines", name=name, line=dict(color=color, width=1.25, dash=dash)))
+    fig.update_layout(xaxis_rangeslider_visible=False)
+    return layout(fig, f"{ticker} — Candlestick, Bollinger, EMA and Smart Supertrend", CHART_EXTRA_LARGE_HEIGHT)
+
+
+def chart_technical_macd(detail, ticker):
+    x = detail["score"].copy().sort_index()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x.index, y=x["MACD"], mode="lines", name="MACD", line=dict(color="#0f4c81", width=1.8)))
+    fig.add_trace(go.Scatter(x=x.index, y=x["MACD_SIGNAL"], mode="lines", name="Signal", line=dict(color="#f59e0b", width=1.5, dash="dot")))
+    fig.add_trace(go.Bar(x=x.index, y=x["MACD_HIST"], name="Histogram", marker_color=np.where(x["MACD_HIST"] >= 0, "rgba(22,121,74,.55)", "rgba(180,35,24,.55)")))
+    fig.add_hline(y=0, line_dash="dash", line_width=1)
+    return layout(fig, f"{ticker} — MACD Momentum Structure", CHART_FULL_HEIGHT)
+
+
+def chart_technical_rsi_adx(detail, ticker):
+    x = detail["score"].copy().sort_index()
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace(go.Scatter(x=x.index, y=x["RSI"], mode="lines", name="RSI", line=dict(color="#7c3aed", width=1.8)), secondary_y=False)
+    fig.add_trace(go.Scatter(x=x.index, y=x["ADX"], mode="lines", name="ADX", line=dict(color="#0f766e", width=1.6, dash="dot")), secondary_y=True)
+    fig.add_hrect(y0=70, y1=100, opacity=.06, line_width=0, secondary_y=False)
+    fig.add_hrect(y0=0, y1=30, opacity=.06, line_width=0, secondary_y=False)
+    fig.add_hline(y=20, line_dash="dot", line_width=1, secondary_y=True)
+    fig.update_yaxes(title="RSI", range=[0, 100], secondary_y=False)
+    fig.update_yaxes(title="ADX", range=[0, 100], secondary_y=True)
+    return layout(fig, f"{ticker} — RSI and ADX Regime Diagnostics", CHART_FULL_HEIGHT)
+
+
+def chart_leading_signal_events(detail, ticker):
+    x = detail["leading_lab"].copy().sort_index()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x.index, y=x["Close"], mode="lines", name="Adjusted Close", line=dict(color="#111827", width=1.7)))
+    buys = x[x["Signal Event"] == "BUY"]
+    sells = x[x["Signal Event"] == "SELL"]
+    if not buys.empty:
+        fig.add_trace(go.Scatter(x=buys.index, y=buys["Close"] * .985, mode="markers", name="Leading BUY", marker=dict(symbol="triangle-up", size=11, color="#16794a")))
+    if not sells.empty:
+        fig.add_trace(go.Scatter(x=sells.index, y=sells["Close"] * 1.015, mode="markers", name="Leading SELL", marker=dict(symbol="triangle-down", size=11, color="#b42318")))
+    return layout(fig, f"{ticker} — Leading Signal Events", CHART_EXTRA_LARGE_HEIGHT)
+
+
+def chart_leading_signal_score(detail, ticker):
+    x = detail["leading_lab"].copy().sort_index()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x.index, y=x["Signal Score"], mode="lines", name="Signal Score", fill="tozeroy", line=dict(color="#315f86", width=2.0), fillcolor="rgba(49,95,134,.08)"))
+    fig.add_hline(y=4, line_dash="dash", annotation_text="BUY threshold")
+    fig.add_hline(y=2, line_dash="dot", annotation_text="Exit threshold")
+    fig.update_yaxes(range=[0, 7], title="Signal score")
+    return layout(fig, f"{ticker} — Leading Signal Score History", CHART_FULL_HEIGHT)
+
+
+def chart_leading_signal_equity(detail, ticker):
+    x = detail["leading_lab"].copy().sort_index()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x.index, y=x["Signal Strategy Equity"], mode="lines", name="Leading Signal Net Equity", line=dict(color="#0f766e", width=2.2)))
+    fig.add_trace(go.Scatter(x=x.index, y=x["Signal Buy Hold Equity"], mode="lines", name="Buy & Hold", line=dict(color="#64748b", width=1.5, dash="dot")))
+    return layout(fig, f"{ticker} — Leading Signal Lab Equity Comparison", CHART_FULL_HEIGHT)
+
+
+def build_blue_chip_screener(res, inst):
+    ranking = inst.get("ranking", pd.DataFrame()).copy()
+    if ranking.empty:
+        return pd.DataFrame()
+    metrics = res.get("am", pd.DataFrame()).copy()
+    base = ranking.merge(metrics, on=[c for c in ["Ticker", "Company", "Sector", "Theme", "Country"] if c in ranking.columns and c in metrics.columns], how="left", suffixes=("", "_Metric"))
+    liquidity = []
+    observations = []
+    momentum = []
+    for ticker in base["Ticker"]:
+        detail = inst.get("details", {}).get(ticker)
+        if detail is None:
+            liquidity.append(np.nan); observations.append(0); momentum.append(np.nan); continue
+        ind = detail["indicator"]
+        liquidity.append(float(ind["Dollar_Volume"].tail(63).median()) if "Dollar_Volume" in ind else np.nan)
+        observations.append(len(ind))
+        momentum.append(float(ind["Momentum_252D"].iloc[-1]) if "Momentum_252D" in ind and pd.notna(ind["Momentum_252D"].iloc[-1]) else np.nan)
+    base["Median Dollar Volume 63D"] = liquidity
+    base["Indicator Observations"] = observations
+    base["Momentum 252D"] = momentum
+    liq_rank = base["Median Dollar Volume 63D"].rank(pct=True).fillna(.5)
+    vol_rank = base.get("Annualized Volatility", pd.Series(np.nan, index=base.index)).rank(pct=True).fillna(.5)
+    dd_quality = (1.0 - base.get("Max Drawdown", pd.Series(np.nan, index=base.index)).abs().rank(pct=True)).fillna(.5)
+    obs_score = (base["Indicator Observations"] / 1000.0).clip(0, 1)
+    mom_rank = base["Momentum 252D"].rank(pct=True).fillna(.5)
+    inst_score = pd.to_numeric(base["Institutional Score"], errors="coerce").fillna(50) / 100.0
+    base["Blue-Chip Quality Score"] = (25*liq_rank + 20*(1-vol_rank) + 15*dd_quality + 20*inst_score + 10*mom_rank + 10*obs_score).clip(0, 100)
+    base["Quality Tier"] = pd.cut(base["Blue-Chip Quality Score"], [-np.inf, 40, 55, 70, 85, np.inf], labels=["SPECULATIVE", "WATCH", "CORE CANDIDATE", "INSTITUTIONAL", "PREMIUM BLUE-CHIP"]).astype(str)
+    cols = [c for c in ["Ticker","Company","Country","Sector","Theme","Blue-Chip Quality Score","Quality Tier","Institutional Score","Confidence Score","Recommendation","Median Dollar Volume 63D","Annualized Volatility","Max Drawdown","Sharpe Ratio","Beta","Momentum 252D","Indicator Observations"] if c in base.columns]
+    return base[cols].sort_values(["Blue-Chip Quality Score","Institutional Score"], ascending=False)
+
+
+def chart_blue_chip_screener(df, title):
+    if df is None or df.empty:
+        return layout(go.Figure(), title, CHART_FULL_HEIGHT)
+    d = df.sort_values("Blue-Chip Quality Score", ascending=True)
+    fig = go.Figure(go.Bar(x=d["Blue-Chip Quality Score"], y=d["Ticker"], orientation="h", customdata=np.stack([d["Company"], d["Quality Tier"], d["Recommendation"]], axis=-1), hovertemplate="%{y}<br>%{customdata[0]}<br>Quality=%{x:.1f}<br>Tier=%{customdata[1]}<br>Decision=%{customdata[2]}<extra></extra>"))
+    fig.add_vline(x=70, line_dash="dot"); fig.add_vline(x=85, line_dash="dash")
+    fig.update_xaxes(range=[0, 100], title="Blue-Chip Quality Score")
+    return layout(fig, title, max(CHART_BAR_MIN_HEIGHT, 34*len(d)))
+
+
+def build_capital_gain_leaders(inst):
+    rows = []
+    for ticker, detail in inst.get("details", {}).items():
+        x = detail["indicator"]
+        last = x.iloc[-1]
+        rows.append({
+            "Ticker": ticker,
+            "Company": detail["meta"].get("name", ticker),
+            "Country": detail["meta"].get("country", "N/A"),
+            "Sector": detail["meta"].get("sector", "N/A"),
+            "Return 20D": last.get("Momentum_20D"),
+            "Return 63D": last.get("Momentum_63D"),
+            "Return 126D": last.get("Momentum_126D"),
+            "Return 252D": last.get("Momentum_252D"),
+            "From 52W High": last.get("Pct_From_52W_High"),
+            "Institutional Score": detail.get("decision", {}).get("Institutional Score"),
+            "Confidence Score": detail.get("decision", {}).get("Confidence Score"),
+            "Recommendation": detail.get("decision", {}).get("Recommendation"),
+        })
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return df
+    ranks = []
+    for c in ["Return 20D", "Return 63D", "Return 126D", "Return 252D"]:
+        ranks.append(df[c].rank(pct=True).fillna(.5))
+    df["Capital Gain Composite"] = (0.20*ranks[0] + 0.30*ranks[1] + 0.20*ranks[2] + 0.30*ranks[3]) * 100
+    return df.sort_values("Capital Gain Composite", ascending=False)
+
+
+def chart_capital_gain(df, column, title):
+    if df is None or df.empty:
+        return layout(go.Figure(), title, CHART_FULL_HEIGHT)
+    d = df.dropna(subset=[column]).nlargest(min(25, len(df)), column).sort_values(column, ascending=True)
+    fig = go.Figure(go.Bar(x=d[column], y=d["Ticker"], orientation="h", customdata=np.stack([d["Company"], d["Recommendation"], d["Institutional Score"]], axis=-1), hovertemplate="%{y}<br>%{customdata[0]}<br>Return=%{x:.2%}<br>Decision=%{customdata[1]}<br>Score=%{customdata[2]:.1f}<extra></extra>"))
+    fig.update_xaxes(tickformat=".1%", title=column)
+    return layout(fig, title, max(CHART_BAR_MIN_HEIGHT, 34*len(d)))
+
+
+def build_strategy_diagnostics(detail):
+    st_bt = detail["supertrend_backtest"]
+    macd_bt = detail["macd_backtest"]
+    lab = detail["leading_lab"]
+    rows = []
+    def add(name, series, description):
+        s = pd.Series(series).fillna(False).astype(bool)
+        rows.append({"Constraint": name, "Description": description, "Days Passed": int(s.sum()), "Pass Rate %": float(s.mean()*100), "Days Blocked": int((~s).sum())})
+    add("Supertrend UP", st_bt.get("ST_Dir", pd.Series(index=st_bt.index, dtype=float)).eq(1), "Smart Supertrend directional regime")
+    add("Price > EMA200", st_bt["Close"] > st_bt["EMA_200"], "Long-term trend quality")
+    add("MACD > Signal", macd_bt["MACD"] > macd_bt["MACD_SIGNAL"], "Momentum confirmation")
+    add("ADX > 18", detail["indicator"]["ADX"] > 18, "Trend strength confirmation")
+    add("Leading Score >= 4", lab["Signal Score"] >= 4, "Multi-factor leading entry threshold")
+    add("Healthy RSI 45–72", detail["indicator"]["RSI"].between(45,72), "Non-exhausted momentum regime")
+    return pd.DataFrame(rows)
+
+
+def chart_strategy_diagnostics(df, ticker):
+    if df.empty:
+        return layout(go.Figure(), ticker + " — Strategy Diagnostic Funnel", CHART_FULL_HEIGHT)
+    d = df.sort_values("Days Passed", ascending=True)
+    fig = go.Figure(go.Bar(x=d["Days Passed"], y=d["Constraint"], orientation="h", text=d["Pass Rate %"].map(lambda x: f"{x:.1f}%"), textposition="auto"))
+    fig.update_xaxes(title="Trading days passing condition")
+    return layout(fig, ticker + " — Strategy Constraint Funnel", CHART_FULL_HEIGHT)
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -1271,10 +1614,27 @@ def _render_masthead():
     )
 
 
+def _render_selected_asset_kpis(detail, selected_ticker):
+    score = detail["score"]
+    last = score.iloc[-1]
+    decision = detail["decision"]
+    cols = st.columns(6)
+    values = [
+        ("Last Price", _safe_metric_value(last.get("Close"), "price")),
+        ("Institutional Score", _safe_metric_value(decision.get("Institutional Score"), "score")),
+        ("Confidence", _safe_metric_value(decision.get("Confidence Score"), "score")),
+        ("Recommendation", str(decision.get("Recommendation", "—"))),
+        ("RSI / ADX", f"{last.get('RSI', np.nan):.1f} / {last.get('ADX', np.nan):.1f}"),
+        ("60D Positive Prob.", f"{decision.get('Positive Return Probability 60D %', np.nan):.1f}%" if pd.notna(decision.get('Positive Return Probability 60D %')) else "—"),
+    ]
+    for col, (label, value) in zip(cols, values):
+        col.metric(label, value)
+
+
 def _render_executive(res, inst):
-    pm=res["pm"]; pv=res["pf"]["portfolio_value"]
-    cols=st.columns(6)
-    vals=[
+    pm = res["pm"]; pv = res["pf"]["portfolio_value"]
+    cols = st.columns(6)
+    vals = [
         ("Latest Value", _safe_metric_value(pv.iloc[-1], "money")),
         ("Annual Return", _safe_metric_value(pm.get("Annualized Return"), "percent")),
         ("Annual Volatility", _safe_metric_value(pm.get("Annualized Volatility"), "percent")),
@@ -1282,192 +1642,422 @@ def _render_executive(res, inst):
         ("Max Drawdown", _safe_metric_value(pm.get("Max Drawdown"), "percent")),
         ("Valid Names", _safe_metric_value(len(res["ud"]["valid"]), "int")),
     ]
-    for c,(label,value) in zip(cols,vals): c.metric(label,value)
+    for c, (label, value) in zip(cols, vals): c.metric(label, value)
+    _section("Portfolio growth and benchmark comparison")
     _plot(chart_growth(res), key="exec_growth")
-    left,right=st.columns(2)
-    with left: _plot(chart_rr(res), key="exec_rr")
-    with right:
-        rank=inst.get("ranking",pd.DataFrame())
-        _plot(chart_institutional_ranking(rank, res["name"]+" — Institutional Ranking"), key="exec_rank")
-    st.markdown('<div class="mk-section">Top institutional decisions</div>',unsafe_allow_html=True)
-    ranking=inst.get("ranking",pd.DataFrame()).copy()
+    _section("Risk-return positioning")
+    _plot(chart_rr(res), key="exec_rr")
+    _section("Institutional decision ranking")
+    rank = inst.get("ranking", pd.DataFrame())
+    _plot(chart_institutional_ranking(rank, res["name"] + " — Institutional Ranking"), key="exec_rank")
+    ranking = rank.copy()
     if not ranking.empty:
-        cols_keep=[c for c in ["Ticker","Company","Country","Institutional Score","Confidence Score","Recommendation","Technical Grade","Best Strategy","Best Strategy Sharpe","Positive 60D Probability %"] if c in ranking.columns]
-        _show_df(ranking.sort_values("Institutional Score",ascending=False)[cols_keep],height=430,key="exec_table")
+        cols_keep = [c for c in ["Ticker","Company","Country","Institutional Score","Confidence Score","Recommendation","Technical Grade","Best Strategy","Best Strategy Sharpe","Positive 60D Probability %"] if c in ranking.columns]
+        _show_df(ranking.sort_values("Institutional Score", ascending=False)[cols_keep], height=470, key="exec_table")
 
 
-def _render_universe(res):
-    tab_names=["Portfolio & Benchmark","Risk","Constituents","Optimization","Stress & Governance"]
-    a,b,c,d,e=st.tabs(tab_names)
-    with a:
-        _plot(chart_growth(res),key="uni_growth"); _plot(chart_nav(res),key="uni_nav"); _plot(chart_monthly(res),key="uni_month")
-        _show_df(metrics_df(res["pm"]),height=480,key="uni_pm")
-    with b:
-        x,y=st.columns(2)
-        with x: _plot(chart_dd(res),key="uni_dd"); _plot(chart_var(res),key="uni_var")
-        with y: _plot(chart_vol(res),key="uni_vol"); _plot(chart_beta(res),key="uni_beta")
-        _plot(chart_corr(res),key="uni_corr"); _show_df(res["rc"],height=500,key="uni_rc_table")
-    with c:
-        x,y=st.columns(2)
-        with x: _plot(chart_weights(res),key="uni_weights")
-        with y: _plot(chart_sector(res),key="uni_sector")
-        _show_df(res["pf"]["holdings"],height=520,key="uni_hold"); _show_df(res["am"].sort_values("Sharpe Ratio",ascending=False),height=560,key="uni_am")
-    with d:
-        _plot(chart_opt(res),key="uni_opt"); _show_df(res["os"],height=360,key="uni_os"); _show_df(res["ow"],height=520,key="uni_ow")
-    with e:
-        _show_df(res["st"],height=400,key="uni_stress"); _show_df(res["bt"],height=430,key="uni_bt"); _show_df(res["ud"]["data_quality"],height=480,key="uni_dq")
-        _show_df(res["ud"]["exclusions"],height=280,key="uni_ex")
-
-
-def _render_institutional(inst):
-    ranking=inst.get("ranking",pd.DataFrame()); strategies=inst.get("strategies",pd.DataFrame()); factors=inst.get("factors",pd.DataFrame())
-    _plot(chart_institutional_ranking(ranking,"SupertrendPro Institutional — Decision Score Ranking"),key="inst_rank")
-    _plot(chart_strategy_comparison(strategies,"Net Strategy Risk / Return Comparison"),key="inst_strat")
-    a,b,c=st.tabs(["Decision Ranking","Strategy Results","Factor Contribution"])
-    with a: _show_df(ranking.sort_values("Institutional Score",ascending=False) if not ranking.empty else ranking,height=600,key="inst_rank_table")
-    with b: _show_df(strategies,height=600,key="inst_strat_table")
-    with c: _show_df(factors,height=600,key="inst_factor_table")
-
-
-def _render_asset_detail(inst, selected_ticker):
-    details=inst.get("details",{})
-    if selected_ticker not in details:
-        st.warning("The selected security does not have sufficient adjusted OHLCV history for the institutional engine.")
+def _render_strategy_signal(inst, selected_ticker):
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is None:
+        st.warning("The selected security does not have sufficient institutional OHLCV history.")
         return
-    detail=details[selected_ticker]
-    score=detail["score"]; last=score.iloc[-1]; decision=detail["decision"]
-    cols=st.columns(6)
-    metrics=[
-        ("Last Price",_safe_metric_value(last.get("Close"))),
-        ("Institutional Score",_safe_metric_value(decision.get("Institutional Score"),"score")),
-        ("Confidence",_safe_metric_value(decision.get("Confidence Score"),"score")),
-        ("Recommendation",str(decision.get("Recommendation","—"))),
-        ("Positive 60D",f"{decision.get('Positive Return Probability 60D %',np.nan):,.1f}%" if pd.notna(decision.get('Positive Return Probability 60D %')) else "—"),
-        ("Historical Analogs",_safe_metric_value(decision.get("Historical Analog Count",0),"int")),
+    _render_selected_asset_kpis(detail, selected_ticker)
+    strategy_name = st.selectbox("Strategy", ["Smart Supertrend", "MACD + ATR"], key="strategy_signal_choice")
+    _section("Price, signals and risk control", "Signals are generated from observed adjusted OHLCV data and include estimated trading friction.")
+    _plot(chart_strategy_signal(detail, selected_ticker, strategy_name), key="strategy_signal_price")
+    _section("Net strategy equity")
+    _plot(chart_strategy_equity(detail, selected_ticker, strategy_name), key="strategy_signal_equity")
+    trades = detail["supertrend_trades"] if strategy_name == "Smart Supertrend" else detail["macd_trades"]
+    _section("Closed trade log")
+    _show_df(trades.sort_values("Exit Date", ascending=False) if not trades.empty else trades, height=500, key="strategy_signal_trades")
+
+
+def _render_market_data(inst, selected_ticker, res):
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is None:
+        st.warning("No selected-security market dataset is available.")
+        return
+    x = detail["score"].copy().sort_index(ascending=False)
+    cols = [c for c in ["Open","High","Low","Close","Volume","Dollar_Volume","Return","Log_Return","EMA_20","EMA_50","EMA_100","EMA_200","RSI","CCI","ATR","ATR_Pct","ADX","MACD","MACD_SIGNAL","MACD_HIST","BB_UPPER","BB_MID","BB_LOWER","ST_Line","ST_Dir","Momentum_20D","Momentum_63D","Momentum_126D","Momentum_252D","Pct_From_52W_High","Pct_From_52W_Low","Drawdown","Institutional Score","Confidence Score","Recommendation"] if c in x.columns]
+    _render_selected_asset_kpis(detail, selected_ticker)
+    _section("Selected security market data")
+    market_table = x[cols].head(1000).reset_index().rename(columns={x.index.name or "index": "Date"})
+    _show_df(market_table, height=650, key="market_data_table")
+    st.download_button("Download selected security market data", market_table.to_csv(index=False).encode("utf-8"), file_name=f"{selected_ticker}_market_data.csv", mime="text/csv")
+    _section("Universe data quality")
+    _show_df(res["ud"]["data_quality"], height=500, key="market_data_quality")
+    _section("Security exclusion log")
+    _show_df(res["ud"]["exclusions"], height=300, key="market_exclusions")
+
+
+def _render_technical_analytics(inst, selected_ticker):
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is None:
+        st.warning("No technical analytics are available for the selected security.")
+        return
+    _render_selected_asset_kpis(detail, selected_ticker)
+    _section("Price structure")
+    _plot(chart_technical_price(detail, selected_ticker), key="technical_price")
+    _section("MACD momentum")
+    _plot(chart_technical_macd(detail, selected_ticker), key="technical_macd")
+    _section("RSI and ADX regime")
+    _plot(chart_technical_rsi_adx(detail, selected_ticker), key="technical_rsi_adx")
+
+
+def _render_ewma_volatility(inst, selected_ticker, res):
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is None:
+        st.warning("No EWMA volatility series are available for the selected security.")
+        return
+    vol = compute_ewma_volatility_frame(detail["score"]["Close"], input_is_price=True)
+    current = vol.dropna(subset=["EWMA 0.94 Ann Vol"]).iloc[-1]
+    pctile = current.get("EWMA 0.94 Percentile 252D", np.nan)
+    regime = "HIGH" if pd.notna(pctile) and pctile >= .75 else ("LOW" if pd.notna(pctile) and pctile <= .25 else "NORMAL")
+    cols = st.columns(6)
+    metrics = [
+        ("EWMA λ=0.94", _safe_metric_value(current.get("EWMA 0.94 Ann Vol"), "percent")),
+        ("EWMA λ=0.97", _safe_metric_value(current.get("EWMA 0.97 Ann Vol"), "percent")),
+        ("Rolling 20D", _safe_metric_value(current.get("Rolling 20D Ann Vol"), "percent")),
+        ("Rolling 63D", _safe_metric_value(current.get("Rolling 63D Ann Vol"), "percent")),
+        ("20D Vol Change", _safe_metric_value(current.get("EWMA 0.94 20D Change"), "percent")),
+        ("Volatility Regime", regime),
     ]
-    for c,(l,v) in zip(cols,metrics): c.metric(l,v)
-    _plot(chart_institutional_asset(detail,selected_ticker),key="asset_chart")
-    a,b,c,d=st.tabs(["Factor Scorecard","Supertrend Backtest","MACD + ATR","Decision History"])
-    with a: _show_df(detail["factors"],height=420,key="asset_factors")
-    strategy_rows=inst.get("strategies",pd.DataFrame())
-    selected_strategy_rows=strategy_rows[strategy_rows["Ticker"].eq(selected_ticker)] if (not strategy_rows.empty and "Ticker" in strategy_rows.columns) else pd.DataFrame()
-    with b:
-        _show_df(selected_strategy_rows[selected_strategy_rows["Strategy"].eq("Smart Supertrend")] if "Strategy" in selected_strategy_rows.columns else selected_strategy_rows,height=240,key="asset_st_stats")
-        st_bt=detail["supertrend_backtest"].copy().tail(750).reset_index()
-        _show_df(st_bt[[c for c in ["Date","Close","ST_Line","ST_Dir","Position","Signal","ATR_Stop","Strategy Return","Strategy Equity","Buy Hold Equity"] if c in st_bt.columns]],height=500,key="asset_st_history")
-    with c:
-        _show_df(selected_strategy_rows[selected_strategy_rows["Strategy"].eq("MACD + ATR")] if "Strategy" in selected_strategy_rows.columns else selected_strategy_rows,height=240,key="asset_macd_stats")
-        macd_bt=detail["macd_backtest"].copy().tail(750).reset_index()
-        _show_df(macd_bt[[c for c in ["Date","Close","MACD","MACD_SIGNAL","Position","Signal","ATR_Stop","Strategy Return","Strategy Equity","Buy Hold Equity"] if c in macd_bt.columns]],height=500,key="asset_macd_history")
-    with d:
-        keep=[c for c in ["Close","EMA_20","EMA_50","EMA_200","RSI","ADX","MACD","MACD_SIGNAL","Institutional Score","Confidence Score","Recommendation"] if c in score.columns]
-        hist=score[keep].tail(750).reset_index().rename(columns={score.index.name or "index":"Date"})
-        _show_df(hist,height=600,key="asset_hist")
-        st.download_button("Download selected security decision history",hist.to_csv(index=False).encode("utf-8"),file_name=f"{selected_ticker}_institutional_history.csv",mime="text/csv")
+    for c, (l, v) in zip(cols, metrics): c.metric(l, v)
+    _section("EWMA and rolling volatility")
+    _plot(chart_ewma_volatility_levels(vol, selected_ticker), key="ewma_levels")
+    _section("Return shocks against EWMA ±2 sigma")
+    _plot(chart_ewma_return_shocks(vol, selected_ticker), key="ewma_shocks")
+    _section("Universe EWMA volatility ranking")
+    snapshot = build_ewma_snapshot(inst)
+    _show_df(snapshot, height=600, key="ewma_snapshot")
+    _section("Portfolio EWMA volatility")
+    portfolio_vol = compute_ewma_volatility_frame(res["pf"]["portfolio_return"], input_is_price=False)
+    _plot(chart_ewma_volatility_levels(portfolio_vol, res["name"] + " Portfolio"), key="ewma_portfolio")
+
+
+def _render_backtest_risk(inst, selected_ticker, res):
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is None:
+        st.warning("No backtest is available for the selected security.")
+        return
+    strategy_name = st.selectbox("Backtest strategy", ["Smart Supertrend", "MACD + ATR", "Leading Signal Lab"], key="backtest_choice")
+    if strategy_name == "Smart Supertrend":
+        bt = detail["supertrend_backtest"]; stats = detail["supertrend_stats"]; ret_col = "Strategy Return"
+    elif strategy_name == "MACD + ATR":
+        bt = detail["macd_backtest"]; stats = detail["macd_stats"]; ret_col = "Strategy Return"
+    else:
+        bt = detail["leading_lab"]; stats = detail["leading_stats"]; ret_col = "Signal Strategy Return"
+    cols = st.columns(6)
+    metrics = [
+        ("CAGR", _safe_metric_value(stats.get("CAGR"), "percent")),
+        ("Ann. Volatility", _safe_metric_value(stats.get("Ann Vol"), "percent")),
+        ("Sharpe", _safe_metric_value(stats.get("Sharpe"))),
+        ("Sortino", _safe_metric_value(stats.get("Sortino"))),
+        ("Max Drawdown", _safe_metric_value(stats.get("Max Drawdown"), "percent")),
+        ("Win Rate", _safe_metric_value(stats.get("Win Rate"), "percent")),
+    ]
+    for c, (l, v) in zip(cols, metrics): c.metric(l, v)
+    if strategy_name != "Leading Signal Lab":
+        _section("Net equity comparison")
+        _plot(chart_strategy_equity(detail, selected_ticker, strategy_name), key="risk_equity")
+        _section("Drawdown comparison")
+        _plot(chart_strategy_drawdown(detail, selected_ticker, strategy_name), key="risk_drawdown")
+    else:
+        _section("Leading signal net equity")
+        _plot(chart_leading_signal_equity(detail, selected_ticker), key="risk_leading_equity")
+    benchmark = res["ud"]["primary_return"].reindex(bt.index)
+    rf = res["ud"]["rf"].reindex(bt.index)
+    risk_rows = [
+        {"Series": strategy_name, **compute_return_metrics(bt[ret_col], benchmark, rf)},
+        {"Series": "Buy & Hold", **compute_return_metrics(bt["Return"] if "Return" in bt.columns else bt["Close"].pct_change(), benchmark, rf)},
+    ]
+    _section("Institutional risk metric set")
+    _show_df(pd.DataFrame(risk_rows), height=520, key="risk_metrics")
+
+
+def _render_strategy_diagnostics(inst, selected_ticker):
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is None:
+        st.warning("No strategy diagnostics are available.")
+        return
+    diag = build_strategy_diagnostics(detail)
+    _section("Constraint funnel")
+    _plot(chart_strategy_diagnostics(diag, selected_ticker), key="diag_funnel")
+    _show_df(diag, height=400, key="diag_table")
+    _section("Strategy comparison")
+    rows = []
+    for name, stats in [("Smart Supertrend", detail["supertrend_stats"]), ("MACD + ATR", detail["macd_stats"]), ("Leading Signal Lab", detail["leading_stats"])]:
+        rows.append({"Strategy": name, **stats})
+    _show_df(pd.DataFrame(rows), height=420, key="diag_strategy_table")
+
+
+def _render_blue_chip_screener(res, inst):
+    screener = build_blue_chip_screener(res, inst)
+    st.markdown('<div class="mk-note"><b>Methodology note:</b> This is a market-data institutional quality proxy, not a formal market-cap classification. It combines liquidity, volatility, drawdown quality, data depth, momentum and the explainable Institutional Decision Score.</div>', unsafe_allow_html=True)
+    _section("Blue-chip quality ranking")
+    _plot(chart_blue_chip_screener(screener, res["name"] + " — Blue-Chip Quality Screener"), key="bluechip_chart")
+    _show_df(screener, height=650, key="bluechip_table")
+    if not screener.empty:
+        st.download_button("Download blue-chip screener", screener.to_csv(index=False).encode("utf-8"), file_name="blue_chip_screener.csv", mime="text/csv")
+
+
+def _render_capital_gain_leaders(inst):
+    leaders = build_capital_gain_leaders(inst)
+    _section("Short-term capital gain leaders")
+    _plot(chart_capital_gain(leaders, "Return 20D", "20-Day Capital Gain Leaders"), key="gain_20d")
+    _section("Quarterly capital gain leaders")
+    _plot(chart_capital_gain(leaders, "Return 63D", "63-Day Capital Gain Leaders"), key="gain_63d")
+    _section("One-year capital gain leaders")
+    _plot(chart_capital_gain(leaders, "Return 252D", "252-Day Capital Gain Leaders"), key="gain_252d")
+    _section("Composite ranking")
+    _show_df(leaders, height=650, key="gain_table")
+
+
+def _render_portfolio_lab(res):
+    cols = st.columns(6)
+    pm = res["pm"]
+    metrics = [
+        ("Annual Return", _safe_metric_value(pm.get("Annualized Return"), "percent")),
+        ("Annual Volatility", _safe_metric_value(pm.get("Annualized Volatility"), "percent")),
+        ("Sharpe", _safe_metric_value(pm.get("Sharpe Ratio"))),
+        ("Sortino", _safe_metric_value(pm.get("Sortino Ratio"))),
+        ("Max Drawdown", _safe_metric_value(pm.get("Max Drawdown"), "percent")),
+        ("Information Ratio", _safe_metric_value(pm.get("Information Ratio"))),
+    ]
+    for c, (l, v) in zip(cols, metrics): c.metric(l, v)
+    chart_sequence = [
+        ("Portfolio and benchmark growth", chart_growth(res), "portfolio_growth"),
+        ("Daily portfolio value", chart_nav(res), "portfolio_nav"),
+        ("Portfolio drawdown", chart_dd(res), "portfolio_dd"),
+        ("Rolling volatility", chart_vol(res), "portfolio_vol"),
+        ("Rolling beta", chart_beta(res), "portfolio_beta"),
+        ("Current security weights", chart_weights(res), "portfolio_weights"),
+        ("Sector exposure", chart_sector(res), "portfolio_sector"),
+        ("Risk contribution", chart_rc(res), "portfolio_rc"),
+        ("Risk-return map", chart_rr(res), "portfolio_rr"),
+        ("Correlation matrix", chart_corr(res), "portfolio_corr"),
+        ("Return distribution and VaR", chart_var(res), "portfolio_var"),
+        ("Optimization scenario map", chart_opt(res), "portfolio_opt"),
+        ("Monthly return heatmap", chart_monthly(res), "portfolio_monthly"),
+    ]
+    for title, fig, key in chart_sequence:
+        _section(title)
+        _plot(fig, key=key)
+    _section("Portfolio metrics")
+    _show_df(metrics_df(res["pm"]), height=520, key="portfolio_metrics")
+    _section("Holdings and constituents")
+    _show_df(res["pf"]["holdings"], height=560, key="portfolio_holdings")
+    _section("Asset metrics")
+    _show_df(res["am"].sort_values("Sharpe Ratio", ascending=False), height=620, key="portfolio_asset_metrics")
+    _section("Optimization summary")
+    _show_df(res["os"], height=400, key="portfolio_opt_summary")
+    _show_df(res["ow"], height=560, key="portfolio_opt_weights")
+    _section("Stress tests and benchmark comparison")
+    _show_df(res["st"], height=420, key="portfolio_stress")
+    _show_df(res["bt"], height=460, key="portfolio_bench")
+
+
+def _render_leading_signal_lab(inst, selected_ticker):
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is None:
+        st.warning("No leading signal analysis is available.")
+        return
+    stats = detail["leading_stats"]
+    cols = st.columns(6)
+    metrics = [
+        ("CAGR", _safe_metric_value(stats.get("CAGR"), "percent")),
+        ("Ann. Volatility", _safe_metric_value(stats.get("Ann Vol"), "percent")),
+        ("Sharpe", _safe_metric_value(stats.get("Sharpe"))),
+        ("Max Drawdown", _safe_metric_value(stats.get("Max Drawdown"), "percent")),
+        ("Win Rate", _safe_metric_value(stats.get("Win Rate"), "percent")),
+        ("Beta", _safe_metric_value(stats.get("Beta"))),
+    ]
+    for c, (l, v) in zip(cols, metrics): c.metric(l, v)
+    _section("Leading signal events")
+    _plot(chart_leading_signal_events(detail, selected_ticker), key="leading_events")
+    _section("Leading signal score")
+    _plot(chart_leading_signal_score(detail, selected_ticker), key="leading_score")
+    _section("Leading signal net equity")
+    _plot(chart_leading_signal_equity(detail, selected_ticker), key="leading_equity")
+    _section("Latest leading signal observations")
+    lab = detail["leading_lab"].tail(800).reset_index().rename(columns={detail["leading_lab"].index.name or "index": "Date"})
+    keep = [c for c in ["Date","Close","Breakout_20","Volume_Pass","Signal Score","Signal Position","Signal Event","Signal Strategy Return","Signal Strategy Equity","Signal Buy Hold Equity"] if c in lab.columns]
+    _show_df(lab[keep], height=600, key="leading_table")
+
+
+def _render_institutional_decision(inst, selected_ticker, res):
+    ranking = inst.get("ranking", pd.DataFrame())
+    strategies = inst.get("strategies", pd.DataFrame())
+    factors = inst.get("factors", pd.DataFrame())
+    _section("Decision score ranking")
+    _plot(chart_institutional_ranking(ranking, "SupertrendPro Institutional — Decision Score Ranking"), key="decision_rank")
+    _section("Net strategy risk-return comparison")
+    _plot(chart_strategy_comparison(strategies, "Net Strategy Risk / Return Comparison"), key="decision_strategy")
+    detail = _selected_detail(inst, selected_ticker)
+    if detail is not None:
+        _section("Selected security institutional decision engine")
+        _render_selected_asset_kpis(detail, selected_ticker)
+        _plot(chart_institutional_asset(detail, selected_ticker), key="decision_asset")
+        _section("Factor scorecard")
+        _show_df(detail["factors"], height=420, key="decision_factors")
+        _section("Decision history")
+        score = detail["score"].copy().tail(800).reset_index().rename(columns={detail["score"].index.name or "index": "Date"})
+        keep = [c for c in ["Date","Close","EMA_20","EMA_50","EMA_200","RSI","ADX","MACD","MACD_SIGNAL","Institutional Score","Confidence Score","Recommendation","Forward 60D Return","Forward 60D Active Return"] if c in score.columns]
+        _show_df(score[keep], height=620, key="decision_history")
+    _section("Institutional ranking table")
+    _show_df(ranking.sort_values("Institutional Score", ascending=False) if not ranking.empty else ranking, height=650, key="decision_rank_table")
+    _section("Factor contribution universe")
+    _show_df(factors, height=650, key="decision_factor_universe")
+    _section("Institutional exclusion log")
+    _show_df(inst.get("exclusions", pd.DataFrame()), height=320, key="decision_exclusions")
 
 
 def _render_sox(sox):
-    x,y=st.columns(2)
-    with x: _plot(chart_sox_close_index(sox),key="sox_close")
-    with y: _plot(chart_sox_log_return_bands(sox),key="sox_bands")
-    a,b,c=st.tabs(["Summary","Largest Breaches","Latest Diagnostics"])
-    with a: _show_df(sox["summary"],height=420,key="sox_sum")
-    with b: _show_df(sox["breaches"].head(SOX_TOP_BREACH_ROWS),height=560,key="sox_br")
-    with c: _show_df(sox["diag"].tail(500).reset_index(),height=600,key="sox_diag")
+    _section("SOX historical close")
+    _plot(chart_sox_close_index(sox), key="sox_close")
+    _section("SOX daily log returns and ±2 sigma bands")
+    _plot(chart_sox_log_return_bands(sox), key="sox_bands")
+    _section("SOX diagnostic summary")
+    _show_df(sox["summary"], height=420, key="sox_sum")
+    _section("Largest SOX band breaches")
+    _show_df(sox["breaches"].head(SOX_TOP_BREACH_ROWS), height=560, key="sox_br")
+    _section("Latest SOX diagnostic observations")
+    _show_df(sox["diag"].tail(500).reset_index(), height=600, key="sox_diag")
 
 
 def _render_cross_listing(cross):
-    _show_df(cross.get("summary",pd.DataFrame()),height=440,key="xl_sum")
-    histories=cross.get("histories",{})
+    _section("Cross-listing summary")
+    _show_df(cross.get("summary", pd.DataFrame()), height=460, key="xl_sum")
+    histories = cross.get("histories", {})
     if histories:
-        selected=st.selectbox("Cross-listing pair",list(histories.keys()),key="xl_pair")
-        hist=histories[selected]
-        # Generic cross-listing chart from the observed columns.
-        fig=go.Figure()
-        for col in [c for c in hist.columns if any(k in c.lower() for k in ["premium","discount","z-score","zscore"] )]:
-            fig.add_trace(go.Scatter(x=hist.index,y=hist[col],mode="lines",name=col))
-        if not fig.data:
-            numeric=hist.select_dtypes(include=[np.number]).columns[:4]
-            for col in numeric: fig.add_trace(go.Scatter(x=hist.index,y=hist[col],mode="lines",name=col))
-        _plot(layout(fig,selected+" — Cross-Listing Dislocation",CHART_FULL_HEIGHT),key="xl_chart")
-        _show_df(hist.tail(750).reset_index(),height=580,key="xl_hist")
-    _show_df(cross.get("exclusions",pd.DataFrame()),height=300,key="xl_ex")
+        selected = st.selectbox("Cross-listing pair", list(histories.keys()), key="xl_pair")
+        hist = histories[selected]
+        _section("Selected cross-listing dislocation")
+        _plot(chart_cross_listing(selected, hist), key="xl_chart")
+        _section("Cross-listing history")
+        _show_df(hist.tail(750).reset_index(), height=600, key="xl_hist")
+    _section("Cross-listing exclusion log")
+    _show_df(cross.get("exclusions", pd.DataFrame()), height=300, key="xl_ex")
 
 
 def _render_news_and_governance(res):
-    st.markdown(f'<div class="mk-note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br>{NEWS_SOURCE_URL}<br><br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br>{NEWS_SOURCE_URL_2}<br><br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br>{NEWS_SOURCE_URL_3}</div>',unsafe_allow_html=True)
-    ac,ai=article_tables()
-    a,b,c=st.tabs(["Article Companies","Benchmarks","Data Governance"])
-    with a: _show_df(ac,height=620,key="news_companies")
-    with b: _show_df(ai,height=520,key="news_bench")
-    with c:
-        _show_df(res["ud"]["data_quality"],height=540,key="gov_dq")
-        st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily observations only; no synthetic security prices and no portfolio ETF constituents.</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="mk-note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br>{NEWS_SOURCE_URL}<br><br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br>{NEWS_SOURCE_URL_2}<br><br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br>{NEWS_SOURCE_URL_3}</div>', unsafe_allow_html=True)
+    ac, ai = article_tables()
+    _section("Article companies")
+    _show_df(ac, height=650, key="news_companies")
+    _section("Benchmarks")
+    _show_df(ai, height=540, key="news_bench")
+    _section("Data governance")
+    _show_df(res["ud"]["data_quality"], height=560, key="gov_dq")
+    st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily observations only; no synthetic security prices and no portfolio ETF constituents.</div>', unsafe_allow_html=True)
 
 
-def _render_exports(results,sox,institutional_results,cross_listing):
-    st.markdown('<div class="mk-note">HTML, Excel and standalone QS Engine reports are generated only when requested. This prevents expensive report generation on every Streamlit rerun.</div>',unsafe_allow_html=True)
-    if st.button("Generate full institutional report package",type="primary",width="stretch"):
+def _render_exports(results, sox, institutional_results, cross_listing):
+    st.markdown('<div class="mk-note">HTML, Excel and standalone QS Engine reports are generated only when requested. This prevents expensive report generation on every Streamlit rerun.</div>', unsafe_allow_html=True)
+    if st.button("Generate full institutional report package", type="primary", width="stretch"):
         with st.spinner("Generating QS Engine, HTML and Excel outputs..."):
-            qs_reports=generate_qs_reports_cached()
-            create_report(results,sox,qs_reports,institutional_results,cross_listing)
-            export_excel(results,sox,qs_reports,institutional_results,cross_listing)
+            qs_reports = generate_qs_reports_cached()
+            create_report(results, sox, qs_reports, institutional_results, cross_listing)
+            export_excel(results, sox, qs_reports, institutional_results, cross_listing)
         st.success("Report package generated.")
-    files=[
-        (REPORT_OUTPUT,"Full Institutional HTML","text/html"),
-        (EXCEL_OUTPUT,"Institutional Analytics Excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
-        (NIKKEI_QS_HTML,"Nikkei 225 QS Engine HTML","text/html"),
-        (TOPIX_QS_HTML,"TOPIX Proxy QS Engine HTML","text/html"),
+    files = [
+        (REPORT_OUTPUT, "Full Institutional HTML", "text/html"),
+        (EXCEL_OUTPUT, "Institutional Analytics Excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+        (NIKKEI_QS_HTML, "Nikkei 225 QS Engine HTML", "text/html"),
+        (TOPIX_QS_HTML, "TOPIX Proxy QS Engine HTML", "text/html"),
     ]
-    for path,label,mime in files:
-        p=Path(path)
-        if p.exists(): st.download_button(label,p.read_bytes(),file_name=p.name,mime=mime,width="stretch")
+    for path, label, mime in files:
+        p = Path(path)
+        if p.exists(): st.download_button(label, p.read_bytes(), file_name=p.name, mime=mime, width="stretch")
 
 
 def streamlit_main():
     _render_masthead()
     with st.sidebar:
         st.markdown("### Institutional Controls")
-        universe_name=st.selectbox("Investment Universe",list(UNIVERSE_CONFIGS.keys()))
-        st.caption("Changing a selector does not redownload data while the one-hour cache remains valid.")
-        if st.button("Refresh Yahoo Finance cache",width="stretch"):
+        universe_name = st.selectbox("Investment Universe", list(UNIVERSE_CONFIGS.keys()))
+        st.caption("Yahoo Finance data and institutional calculations are cached for one hour.")
+        if st.button("Refresh Yahoo Finance cache", width="stretch"):
             st.cache_data.clear(); st.rerun()
         st.divider()
         st.caption("Real Yahoo Finance daily data · No synthetic security prices · TOPIX proxy exception only.")
 
     try:
         with st.spinner("Loading Yahoo Finance data and institutional analytics..."):
-            close,ohlcv_map,sox,results,institutional_results,cross_listing=load_institutional_platform()
+            close, ohlcv_map, sox, results, institutional_results, cross_listing = load_institutional_platform()
     except Exception as exc:
         st.error("Institutional platform could not complete the Yahoo Finance data pipeline.")
         st.exception(exc)
         st.stop()
 
-    result_map={r["name"]:r for r in results}; res=result_map[universe_name]; inst=institutional_results.get(universe_name,{})
-    details=inst.get("details",{})
+    result_map = {r["name"]: r for r in results}
+    res = result_map[universe_name]
+    inst = institutional_results.get(universe_name, {})
+    details = inst.get("details", {})
     with st.sidebar:
-        asset_options=list(details.keys())
-        selected_asset=st.selectbox("Institutional Asset Deep Dive",asset_options) if asset_options else None
+        asset_options = list(details.keys())
+        selected_asset = st.selectbox("Institutional Asset", asset_options) if asset_options else None
         st.markdown(f"**Sample:** {res['ud']['start'].date()} → {res['ud']['end'].date()}")
         st.markdown(f"**Primary benchmark:** {res['ud']['primary']}")
+        st.markdown(f"**Valid securities:** {len(res['ud']['valid'])}")
 
-    tabs=st.tabs(["Executive Dashboard","Universe Analytics","Institutional Engine","Asset Deep Dive","SOX Diagnostics","ADR / Local","News & Governance","Export Center"])
-    with tabs[0]: _render_executive(res,inst)
-    with tabs[1]: _render_universe(res)
-    with tabs[2]: _render_institutional(inst)
+    tab_labels = [
+        "Executive Dashboard",
+        "Strategy & Signal",
+        "Market Data",
+        "Technical Analytics",
+        "EWMA Volatility",
+        "Backtest & Risk",
+        "Strategy Diagnostics",
+        "Blue-Chip Screener",
+        "Capital Gain Leaders",
+        "Portfolio Lab",
+        "Leading Signal Lab",
+        "Institutional Decision Engine",
+        "SOX Diagnostics",
+        "ADR / Local",
+        "News & Governance",
+        "Export Center",
+    ]
+    tabs = st.tabs(tab_labels)
+    with tabs[0]: _render_executive(res, inst)
+    with tabs[1]:
+        if selected_asset: _render_strategy_signal(inst, selected_asset)
+        else: st.info("No security has sufficient history for the selected strategy analysis.")
+    with tabs[2]:
+        if selected_asset: _render_market_data(inst, selected_asset, res)
+        else: st.info("No security has sufficient market data.")
     with tabs[3]:
-        if selected_asset: _render_asset_detail(inst,selected_asset)
-        else: st.info("No security has sufficient history for the institutional deep-dive engine.")
-    with tabs[4]: _render_sox(sox)
-    with tabs[5]: _render_cross_listing(cross_listing)
-    with tabs[6]: _render_news_and_governance(res)
-    with tabs[7]: _render_exports(results,sox,institutional_results,cross_listing)
+        if selected_asset: _render_technical_analytics(inst, selected_asset)
+        else: st.info("No security has sufficient technical history.")
+    with tabs[4]:
+        if selected_asset: _render_ewma_volatility(inst, selected_asset, res)
+        else: st.info("No security has sufficient EWMA history.")
+    with tabs[5]:
+        if selected_asset: _render_backtest_risk(inst, selected_asset, res)
+        else: st.info("No security has sufficient backtest history.")
+    with tabs[6]:
+        if selected_asset: _render_strategy_diagnostics(inst, selected_asset)
+        else: st.info("No security has sufficient diagnostic history.")
+    with tabs[7]: _render_blue_chip_screener(res, inst)
+    with tabs[8]: _render_capital_gain_leaders(inst)
+    with tabs[9]: _render_portfolio_lab(res)
+    with tabs[10]:
+        if selected_asset: _render_leading_signal_lab(inst, selected_asset)
+        else: st.info("No security has sufficient leading-signal history.")
+    with tabs[11]:
+        if selected_asset: _render_institutional_decision(inst, selected_asset, res)
+        else: st.info("No security has sufficient institutional decision history.")
+    with tabs[12]: _render_sox(sox)
+    with tabs[13]: _render_cross_listing(cross_listing)
+    with tabs[14]: _render_news_and_governance(res)
+    with tabs[15]: _render_exports(results, sox, institutional_results, cross_listing)
 
-    st.caption(AUTHOR_LINE+" · Analytical simulation; not investment advice.")
+    st.caption(AUTHOR_LINE + " · Analytical simulation; not investment advice.")
 
 
 def main():
-    """Streamlit entry point; original analytical functions remain available for batch exports."""
+    """Streamlit entry point; all original analytical and batch-export functions remain available."""
     streamlit_main()
 
 
