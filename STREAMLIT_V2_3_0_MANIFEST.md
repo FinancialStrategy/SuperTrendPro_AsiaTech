@@ -1,0 +1,21 @@
+# V2.3.0 Integration Manifest
+
+- Source code supplied by the user: 2,065 lines.
+- Updated application: 2,424 lines.
+- Original functions detected: 134.
+- Original functions preserved: 134.
+- Removed original functions: 0.
+- New functions added: 13.
+- Streamlit tabs: 17.
+- New primary tab: Hedge Fund Management Brief.
+- Fourth news source embedded in configuration, Streamlit governance, HTML report and event register.
+- `NVDA` added to the Article Shock Universe as the named TSMC AI-demand anchor.
+- Existing Samsung, SK Hynix, TSMC, SKHY, TSM, ASML and Apple event metadata upgraded.
+- Regional benchmarks added: `^TWII`, `^HSI`, `^STI`.
+- Management monitoring factors added: `CL=F`, `DX-Y.NYB`, `^TNX`.
+- `background_gradient`: 0.
+- `use_container_width`: 0.
+- Python syntax / `py_compile`: passed.
+- Management engine deterministic regression test: passed.
+- New Plotly management chart construction test: passed.
+- Live Yahoo Finance download test: not performed in the local container because yfinance/Streamlit are not installed and internet execution is disabled.

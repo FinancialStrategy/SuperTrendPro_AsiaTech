@@ -51,7 +51,7 @@ import os
 # ============================================================
 # 2. CONFIGURATION
 # ============================================================
-REPORT_TITLE = "Multi-Universe AI / Chip / Asia + US Major Stocks Executive Risk Report — SupertrendPro Institutional Integrated"
+REPORT_TITLE = "Multi-Universe AI / Chip Institutional Hedge Fund Management Report — SupertrendPro Integrated"
 AUTHOR_LINE = "MK FinTECH LabGEN @2026 Istanbul, Murat KONUKLAR"
 NEWS_SOURCE_URL = "https://www.investing.com/news/stock-market-news/korea-sinks-as-ai-chip-selloff-deepens-japan-suppliers-tumble-4772256"
 NEWS_SOURCE_TITLE = "Korea sinks as AI-chip selloff deepens; Japan suppliers tumble"
@@ -59,9 +59,27 @@ NEWS_SOURCE_URL_2 = "https://www.investing.com/news/stock-market-news/asia-stock
 NEWS_SOURCE_TITLE_2 = "Asia stocks fall as AI valuation fears overshadow Samsung's blockbuster earnings"
 NEWS_SOURCE_URL_3 = "https://www.investing.com/news/stock-market-news/sk-hynix-shares-slide-nearly-11-in-seoul-after-bumper-nasdaq-debut-4787404"
 NEWS_SOURCE_TITLE_3 = "SK Hynix shares slide nearly 14% in Seoul after bumper Nasdaq debut"
+NEWS_SOURCE_URL_4 = "https://www.investing.com/news/stock-market-news/asia-stocks-slide-as-s-korea-chip-stocks-tumble-tsmc-earnings-in-focus-4794618"
+NEWS_SOURCE_TITLE_4 = "Asia stocks slide as S. Korea chip stocks tumble; TSMC earnings in focus"
+NEWS_SOURCE_DATE_4 = "2026-07-16"
+
+# Event-four securities and macro/regional risk factors. These are monitoring inputs,
+# not synthetic prices and not automatic portfolio constituents.
+NEWS_EVENT_4_TICKERS = ["005930.KS", "000660.KS", "2330.TW", "TSM", "NVDA", "AAPL", "ASML.AS", "ASML", "SKHY"]
+MANAGEMENT_RISK_FACTORS = {
+    "^KS11": {"name": "KOSPI Composite", "type": "equity_return", "risk_sign": -1, "channel": "Korea chip concentration"},
+    "^SOX": {"name": "Philadelphia Semiconductor Index", "type": "equity_return", "risk_sign": -1, "channel": "Global semiconductor beta"},
+    "^TWII": {"name": "Taiwan Weighted Index", "type": "equity_return", "risk_sign": -1, "channel": "TSMC / Taiwan technology beta"},
+    "^N225": {"name": "Nikkei 225", "type": "equity_return", "risk_sign": -1, "channel": "Japan memory and equipment beta"},
+    "^HSI": {"name": "Hang Seng Index", "type": "equity_return", "risk_sign": -1, "channel": "China / Hong Kong offset"},
+    "^STI": {"name": "Straits Times Index", "type": "equity_return", "risk_sign": -1, "channel": "Singapore regional beta"},
+    "CL=F": {"name": "WTI Crude Oil", "type": "market_return", "risk_sign": 1, "channel": "Energy inflation / Hormuz risk"},
+    "DX-Y.NYB": {"name": "US Dollar Index", "type": "market_return", "risk_sign": 1, "channel": "USD financial conditions"},
+    "^TNX": {"name": "US Treasury 10Y Yield", "type": "yield_level", "risk_sign": 1, "channel": "Discount-rate pressure"},
+}
 
 # SupertrendPro Institutional integration controls
-INSTITUTIONAL_ENGINE_VERSION = "2.0.0"
+INSTITUTIONAL_ENGINE_VERSION = "2.1.0"
 INSTITUTIONAL_MIN_OBS = 260
 INSTITUTIONAL_FORWARD_HORIZON = 60
 INSTITUTIONAL_TRANSACTION_COST_BPS = 8.0
@@ -161,10 +179,11 @@ US_MAJOR_UNIVERSE = {
 "BAC":{"name":"Bank of America Corporation","sector":"Financials","theme":"Banking"}}
 
 ARTICLE_SHOCK_UNIVERSE = {
-"005930.KS":{"name":"Samsung Electronics Co., Ltd.","sector":"Semiconductors","theme":"Memory / AI Supply Chain","country":"South Korea","article_role":"KOSPI heavyweight chipmaker mentioned as falling"},
-"000660.KS":{"name":"SK Hynix Inc.","sector":"Semiconductors","theme":"HBM / Memory / AI Supply Chain","country":"South Korea","article_role":"KOSPI heavyweight chipmaker mentioned as falling"},
+"005930.KS":{"name":"Samsung Electronics Co., Ltd.","sector":"Semiconductors","theme":"Memory / AI Supply Chain","country":"South Korea","article_role":"KOSPI heavyweight; renewed 8%+ selloff and trading-halt event exposure","source_article":"Articles 1, 2 & 4"},
+"000660.KS":{"name":"SK Hynix Inc.","sector":"Semiconductors","theme":"HBM / Memory / AI Supply Chain","country":"South Korea","article_role":"KOSPI heavyweight; renewed 11% selloff and memory-risk transmission channel","source_article":"Articles 1, 3 & 4"},
 "META":{"name":"Meta Platforms, Inc.","sector":"Communication Services","theme":"AI Infrastructure / Hyperscaler","country":"United States","article_role":"Cloud infrastructure reports cited as AI spending concern"},
-"AAPL":{"name":"Apple Inc.","sector":"Information Technology","theme":"Technology / Memory Demand","country":"United States","article_role":"Memory-chip supplier evaluation report cited"},
+"AAPL":{"name":"Apple Inc.","sector":"Information Technology","theme":"Technology / Memory Demand","country":"United States","article_role":"End-demand and TSMC customer exposure highlighted in the event chain","source_article":"Articles 1 & 4"},
+"NVDA":{"name":"NVIDIA Corporation","sector":"Semiconductors","theme":"AI GPU / TSMC Demand Anchor","country":"United States","article_role":"Primary advanced-AI-chip customer and demand read-through named in the TSMC event chain","source_article":"Article 4"},
 "MU":{"name":"Micron Technology, Inc.","sector":"Semiconductors","theme":"Memory","country":"United States","article_role":"US memory maker mentioned as falling more than 10%"},
 "SNDK":{"name":"SanDisk Corporation","sector":"Technology Hardware / Storage","theme":"Storage / Memory","country":"United States","article_role":"Storage company mentioned as falling more than 10%"},
 "285A.T":{"name":"Kioxia Holdings Corporation","sector":"Semiconductors","theme":"NAND Memory","country":"Japan","article_role":"Japan chip-related name mentioned as tumbling"},
@@ -172,15 +191,15 @@ ARTICLE_SHOCK_UNIVERSE = {
 "6981.T":{"name":"Murata Manufacturing Co., Ltd.","sector":"Electronic Components","theme":"Components / AI Supply Chain","country":"Japan","article_role":"Japan supplier mentioned as falling"},
 "5801.T":{"name":"Furukawa Electric Co., Ltd.","sector":"Electronic Components / Materials","theme":"Cables / Components","country":"Japan","article_role":"Japan supplier mentioned as falling"},
 "5706.T":{"name":"Mitsui Mining and Smelting Co., Ltd.","sector":"Materials / Electronics Supply Chain","theme":"Materials / AI Supply Chain","country":"Japan","article_role":"Japan supplier mentioned as falling"},
-"2330.TW":{"name":"Taiwan Semiconductor Manufacturing Company","sector":"Semiconductors","theme":"Foundry / AI Supply Chain","country":"Taiwan","article_role":"TSMC mentioned as extending recent losses"},
+"2330.TW":{"name":"Taiwan Semiconductor Manufacturing Company","sector":"Semiconductors","theme":"Foundry / AI Supply Chain","country":"Taiwan","article_role":"TSMC earnings bellwether for AI demand, capex and sector guidance","source_article":"Articles 1, 3 & 4"},
 "9984.T":{"name":"SoftBank Group Corp.","sector":"Technology Investment","theme":"AI Investment / OpenAI Exposure","country":"Japan","article_role":"AI investment financing report mentioned"},
 "2371.T":{"name":"Kakaku.com, Inc.","sector":"Internet Services","theme":"Online price-comparison technology","country":"Japan","article_role":"Online price-comparison operator mentioned","source_article":"Article 1"},
 "2317.TW":{"name":"Hon Hai Precision Industry Co., Ltd. / Foxconn","sector":"Electronics Manufacturing / AI Servers","theme":"NVIDIA AI server assembly partner / AI hardware supply chain","country":"Taiwan","article_role":"Nvidia largest AI server assembly partner mentioned in second article","source_article":"Article 2"},
 "2454.TW":{"name":"MediaTek Inc.","sector":"Semiconductors","theme":"Mobile / edge AI semiconductors","country":"Taiwan","article_role":"Taiwan semiconductor name mentioned as falling in second article","source_article":"Article 2"},
 "011070.KS":{"name":"LG Innotek Co., Ltd.","sector":"Electronic Components","theme":"Camera modules / electronic components / AI hardware supply chain","country":"South Korea","article_role":"Korean technology component supplier mentioned as falling in related chip-share article","source_article":"Article 2"},
-"SKHY":{"name":"SK hynix Inc. American Depositary Shares","sector":"Semiconductors","theme":"HBM / Memory / Nasdaq ADR","country":"United States / South Korea","article_role":"New Nasdaq ADR highlighted after blockbuster debut; short listing history is handled in the event monitor","source_article":"Article 3"},
-"TSM":{"name":"Taiwan Semiconductor Manufacturing Company Limited ADR","sector":"Semiconductors","theme":"Foundry / AI Supply Chain / US ADR","country":"United States / Taiwan","article_role":"TSMC US ADR identified as a key sector earnings bellwether","source_article":"Article 3"},
-"ASML.AS":{"name":"ASML Holding N.V. — Euronext Amsterdam","sector":"Semiconductor Equipment","theme":"Advanced Lithography / EUV","country":"Netherlands","article_role":"ASML Amsterdam ordinary shares identified as a key sector earnings bellwether","source_article":"Article 3"}}
+"SKHY":{"name":"SK hynix Inc. American Depositary Shares","sector":"Semiconductors","theme":"HBM / Memory / Nasdaq ADR","country":"United States / South Korea","article_role":"Nasdaq ADR and cross-listing transmission channel during renewed Seoul selloff","source_article":"Articles 3 & 4"},
+"TSM":{"name":"Taiwan Semiconductor Manufacturing Company Limited ADR","sector":"Semiconductors","theme":"Foundry / AI Supply Chain / US ADR","country":"United States / Taiwan","article_role":"US-listed TSMC earnings and guidance transmission instrument","source_article":"Articles 3 & 4"},
+"ASML.AS":{"name":"ASML Holding N.V. — Euronext Amsterdam","sector":"Semiconductor Equipment","theme":"Advanced Lithography / EUV","country":"Netherlands","article_role":"Equipment-cycle read-through; strong guidance but high earnings-expectation hurdle","source_article":"Articles 3 & 4"}}
 
 US_TECH_AI_CHIP_UNIVERSE = {
 "NVDA":{"name":"NVIDIA Corporation","sector":"Semiconductors","theme":"AI GPU"},
@@ -218,11 +237,13 @@ INDEX_BENCHMARKS = {
 "1306.T":{"name":"NEXT FUNDS TOPIX ETF — TOPIX Benchmark Proxy (ETF Exception Only for TOPIX)","region":"Japan","benchmark_type":"ETF proxy exception"}, "^AXJO":{"name":"S&P/ASX 200 Index","region":"Australia"},
 "^NSEI":{"name":"Nifty 50 Index","region":"India"}, "^JKSE":{"name":"Jakarta Composite Index","region":"Indonesia"},
 "000001.SS":{"name":"Shanghai Composite Index","region":"China"}, "000300.SS":{"name":"CSI 300 Index","region":"China"},
+"^TWII":{"name":"TWSE Capitalization Weighted Index","region":"Taiwan"}, "^HSI":{"name":"Hang Seng Index","region":"Hong Kong"},
+"^STI":{"name":"Straits Times Index","region":"Singapore"},
 "NQ=F":{"name":"Nasdaq 100 Futures","region":"US Futures"}, "ES=F":{"name":"S&P 500 Futures","region":"US Futures"}}
 
 UNIVERSE_CONFIGS = {
 "US Major Stocks 10M Portfolio":{"universe":US_MAJOR_UNIVERSE,"primary_benchmark":"^GSPC","benchmarks":["^GSPC","^IXIC"],"min_observations":756,"capital_mode":"whole_share_usd","description":"Original US major single-stock 10M USD portfolio. Existing feature set preserved."},
-"Article Shock Universe — AI Chip Selloff":{"universe":ARTICLE_SHOCK_UNIVERSE,"primary_benchmark":"^KS11","benchmarks":["^KS11","^N225","1306.T","^IXIC","^NDX","^SOX","^GSPC","^AXJO","^NSEI","^JKSE","000001.SS","000300.SS","NQ=F","ES=F"],"min_observations":60,"capital_mode":"equal_weight_return_index","description":"Companies mentioned across the three Investing.com AI-chip articles, including SKHY, TSM and ASML.AS. Mixed currencies; analyzed as actual-return equal-weight basket. New listings remain in the event monitor when long-history requirements are not met."},
+"Article Shock Universe — AI Chip Selloff":{"universe":ARTICLE_SHOCK_UNIVERSE,"primary_benchmark":"^KS11","benchmarks":["^KS11","^N225","1306.T","^TWII","^HSI","^STI","^IXIC","^NDX","^SOX","^GSPC","^AXJO","^NSEI","^JKSE","000001.SS","000300.SS","NQ=F","ES=F"],"min_observations":60,"capital_mode":"equal_weight_return_index","description":"Companies and transmission channels identified across four Investing.com AI-chip articles. The fourth event adds renewed Korea selloff, TSMC earnings-risk, BOK tightening, regional-index dispersion and energy-inflation channels. Mixed currencies; analyzed as an actual-return equal-weight basket. New listings remain in the event monitor when long-history requirements are not met."},
 "US Technology + AI + Chip 20+ Universe":{"universe":US_TECH_AI_CHIP_UNIVERSE,"primary_benchmark":"^IXIC","benchmarks":["^IXIC","^SOX","^NDX","^GSPC"],"min_observations":504,"capital_mode":"whole_share_usd","description":"US-listed technology, AI infrastructure, semiconductor and chip ecosystem single stocks, including TSM, ASML and new SKHY ADR. No ETFs."}}
 
 # ============================================================
@@ -344,6 +365,7 @@ def download_all():
     for cfg in UNIVERSE_CONFIGS.values(): symbols += list(cfg["universe"].keys()) + cfg["benchmarks"]
     for pair in CROSS_LISTING_PAIRS.values():
         symbols += [pair["local"], pair["adr"], pair["fx"]]
+    symbols += list(MANAGEMENT_RISK_FACTORS.keys())
     symbols=list(dict.fromkeys(symbols+[RISK_FREE_TICKER]))
     print(f"[DATA] Downloading {len(symbols)} Yahoo Finance tickers with adjusted daily OHLCV...")
     raw=yf.download(symbols,start=start,end=end,interval="1d",auto_adjust=True,actions=False,group_by="ticker",threads=True,progress=False)
@@ -1028,6 +1050,8 @@ PCT_COLS={"Target Weight","Current Weight","Missing % Raw","Annualized Return","
 MONEY_COLS={"Target Dollars","Invested Dollars","Residual Cash Allocation","Latest Market Value"}
 FLOAT_COLS={"Initial Price","Latest Price","Whole Shares","Observations","Observations Raw","Sharpe Ratio","Sortino Ratio","Calmar Ratio","Payoff Ratio","Profit Factor","Skewness","Excess Kurtosis","Tail Ratio 95/5","Jarque-Bera p-value","Information Ratio","Beta","R-squared","Correlation","Expected Sharpe","Effective Number of Names","Marginal Risk Contribution","Total Risk Contribution","Institutional Score","Confidence Score","Technical Grade","Positive 60D Probability %","+10% 60D Probability %","Outperform Benchmark 60D Probability %","Historical Analog Count","Best Strategy Sharpe","Latest Premium Z 20D","Return Correlation","Ordinary Shares per ADR"}
 DATE_COLS={"First Date","Last Date","Start","End","Date"}
+PCT_COLS.update({"1D Return","5D Return","20D Return","Current Drawdown","Current Weight","Risk Contribution %","Risk Budget Gap","EWMA Ann Vol","Vol Percentile","Momentum 20D","Momentum 63D","Article 4 Event Exposure","Buy Breadth","Sell Breadth","Portfolio EWMA Vol","Portfolio Vol Percentile","Portfolio 1D","Portfolio 5D","Portfolio 20D","Weight HHI"})
+FLOAT_COLS.update({"Shock Z","Risk Pressure Z","Event Stress Score","Conviction Score","Risk Score","Average Institutional Score","Average Confidence"})
 def fmt(df):
     if df is None or df.empty: return pd.DataFrame({"Info":["No data available"]})
     out=df.copy()
@@ -1043,6 +1067,15 @@ def article_tables():
     ac=pd.DataFrame([{"Ticker":t,"Company":m["name"],"Country":m.get("country","N/A"),"Sector":m.get("sector","N/A"),"Theme":m.get("theme","N/A"),"Article Role":m.get("article_role","N/A"),"Source Article":m.get("source_article","Article 1 / Existing")} for t,m in ARTICLE_SHOCK_UNIVERSE.items()])
     ai=pd.DataFrame([{"Ticker":t,"Index Name":INDEX_BENCHMARKS.get(t,{}).get("name",t),"Region":INDEX_BENCHMARKS.get(t,{}).get("region","N/A"),"Benchmark Type":"ETF proxy exception only for TOPIX" if t=="1306.T" else "Market index / futures benchmark"} for t in UNIVERSE_CONFIGS["Article Shock Universe — AI Chip Selloff"]["benchmarks"]])
     return ac,ai
+
+def news_event_register():
+    """Structured event register used by Streamlit, HTML and Excel governance outputs."""
+    return pd.DataFrame([
+        {"Event ID":"AI_CHIP_01","Event Date":"2026-06-22","News Source":NEWS_SOURCE_TITLE,"Primary Shock":"Asia semiconductor de-rating","Affected Securities":"Samsung, SK Hynix, Japan suppliers, TSMC","Risk Channels":"AI valuation, memory cycle, supplier beta","Management Horizon":"1D / 20D / 60D"},
+        {"Event ID":"AI_CHIP_02","Event Date":"2026-07-08","News Source":NEWS_SOURCE_TITLE_2,"Primary Shock":"AI valuation concerns despite strong earnings","Affected Securities":"Samsung, Asian AI hardware chain","Risk Channels":"Earnings hurdle, capex sustainability, factor rotation","Management Horizon":"1D / earnings window / 60D"},
+        {"Event ID":"AI_CHIP_03","Event Date":"2026-07-13","News Source":NEWS_SOURCE_TITLE_3,"Primary Shock":"SK Hynix ADR/local cross-listing dislocation","Affected Securities":"000660.KS, SKHY, MU, SNDK, SOX","Risk Channels":"ADR liquidity, price discovery, memory volatility","Management Horizon":"Intraday / 5D / 20D"},
+        {"Event ID":"AI_CHIP_04","Event Date":NEWS_SOURCE_DATE_4,"News Source":NEWS_SOURCE_TITLE_4,"Primary Shock":"KOSPI trading halt and renewed chip selloff ahead of TSMC earnings","Affected Securities":"005930.KS, 000660.KS, 2330.TW, TSM, NVDA, AAPL, ASML.AS","Risk Channels":"Korea concentration, TSMC earnings hurdle, BOK +25bp, oil inflation, Hormuz risk","Management Horizon":"1D shock / 20D tactical / 60D allocation"},
+    ])
 def download_index_close_for_qs_engine(ticker, label):
     """Downloads a real index/proxy series for QS Engine. No synthetic fallback is used."""
     today = pd.Timestamp.today().normalize()
@@ -1118,11 +1151,14 @@ def section(res,js=False):
     ex=res["ud"]["exclusions"] if not res["ud"]["exclusions"].empty else pd.DataFrame([{"Ticker":"—","Name":"—","Reason":"No exclusions"}])
     bex=res["ud"]["benchmark_exclusions"] if not res["ud"]["benchmark_exclusions"].empty else pd.DataFrame([{"Benchmark":"—","Name":"—","Reason":"No benchmark exclusions"}])
     return f"""<div class="section"><h2>{name}</h2><div class="note"><b>Description:</b> {res["ud"]["cfg"]["description"]}<br><b>Implementation:</b> {res["pf"]["mode_note"]}<br><b>Primary benchmark:</b> {res["ud"]["primary"]} — {INDEX_BENCHMARKS.get(res["ud"]["primary"],{}).get("name",res["ud"]["primary"])}<br><b>Sample:</b> {res["ud"]["start"].date()} to {res["ud"]["end"].date()}</div><br><div class="kpi-grid">{kpis(res)}</div><h3>Interactive Charts</h3>{''.join([f'<div class="chart-block">{x}</div>' for x in ds])}<h3>Portfolio Metrics</h3>{table(metrics_df(res["pm"]),"m"+str(uid))}<h3>Holdings / Constituents</h3>{table(res["pf"]["holdings"],"h"+str(uid))}<h3>Asset Metrics</h3>{table(res["am"].sort_values("Sharpe Ratio",ascending=False),"a"+str(uid))}<h3>Risk Contribution</h3>{table(res["rc"],"r"+str(uid))}<h3>Multi-Benchmark Comparison</h3>{table(res["bt"],"b"+str(uid))}<h3>Stress Tests</h3>{table(res["st"],"s"+str(uid))}<h3>Optimization Summary</h3>{table(res["os"],"os"+str(uid))}<h3>Optimization Weights</h3>{table(res["ow"],"ow"+str(uid))}<h3>Data Quality</h3>{table(res["ud"]["data_quality"],"dq"+str(uid))}<h3>Security Exclusion Log</h3>{table(ex,"ex"+str(uid))}<h3>Benchmark Exclusion Log</h3>{table(bex,"bex"+str(uid))}</div>"""
-def create_report(results, sox, qs_reports, institutional_results, cross_listing):
+def create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None):
     ac,ai=article_tables(); all_rows=[]
     for uname,cfg in UNIVERSE_CONFIGS.items():
         for t,m in cfg["universe"].items(): all_rows.append({"Universe":uname,"Ticker":t,"Company":m["name"],"Sector":m.get("sector","N/A"),"Theme":m.get("theme","N/A"),"Country":m.get("country","United States")})
-    tabs=['<button class="tablink active" onclick="openTab(event, \'source\')">News Source & Universes</button>']; contents=[f'<div id="source" class="tabcontent active-content"><div class="section"><h2>News Source & Project Scope</h2><div class="note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br><b>URL 1:</b> {NEWS_SOURCE_URL}<br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br><b>URL 2:</b> {NEWS_SOURCE_URL_2}<br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br><b>URL 3:</b> {NEWS_SOURCE_URL_3}<br><b>Rule:</b> Existing features preserved. Added Article Shock Universe from all three Investing.com articles and US Technology + AI + Chip Universe. The third article adds SKHY, TSM and ASML.AS, while ASML and the new US ADR listings are included in the integrated technical engine where history permits. No ETF constituents in investment universes. Interactive charts are rendered in full horizontal page width. <b>TOPIX exception:</b> because Yahoo Finance did not return ^TOPX index data, TOPIX benchmark exposure is represented only by 1306.T, NEXT FUNDS TOPIX ETF. This ETF is used solely as a benchmark proxy, never as a portfolio constituent. No synthetic fallback.<br><b>SOX diagnostics:</b> Philadelphia Semiconductor Index <code>^SOX</code> is separately downloaded from 2018-01-01. The report includes daily log returns, 20D rolling mean, 20D ±2σ bands, breach counts and largest breach dates.</div><h3>Article Companies</h3>{table(ac,"articlec")}<h3>Article Indices / Benchmarks</h3>{table(ai,"articlei")}<h3>All Configured Universes</h3>{table(pd.DataFrame(all_rows),"allu")}</div></div>']
+    tabs=['<button class="tablink active" onclick="openTab(event, \'source\')">News Source & Universes</button>']; contents=[f'<div id="source" class="tabcontent active-content"><div class="section"><h2>News Source & Project Scope</h2><div class="note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br><b>URL 1:</b> {NEWS_SOURCE_URL}<br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br><b>URL 2:</b> {NEWS_SOURCE_URL_2}<br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br><b>URL 3:</b> {NEWS_SOURCE_URL_3}<br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br><b>URL 4:</b> {NEWS_SOURCE_URL_4}<br><b>Rule:</b> Existing features preserved. Added Article Shock Universe from all four Investing.com articles and US Technology + AI + Chip Universe. The third article adds the SKHY cross-listing channel; the fourth adds renewed Korea selloff, TSMC earnings-risk, Bank of Korea tightening, regional-index dispersion and oil-inflation monitoring. SKHY, TSM, ASML.AS, ASML and related listings are analyzed where real Yahoo history permits. No ETF constituents in investment universes. Interactive charts are rendered in full horizontal page width. <b>TOPIX exception:</b> because Yahoo Finance did not return ^TOPX index data, TOPIX benchmark exposure is represented only by 1306.T, NEXT FUNDS TOPIX ETF. This ETF is used solely as a benchmark proxy, never as a portfolio constituent. No synthetic fallback.<br><b>SOX diagnostics:</b> Philadelphia Semiconductor Index <code>^SOX</code> is separately downloaded from 2018-01-01. The report includes daily log returns, 20D rolling mean, 20D ±2σ bands, breach counts and largest breach dates.</div><h3>Structured News Event Register</h3>{table(news_event_register(),"news_events")}<h3>Article Companies</h3>{table(ac,"articlec")}<h3>Article Indices / Benchmarks</h3>{table(ai,"articlei")}<h3>All Configured Universes</h3>{table(pd.DataFrame(all_rows),"allu")}</div></div>']
+    if management_packs:
+        tabs.append("<button class='tablink' onclick=\"openTab(event, 'managementbrief')\">Hedge Fund Management Brief</button>")
+        contents.append(f'<div id="managementbrief" class="tabcontent">{management_pack_html(management_packs)}</div>')
     sox_summary_table = table(sox["summary"], "soxsummary")
     sox_breach_top = sox["breaches"].head(SOX_TOP_BREACH_ROWS).copy()
     sox_breach_table = table(sox_breach_top, "soxbreaches")
@@ -1152,9 +1188,9 @@ window.addEventListener('resize',function(){{resizeVisiblePlots(document)}});</s
 def sheet(s):
     for ch in r'\/*?:[]': s=s.replace(ch,'_')
     return s[:31]
-def export_excel(results, sox, qs_reports, institutional_results, cross_listing):
+def export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None):
     with pd.ExcelWriter(EXCEL_OUTPUT,engine="xlsxwriter") as writer:
-        ac,ai=article_tables(); ac.to_excel(writer,"Article_Companies",index=False); ai.to_excel(writer,"Article_Indices",index=False)
+        ac,ai=article_tables(); ac.to_excel(writer,"Article_Companies",index=False); ai.to_excel(writer,"Article_Indices",index=False); news_event_register().to_excel(writer,"News_Event_Register",index=False)
         sox["summary"].to_excel(writer, "SOX_Summary", index=False)
         sox["diag"].to_excel(writer, "SOX_LogRet_Bands")
         sox["breaches"].to_excel(writer, "SOX_Breach_Ranking", index=False)
@@ -1170,6 +1206,13 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing)
             for ticker,detail in inst["details"].items():
                 compact=detail["score"][[c for c in ["Close","EMA_20","EMA_50","EMA_200","ST_Line","ST_Dir","RSI","ADX","MACD","MACD_SIGNAL","Institutional Score","Confidence Score","Recommendation"] if c in detail["score"].columns]].tail(750)
                 compact.to_excel(writer,sheet("STP_"+ticker.replace(".","_")[:20]))
+        if management_packs:
+            for uname, pack in management_packs.items():
+                p=sheet("MGMT_"+re.sub(r"[^A-Za-z0-9]+","_",uname)[:14])
+                metrics_df(pack["summary"]).to_excel(writer,sheet(p+"_Summary"),index=False)
+                pack["macro"].to_excel(writer,sheet(p+"_Macro"),index=False)
+                pack["event"].to_excel(writer,sheet(p+"_Event"),index=False)
+                pack["actions"].to_excel(writer,sheet(p+"_Actions"),index=False)
         cross_listing["summary"].to_excel(writer,"Cross_Listing_Summary",index=False)
         cross_listing["exclusions"].to_excel(writer,"Cross_Listing_Excl",index=False)
         for pair_name,hist in cross_listing["histories"].items():
@@ -1184,7 +1227,7 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing)
 # ============================================================
 # 8. STREAMLIT APPLICATION LAYER
 # ============================================================
-STREAMLIT_APP_VERSION = "2.2.0"
+STREAMLIT_APP_VERSION = "2.3.0"
 
 st.set_page_config(
     page_title="AI / Chip Institutional Platform",
@@ -1275,6 +1318,17 @@ def _show_df(df, height=420, key=None):
 def _plot(fig, key=None):
     """All charts are rendered one-by-one at full width; no chart is placed in a column."""
     st.plotly_chart(fig, width="stretch", theme=None, config=PLOT_CONFIG, key=key)
+
+
+def _metric_grid(items, columns=4):
+    """Institutional KPI layout with controlled width and multiple rows."""
+    for start in range(0, len(items), columns):
+        chunk = items[start:start+columns]
+        cols = st.columns(columns)
+        for i, col in enumerate(cols):
+            if i < len(chunk):
+                label, value = chunk[i]
+                col.metric(label, value)
 
 
 def _selected_detail(inst, selected_ticker):
@@ -1587,6 +1641,245 @@ def chart_strategy_diagnostics(df, ticker):
     return layout(fig, ticker + " — Strategy Constraint Funnel", CHART_FULL_HEIGHT)
 
 
+
+# -------------------------------------------------------------------------
+# HEDGE FUND MANAGEMENT COCKPIT
+# -------------------------------------------------------------------------
+def _window_total_return(series, periods):
+    s = pd.Series(series, dtype=float).dropna()
+    if len(s) <= periods:
+        return np.nan
+    return float(s.iloc[-1] / s.iloc[-periods-1] - 1.0)
+
+
+def build_macro_risk_pulse(close):
+    rows = []
+    for ticker, meta in MANAGEMENT_RISK_FACTORS.items():
+        if ticker not in close.columns:
+            rows.append({"Ticker":ticker,"Factor":meta["name"],"Channel":meta["channel"],"Status":"UNAVAILABLE"})
+            continue
+        s = pd.Series(close[ticker], dtype=float).replace([np.inf, -np.inf], np.nan).dropna().sort_index()
+        if len(s) < 25:
+            rows.append({"Ticker":ticker,"Factor":meta["name"],"Channel":meta["channel"],"Status":"INSUFFICIENT"})
+            continue
+        if meta["type"] == "yield_level":
+            d = s.diff() * 100.0
+            one = float(d.iloc[-1]) if len(d.dropna()) else np.nan
+            five = float((s.iloc[-1] - s.iloc[-6]) * 100.0) if len(s) > 5 else np.nan
+            twenty = float((s.iloc[-1] - s.iloc[-21]) * 100.0) if len(s) > 20 else np.nan
+            sigma = d.rolling(60, min_periods=20).std(ddof=1).iloc[-1]
+            shock_z = one / sigma if pd.notna(sigma) and sigma > 0 else np.nan
+            units = "bp"
+        else:
+            lr = np.log(s / s.shift(1))
+            one = float(s.pct_change().iloc[-1])
+            five = _window_total_return(s, 5)
+            twenty = _window_total_return(s, 20)
+            sigma = lr.rolling(60, min_periods=20).std(ddof=1).iloc[-1]
+            shock_z = float(lr.iloc[-1] / sigma) if pd.notna(sigma) and sigma > 0 else np.nan
+            units = "return"
+        pressure = float(np.clip(meta["risk_sign"] * shock_z, -3.0, 3.0)) if pd.notna(shock_z) else np.nan
+        rows.append({
+            "Ticker":ticker,"Factor":meta["name"],"Channel":meta["channel"],"Type":meta["type"],
+            "Latest Level":float(s.iloc[-1]),"1D Move":one,"5D Move":five,"20D Move":twenty,
+            "Shock Z":shock_z,"Risk Pressure Z":pressure,"Units":units,"Status":"LIVE",
+        })
+    return pd.DataFrame(rows)
+
+
+def build_event_shock_monitor(inst, close):
+    rows = []
+    details = inst.get("details", {})
+    for ticker in NEWS_EVENT_4_TICKERS:
+        meta = ARTICLE_SHOCK_UNIVERSE.get(ticker, US_TECH_AI_CHIP_UNIVERSE.get(ticker, {"name":ticker,"sector":"N/A","theme":"N/A","country":"N/A"}))
+        detail = details.get(ticker)
+        if detail is not None:
+            x = detail["indicator"].copy().sort_index()
+            s = x["Close"].dropna()
+            vol = compute_ewma_volatility_frame(s, input_is_price=True).dropna(subset=["EWMA 0.94 Daily Sigma"])
+            sigma = float(vol["EWMA 0.94 Daily Sigma"].iloc[-1]) if not vol.empty else np.nan
+            one = float(s.pct_change().iloc[-1]) if len(s) > 1 else np.nan
+            five = _window_total_return(s, 5)
+            twenty = _window_total_return(s, 20)
+            lr = float(np.log(s.iloc[-1] / s.iloc[-2])) if len(s) > 1 else np.nan
+            shock_z = lr / sigma if pd.notna(sigma) and sigma > 0 else np.nan
+            drawdown = float(x["Drawdown"].iloc[-1]) if "Drawdown" in x and pd.notna(x["Drawdown"].iloc[-1]) else np.nan
+            decision = detail.get("decision", {})
+            score = decision.get("Institutional Score")
+            confidence = decision.get("Confidence Score")
+            recommendation = decision.get("Recommendation")
+        elif ticker in close.columns:
+            s = pd.Series(close[ticker], dtype=float).dropna().sort_index()
+            one = float(s.pct_change().iloc[-1]) if len(s) > 1 else np.nan
+            five = _window_total_return(s, 5)
+            twenty = _window_total_return(s, 20)
+            lr_s = np.log(s / s.shift(1)); sigma = lr_s.ewm(alpha=.06, adjust=False, min_periods=20).std().iloc[-1]
+            shock_z = float(lr_s.iloc[-1] / sigma) if pd.notna(sigma) and sigma > 0 else np.nan
+            drawdown = float(s.iloc[-1] / s.cummax().iloc[-1] - 1.0)
+            score = confidence = recommendation = np.nan
+        else:
+            rows.append({"Ticker":ticker,"Company":meta.get("name",ticker),"Status":"UNAVAILABLE"})
+            continue
+        stress = float(np.clip(50.0 + 15.0 * max(0.0, -shock_z if pd.notna(shock_z) else 0.0) + 35.0 * abs(min(0.0, drawdown if pd.notna(drawdown) else 0.0)), 0, 100))
+        state = "SEVERE" if stress >= 80 else ("ELEVATED" if stress >= 65 else ("WATCH" if stress >= 50 else "STABLE"))
+        rows.append({
+            "Ticker":ticker,"Company":meta.get("name",ticker),"Country":meta.get("country","N/A"),
+            "Sector":meta.get("sector","N/A"),"Event Role":meta.get("article_role","Article 4 transmission channel"),
+            "1D Return":one,"5D Return":five,"20D Return":twenty,"Shock Z":shock_z,"Current Drawdown":drawdown,
+            "Event Stress Score":stress,"Event State":state,"Institutional Score":score,"Confidence Score":confidence,
+            "Recommendation":recommendation,"Status":"LIVE",
+        })
+    df = pd.DataFrame(rows)
+    return df.sort_values(["Event Stress Score","Shock Z"], ascending=[False, True], na_position="last") if not df.empty else df
+
+
+def build_management_action_matrix(res, inst):
+    ranking = inst.get("ranking", pd.DataFrame()).copy()
+    if ranking.empty:
+        return pd.DataFrame()
+    weights = res.get("pf", {}).get("current_weights", pd.Series(dtype=float))
+    rc = res.get("rc", pd.DataFrame())
+    rc_map = rc.set_index("Ticker")["Risk Contribution %"].to_dict() if not rc.empty and "Ticker" in rc and "Risk Contribution %" in rc else {}
+    rows = []
+    for _, r in ranking.iterrows():
+        ticker = r.get("Ticker")
+        detail = inst.get("details", {}).get(ticker)
+        if detail is None:
+            continue
+        ind = detail["indicator"].copy().sort_index(); last = ind.iloc[-1]
+        vol = compute_ewma_volatility_frame(ind["Close"], input_is_price=True).dropna(subset=["EWMA 0.94 Ann Vol"])
+        vol_now = float(vol["EWMA 0.94 Ann Vol"].iloc[-1]) if not vol.empty else np.nan
+        vol_pct = float(vol["EWMA 0.94 Percentile 252D"].iloc[-1]) if not vol.empty and pd.notna(vol["EWMA 0.94 Percentile 252D"].iloc[-1]) else np.nan
+        score = float(r.get("Institutional Score", np.nan)); conf = float(r.get("Confidence Score", np.nan))
+        mom20 = float(last.get("Momentum_20D", np.nan)); mom63 = float(last.get("Momentum_63D", np.nan)); dd = float(last.get("Drawdown", np.nan))
+        event_flag = ticker in NEWS_EVENT_4_TICKERS
+        if score >= 80 and conf >= 65 and (pd.isna(vol_pct) or vol_pct < .85): action = "ADD / HIGH CONVICTION"
+        elif score >= 65 and conf >= 55: action = "ACCUMULATE"
+        elif score <= 20: action = "EXIT WATCH"
+        elif score <= 40: action = "REDUCE"
+        else: action = "HOLD / MONITOR"
+        if event_flag and pd.notna(vol_pct) and vol_pct >= .80 and action in ("ADD / HIGH CONVICTION", "ACCUMULATE"):
+            action = "HOLD / EVENT CONFIRMATION"
+        if pd.notna(dd) and dd <= -.25 and score < 60:
+            action = "REDUCE / DRAWDOWN CONTROL"
+        conviction = np.clip(.55*score + .20*conf + 12.5*np.nan_to_num(mom20, nan=0.0) + 7.5*np.nan_to_num(mom63, nan=0.0) - 12.5*np.nan_to_num(vol_pct, nan=.5), 0, 100)
+        weight = float(weights.get(ticker, 0.0)) if hasattr(weights, "get") else 0.0
+        risk_contrib = float(rc_map.get(ticker, np.nan))
+        budget_gap = risk_contrib - weight if pd.notna(risk_contrib) else np.nan
+        discipline = "Do not chase; wait for confirmation" if event_flag and action.startswith("HOLD") else ("Risk reduction priority" if action.startswith(("REDUCE","EXIT")) else ("Scale in, not one-shot" if action.startswith(("ADD","ACCUMULATE")) else "Maintain and reassess"))
+        rows.append({
+            "Ticker":ticker,"Company":r.get("Company"),"Country":r.get("Country"),"Sector":r.get("Sector"),
+            "Action":action,"Conviction Score":float(conviction),"Institutional Score":score,"Confidence Score":conf,
+            "Recommendation":r.get("Recommendation"),"Current Weight":weight,"Risk Contribution %":risk_contrib,
+            "Risk Budget Gap":budget_gap,"EWMA Ann Vol":vol_now,"Vol Percentile":vol_pct,"Momentum 20D":mom20,
+            "Momentum 63D":mom63,"Current Drawdown":dd,"Article 4 Event Flag":event_flag,"Position Discipline":discipline,
+        })
+    priority = {"EXIT WATCH":0,"REDUCE / DRAWDOWN CONTROL":1,"REDUCE":2,"HOLD / EVENT CONFIRMATION":3,"HOLD / MONITOR":4,"ACCUMULATE":5,"ADD / HIGH CONVICTION":6}
+    out = pd.DataFrame(rows)
+    if not out.empty:
+        out["_priority"] = out["Action"].map(priority).fillna(4)
+        out = out.sort_values(["_priority","Conviction Score"], ascending=[True,False]).drop(columns="_priority")
+    return out
+
+
+def build_hedge_fund_management_pack(res, inst, close):
+    macro = build_macro_risk_pulse(close)
+    event = build_event_shock_monitor(inst, close)
+    actions = build_management_action_matrix(res, inst)
+    ranking = inst.get("ranking", pd.DataFrame()).copy()
+    portfolio_return = res["pf"]["portfolio_return"].dropna()
+    portfolio_vol = compute_ewma_volatility_frame(portfolio_return, input_is_price=False).dropna(subset=["EWMA 0.94 Ann Vol"])
+    vol_now = float(portfolio_vol["EWMA 0.94 Ann Vol"].iloc[-1]) if not portfolio_vol.empty else np.nan
+    vol_pct = float(portfolio_vol["EWMA 0.94 Percentile 252D"].iloc[-1]) if not portfolio_vol.empty and pd.notna(portfolio_vol["EWMA 0.94 Percentile 252D"].iloc[-1]) else .5
+    buy_mask = ranking["Recommendation"].isin(["BUY","STRONG BUY"]) if not ranking.empty and "Recommendation" in ranking else pd.Series(dtype=bool)
+    sell_mask = ranking["Recommendation"].isin(["SELL","STRONG SELL"]) if not ranking.empty and "Recommendation" in ranking else pd.Series(dtype=bool)
+    buy_breadth = float(buy_mask.mean()) if len(buy_mask) else np.nan
+    sell_breadth = float(sell_mask.mean()) if len(sell_mask) else np.nan
+    average_score = float(pd.to_numeric(ranking.get("Institutional Score"), errors="coerce").mean()) if not ranking.empty else np.nan
+    average_conf = float(pd.to_numeric(ranking.get("Confidence Score"), errors="coerce").mean()) if not ranking.empty else np.nan
+    weights = res["pf"]["current_weights"]
+    weight_hhi = float((pd.Series(weights, dtype=float).fillna(0.0)**2).sum()) if len(weights) else np.nan
+    event_exposure = float(pd.Series(weights).reindex(NEWS_EVENT_4_TICKERS).fillna(0.0).sum()) if len(weights) else 0.0
+    positive_pressure = pd.to_numeric(macro.get("Risk Pressure Z"), errors="coerce").clip(lower=0).mean() if not macro.empty else 0.0
+    risk_score = float(np.clip(45 + 12*np.nan_to_num(positive_pressure, nan=0.0) + 20*(np.nan_to_num(vol_pct, nan=.5)-.5) + 18*(np.nan_to_num(sell_breadth, nan=0.0)-np.nan_to_num(buy_breadth, nan=0.0)) + 8*min(event_exposure/.25,1.0), 0, 100))
+    if risk_score >= 75: stance, exposure, hedge = "DEFENSIVE", "45–65%", "HIGH"
+    elif risk_score >= 60: stance, exposure, hedge = "CAUTIOUS", "60–75%", "MEDIUM-HIGH"
+    elif risk_score >= 40: stance, exposure, hedge = "BALANCED", "70–90%", "MEDIUM"
+    elif risk_score >= 25: stance, exposure, hedge = "SELECTIVE RISK-ON", "85–100%", "LOW-MEDIUM"
+    else: stance, exposure, hedge = "PRO-RISK", "95–110%", "LOW"
+    severe = int((pd.to_numeric(event.get("Event Stress Score"), errors="coerce") >= 80).sum()) if not event.empty else 0
+    summary = {
+        "Management Stance":stance,"Risk Score":risk_score,"Model Gross Exposure Bias":exposure,"Hedge Intensity":hedge,
+        "Portfolio EWMA Vol":vol_now,"Portfolio Vol Percentile":vol_pct,"Buy Breadth":buy_breadth,"Sell Breadth":sell_breadth,
+        "Average Institutional Score":average_score,"Average Confidence":average_conf,"Weight HHI":weight_hhi,
+        "Article 4 Event Exposure":event_exposure,"Severe Event Names":severe,
+        "Portfolio 1D":float(portfolio_return.iloc[-1]) if len(portfolio_return) else np.nan,
+        "Portfolio 5D":float((1+portfolio_return.tail(5)).prod()-1) if len(portfolio_return)>=5 else np.nan,
+        "Portfolio 20D":float((1+portfolio_return.tail(20)).prod()-1) if len(portfolio_return)>=20 else np.nan,
+    }
+    summary["Executive Interpretation"] = (
+        f"{stance} posture with model gross-exposure bias {exposure} and {hedge.lower()} hedge intensity. "
+        f"Decision breadth is {buy_breadth:.0%} BUY versus {sell_breadth:.0%} SELL where available. "
+        f"Article-four exposure is {event_exposure:.1%}; {severe} monitored names are in severe event stress. "
+        "Actions are conditional model outputs, not automatic trades."
+    )
+    return {"summary":summary,"macro":macro,"event":event,"actions":actions,"event_register":news_event_register()}
+
+
+def chart_macro_risk_pulse(df):
+    live = df.dropna(subset=["Risk Pressure Z"]).copy() if df is not None and not df.empty else pd.DataFrame()
+    if live.empty:
+        return layout(go.Figure(), "Cross-Market Macro and Regional Risk Pulse", CHART_FULL_HEIGHT)
+    live = live.sort_values("Risk Pressure Z", ascending=True)
+    colors = np.where(live["Risk Pressure Z"] >= 1.0, "#b42318", np.where(live["Risk Pressure Z"] <= -1.0, "#16794a", "#667085"))
+    fig = go.Figure(go.Bar(x=live["Risk Pressure Z"], y=live["Factor"], orientation="h", marker_color=colors, customdata=np.stack([live["Ticker"],live["Channel"],live["Shock Z"]],axis=-1), hovertemplate="%{y}<br>Ticker=%{customdata[0]}<br>Risk pressure=%{x:.2f}σ<br>Raw shock=%{customdata[2]:.2f}σ<br>%{customdata[1]}<extra></extra>"))
+    fig.add_vline(x=0,line_width=1); fig.add_vline(x=1,line_dash="dot"); fig.add_vline(x=2,line_dash="dash")
+    fig.update_xaxes(title="Risk-pressure z-score (positive = risk-off pressure)")
+    return layout(fig, "Cross-Market Macro and Regional Risk Pulse", CHART_FULL_HEIGHT)
+
+
+def chart_event_shock_monitor(df):
+    live = df.dropna(subset=["Shock Z"]).copy() if df is not None and not df.empty else pd.DataFrame()
+    if live.empty:
+        return layout(go.Figure(), "Article 4 Semiconductor Event Shock Monitor", CHART_FULL_HEIGHT)
+    live = live.sort_values("Shock Z", ascending=True)
+    colors = np.where(live["Shock Z"] < -1, "#b42318", np.where(live["Shock Z"] > 1, "#16794a", "#667085"))
+    fig = go.Figure(go.Bar(x=live["Shock Z"], y=live["Ticker"], orientation="h", marker_color=colors, customdata=np.stack([live["Company"],live["Event Stress Score"],live["Recommendation"].fillna("N/A")],axis=-1), hovertemplate="%{y}<br>%{customdata[0]}<br>Daily shock=%{x:.2f}σ<br>Event stress=%{customdata[1]:.1f}<br>Decision=%{customdata[2]}<extra></extra>"))
+    fig.add_vline(x=0,line_width=1); fig.add_vline(x=-2,line_dash="dash"); fig.add_vline(x=2,line_dash="dash")
+    fig.update_xaxes(title="Latest return shock / EWMA daily sigma")
+    return layout(fig, "Article 4 Semiconductor Event Shock Monitor", CHART_FULL_HEIGHT)
+
+
+def chart_decision_breadth(ranking):
+    order = ["STRONG SELL","SELL","HOLD","BUY","STRONG BUY"]
+    if ranking is None or ranking.empty or "Recommendation" not in ranking:
+        return layout(go.Figure(), "Institutional Decision Breadth", CHART_FULL_HEIGHT)
+    count = ranking["Recommendation"].value_counts().reindex(order, fill_value=0)
+    fig = go.Figure(go.Bar(x=count.index, y=count.values, marker_color=["#7f1d1d","#b42318","#667085","#16794a","#065f46"], text=count.values, textposition="outside"))
+    fig.update_yaxes(title="Number of securities")
+    return layout(fig, "Institutional Decision Breadth", CHART_FULL_HEIGHT)
+
+
+def chart_management_action_map(actions):
+    if actions is None or actions.empty:
+        return layout(go.Figure(), "Position Action and Risk Map", CHART_FULL_HEIGHT)
+    d = actions.copy(); d["Bubble Size"] = (pd.to_numeric(d["Current Weight"],errors="coerce").fillna(0)*100 + 1.0).clip(lower=1)
+    color_map = {"ADD / HIGH CONVICTION":"#065f46","ACCUMULATE":"#16794a","HOLD / MONITOR":"#667085","HOLD / EVENT CONFIRMATION":"#b7791f","REDUCE":"#b42318","REDUCE / DRAWDOWN CONTROL":"#991b1b","EXIT WATCH":"#7f1d1d"}
+    fig = px.scatter(d, x="Institutional Score", y="EWMA Ann Vol", size="Bubble Size", text="Ticker", color="Action", color_discrete_map=color_map, hover_data=["Company","Confidence Score","Momentum 20D","Current Drawdown","Current Weight","Risk Contribution %","Article 4 Event Flag"], template=PLOT_TEMPLATE)
+    fig.update_traces(textposition="top center")
+    fig.add_vline(x=40,line_dash="dot"); fig.add_vline(x=65,line_dash="dot"); fig.add_vline(x=80,line_dash="dash")
+    fig.update_xaxes(range=[0,100]); fig.update_yaxes(tickformat=".1%",title="EWMA annualized volatility")
+    return layout(fig, "Position Action and Risk Map", CHART_EXTRA_LARGE_HEIGHT)
+
+
+def management_pack_html(management_packs):
+    blocks = []
+    for uname, pack in management_packs.items():
+        safe = re.sub(r"[^A-Za-z0-9]+","_",uname).strip("_").lower()
+        summary = metrics_df(pack["summary"])
+        blocks.append(f'<div class="section"><h2>{uname} — Hedge Fund Management Brief</h2><div class="note">{pack["summary"].get("Executive Interpretation","")}</div><h3>Management KPI Summary</h3>{table(summary,"mgmt_sum_"+safe)}<h3>Macro / Regional Risk Pulse</h3>{table(pack["macro"],"mgmt_macro_"+safe)}<h3>Article 4 Event Shock Monitor</h3>{table(pack["event"],"mgmt_event_"+safe)}<h3>Position Action Matrix</h3>{table(pack["actions"],"mgmt_actions_"+safe)}</div>')
+    return "".join(blocks)
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_institutional_platform():
     close, ohlcv_map = download_all()
@@ -1608,7 +1901,7 @@ def _render_masthead():
         <div class="mk-masthead">
           <div class="mk-kicker">MK FinTECH LabGEN · Institutional Analytics</div>
           <div class="mk-title">Multi-Universe AI / Chip Institutional Platform</div>
-          <div class="mk-subtitle">SupertrendPro Institutional Integrated · Version {STREAMLIT_APP_VERSION} · Daily Yahoo Finance data · No synthetic prices</div>
+          <div class="mk-subtitle">SupertrendPro Institutional + Hedge Fund Management Cockpit · Version {STREAMLIT_APP_VERSION} · Daily Yahoo Finance data · No synthetic prices</div>
         </div>
         """, unsafe_allow_html=True,
     )
@@ -1631,29 +1924,53 @@ def _render_selected_asset_kpis(detail, selected_ticker):
         col.metric(label, value)
 
 
-def _render_executive(res, inst):
+def _render_executive(res, inst, close):
     pm = res["pm"]; pv = res["pf"]["portfolio_value"]
-    cols = st.columns(6)
-    vals = [
+    pack = build_hedge_fund_management_pack(res, inst, close)
+    summary = pack["summary"]
+    st.markdown(
+        f'<div class="mk-note"><b>Management posture:</b> {summary.get("Management Stance")} · '
+        f'<b>Risk score:</b> {summary.get("Risk Score", np.nan):.1f}/100 · '
+        f'<b>Model gross exposure bias:</b> {summary.get("Model Gross Exposure Bias")} · '
+        f'<b>Hedge intensity:</b> {summary.get("Hedge Intensity")}<br>'
+        f'{summary.get("Executive Interpretation", "")}</div>',
+        unsafe_allow_html=True,
+    )
+    management_kpis = [
+        ("Risk Posture", summary.get("Management Stance", "—")),
+        ("Risk Score", _safe_metric_value(summary.get("Risk Score"), "score")),
+        ("Buy Breadth", _safe_metric_value(summary.get("Buy Breadth"), "percent")),
+        ("Sell Breadth", _safe_metric_value(summary.get("Sell Breadth"), "percent")),
+        ("Portfolio EWMA Vol", _safe_metric_value(summary.get("Portfolio EWMA Vol"), "percent")),
+        ("Article 4 Exposure", _safe_metric_value(summary.get("Article 4 Event Exposure"), "percent")),
+        ("Severe Event Names", _safe_metric_value(summary.get("Severe Event Names"), "int")),
+        ("Weight HHI", _safe_metric_value(summary.get("Weight HHI"))),
+    ]
+    _metric_grid(management_kpis, columns=4)
+    _section("Portfolio KPI summary")
+    portfolio_kpis = [
         ("Latest Value", _safe_metric_value(pv.iloc[-1], "money")),
         ("Annual Return", _safe_metric_value(pm.get("Annualized Return"), "percent")),
         ("Annual Volatility", _safe_metric_value(pm.get("Annualized Volatility"), "percent")),
         ("Sharpe", _safe_metric_value(pm.get("Sharpe Ratio"))),
         ("Max Drawdown", _safe_metric_value(pm.get("Max Drawdown"), "percent")),
         ("Valid Names", _safe_metric_value(len(res["ud"]["valid"]), "int")),
+        ("Portfolio 5D", _safe_metric_value(summary.get("Portfolio 5D"), "percent")),
+        ("Portfolio 20D", _safe_metric_value(summary.get("Portfolio 20D"), "percent")),
     ]
-    for c, (label, value) in zip(cols, vals): c.metric(label, value)
+    _metric_grid(portfolio_kpis, columns=4)
     _section("Portfolio growth and benchmark comparison")
     _plot(chart_growth(res), key="exec_growth")
     _section("Risk-return positioning")
     _plot(chart_rr(res), key="exec_rr")
-    _section("Institutional decision ranking")
+    _section("Institutional decision breadth")
     rank = inst.get("ranking", pd.DataFrame())
+    _plot(chart_decision_breadth(rank), key="exec_breadth")
+    _section("Institutional decision ranking")
     _plot(chart_institutional_ranking(rank, res["name"] + " — Institutional Ranking"), key="exec_rank")
-    ranking = rank.copy()
-    if not ranking.empty:
-        cols_keep = [c for c in ["Ticker","Company","Country","Institutional Score","Confidence Score","Recommendation","Technical Grade","Best Strategy","Best Strategy Sharpe","Positive 60D Probability %"] if c in ranking.columns]
-        _show_df(ranking.sort_values("Institutional Score", ascending=False)[cols_keep], height=470, key="exec_table")
+    if not rank.empty:
+        cols_keep = [c for c in ["Ticker","Company","Country","Institutional Score","Confidence Score","Recommendation","Technical Grade","Best Strategy","Best Strategy Sharpe","Positive 60D Probability %"] if c in rank.columns]
+        _show_df(rank.sort_values("Institutional Score", ascending=False)[cols_keep], height=470, key="exec_table")
 
 
 def _render_strategy_signal(inst, selected_ticker):
@@ -1940,25 +2257,65 @@ def _render_cross_listing(cross):
     _show_df(cross.get("exclusions", pd.DataFrame()), height=300, key="xl_ex")
 
 
-def _render_news_and_governance(res):
-    st.markdown(f'<div class="mk-note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br>{NEWS_SOURCE_URL}<br><br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br>{NEWS_SOURCE_URL_2}<br><br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br>{NEWS_SOURCE_URL_3}</div>', unsafe_allow_html=True)
+def _render_hedge_fund_management_brief(res, inst, close):
+    pack = build_hedge_fund_management_pack(res, inst, close)
+    summary = pack["summary"]
+    st.markdown(
+        f'<div class="mk-note"><b>Event context:</b> {NEWS_SOURCE_TITLE_4} ({NEWS_SOURCE_DATE_4}).<br>'
+        f'<b>Management interpretation:</b> {summary.get("Executive Interpretation", "")}</div>',
+        unsafe_allow_html=True,
+    )
+    kpis = [
+        ("Management Stance", summary.get("Management Stance", "—")),
+        ("Risk Score", _safe_metric_value(summary.get("Risk Score"), "score")),
+        ("Gross Exposure Bias", summary.get("Model Gross Exposure Bias", "—")),
+        ("Hedge Intensity", summary.get("Hedge Intensity", "—")),
+        ("Portfolio EWMA Vol", _safe_metric_value(summary.get("Portfolio EWMA Vol"), "percent")),
+        ("Vol Percentile", _safe_metric_value(summary.get("Portfolio Vol Percentile"), "percent")),
+        ("Buy / Sell Breadth", f'{summary.get("Buy Breadth", np.nan):.0%} / {summary.get("Sell Breadth", np.nan):.0%}' if pd.notna(summary.get("Buy Breadth")) else "—"),
+        ("Article 4 Exposure", _safe_metric_value(summary.get("Article 4 Event Exposure"), "percent")),
+    ]
+    _metric_grid(kpis, columns=4)
+    _section("Macro and regional risk pulse", "Positive risk-pressure z-scores indicate conditions that historically tighten the risk budget.")
+    _plot(chart_macro_risk_pulse(pack["macro"]), key="mgmt_macro_chart")
+    _show_df(pack["macro"], height=520, key="mgmt_macro_table")
+    _section("Article 4 semiconductor event shock monitor", "Standardized daily shocks are measured against each security's EWMA daily volatility.")
+    _plot(chart_event_shock_monitor(pack["event"]), key="mgmt_event_chart")
+    _show_df(pack["event"], height=620, key="mgmt_event_table")
+    _section("Institutional decision breadth")
+    _plot(chart_decision_breadth(inst.get("ranking", pd.DataFrame())), key="mgmt_breadth")
+    _section("Position action and risk-budget map", "Actions are model classifications for portfolio review; they are not automatic orders.")
+    _plot(chart_management_action_map(pack["actions"]), key="mgmt_action_chart")
+    _show_df(pack["actions"], height=700, key="mgmt_action_table")
+    _section("Structured news event register")
+    _show_df(pack["event_register"], height=420, key="mgmt_event_register")
+
+
+def _render_news_and_governance(res, inst, close):
+    st.markdown(f'<div class="mk-note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br>{NEWS_SOURCE_URL}<br><br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br>{NEWS_SOURCE_URL_2}<br><br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br>{NEWS_SOURCE_URL_3}<br><br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br>{NEWS_SOURCE_URL_4}</div>', unsafe_allow_html=True)
     ac, ai = article_tables()
-    _section("Article companies")
-    _show_df(ac, height=650, key="news_companies")
-    _section("Benchmarks")
-    _show_df(ai, height=540, key="news_bench")
+    _section("Structured news event register")
+    _show_df(news_event_register(), height=420, key="news_event_register")
+    _section("Article companies and transmission roles")
+    _show_df(ac, height=700, key="news_companies")
+    _section("Regional benchmarks")
+    _show_df(ai, height=600, key="news_bench")
+    _section("Current event shock monitor")
+    pack = build_hedge_fund_management_pack(res, inst, close)
+    _show_df(pack["event"], height=620, key="news_event_monitor")
     _section("Data governance")
     _show_df(res["ud"]["data_quality"], height=560, key="gov_dq")
-    st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily observations only; no synthetic security prices and no portfolio ETF constituents.</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily observations only; no synthetic security prices and no portfolio ETF constituents.<br><b>Event discipline:</b> News affects the monitoring universe and risk posture, but never overrides quantitative data validation or creates synthetic observations.</div>', unsafe_allow_html=True)
 
 
-def _render_exports(results, sox, institutional_results, cross_listing):
+def _render_exports(results, sox, institutional_results, cross_listing, close):
     st.markdown('<div class="mk-note">HTML, Excel and standalone QS Engine reports are generated only when requested. This prevents expensive report generation on every Streamlit rerun.</div>', unsafe_allow_html=True)
     if st.button("Generate full institutional report package", type="primary", width="stretch"):
         with st.spinner("Generating QS Engine, HTML and Excel outputs..."):
             qs_reports = generate_qs_reports_cached()
-            create_report(results, sox, qs_reports, institutional_results, cross_listing)
-            export_excel(results, sox, qs_reports, institutional_results, cross_listing)
+            management_packs = {r["name"]: build_hedge_fund_management_pack(r, institutional_results.get(r["name"], {}), close) for r in results}
+            create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs)
+            export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs)
         st.success("Report package generated.")
     files = [
         (REPORT_OUTPUT, "Full Institutional HTML", "text/html"),
@@ -2003,6 +2360,7 @@ def streamlit_main():
 
     tab_labels = [
         "Executive Dashboard",
+        "Hedge Fund Management Brief",
         "Strategy & Signal",
         "Market Data",
         "Technical Analytics",
@@ -2020,40 +2378,41 @@ def streamlit_main():
         "Export Center",
     ]
     tabs = st.tabs(tab_labels)
-    with tabs[0]: _render_executive(res, inst)
-    with tabs[1]:
+    with tabs[0]: _render_executive(res, inst, close)
+    with tabs[1]: _render_hedge_fund_management_brief(res, inst, close)
+    with tabs[2]:
         if selected_asset: _render_strategy_signal(inst, selected_asset)
         else: st.info("No security has sufficient history for the selected strategy analysis.")
-    with tabs[2]:
+    with tabs[3]:
         if selected_asset: _render_market_data(inst, selected_asset, res)
         else: st.info("No security has sufficient market data.")
-    with tabs[3]:
+    with tabs[4]:
         if selected_asset: _render_technical_analytics(inst, selected_asset)
         else: st.info("No security has sufficient technical history.")
-    with tabs[4]:
+    with tabs[5]:
         if selected_asset: _render_ewma_volatility(inst, selected_asset, res)
         else: st.info("No security has sufficient EWMA history.")
-    with tabs[5]:
+    with tabs[6]:
         if selected_asset: _render_backtest_risk(inst, selected_asset, res)
         else: st.info("No security has sufficient backtest history.")
-    with tabs[6]:
+    with tabs[7]:
         if selected_asset: _render_strategy_diagnostics(inst, selected_asset)
         else: st.info("No security has sufficient diagnostic history.")
-    with tabs[7]: _render_blue_chip_screener(res, inst)
-    with tabs[8]: _render_capital_gain_leaders(inst)
-    with tabs[9]: _render_portfolio_lab(res)
-    with tabs[10]:
+    with tabs[8]: _render_blue_chip_screener(res, inst)
+    with tabs[9]: _render_capital_gain_leaders(inst)
+    with tabs[10]: _render_portfolio_lab(res)
+    with tabs[11]:
         if selected_asset: _render_leading_signal_lab(inst, selected_asset)
         else: st.info("No security has sufficient leading-signal history.")
-    with tabs[11]:
+    with tabs[12]:
         if selected_asset: _render_institutional_decision(inst, selected_asset, res)
         else: st.info("No security has sufficient institutional decision history.")
-    with tabs[12]: _render_sox(sox)
-    with tabs[13]: _render_cross_listing(cross_listing)
-    with tabs[14]: _render_news_and_governance(res)
-    with tabs[15]: _render_exports(results, sox, institutional_results, cross_listing)
+    with tabs[13]: _render_sox(sox)
+    with tabs[14]: _render_cross_listing(cross_listing)
+    with tabs[15]: _render_news_and_governance(res, inst, close)
+    with tabs[16]: _render_exports(results, sox, institutional_results, cross_listing, close)
 
-    st.caption(AUTHOR_LINE + " · Analytical simulation; not investment advice.")
+    st.caption(AUTHOR_LINE + " · Institutional analytical model; not investment advice or an automatic order system.")
 
 
 def main():
