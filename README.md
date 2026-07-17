@@ -1,63 +1,55 @@
-# Multi-Universe AI / Chip SupertrendPro Institutional V2.3.0
+# Global Semiconductor SupertrendPro Institutional — Streamlit V2.4.0
 
-## Purpose
+Institutional hedge-fund style Streamlit platform using real daily Yahoo Finance data only. This release preserves the full V2.3.0 analytics layer and adds Article 5, a dedicated European semiconductor universe, and a Global Semiconductor Contagion & Positioning Engine.
 
-Streamlit-based institutional equity, semiconductor and AI-supply-chain platform using real daily Yahoo Finance observations only. The V2.3.0 release preserves the V2.2.0 full-width chart architecture, EWMA volatility engine, strategy tabs and institutional decision framework while adding a consolidated Hedge Fund Management Cockpit.
+## New Article 5 integration
 
-## New in V2.3.0
+Source: **European chip stocks fall after sharp U.S. peers' selloff** (Investing.com, 17 July 2026).
 
-- Fourth Investing.com event integrated: **Asia stocks slide as S. Korea chip stocks tumble; TSMC earnings in focus**.
-- Structured four-event news register.
-- New `Hedge Fund Management Brief` tab.
-- Cross-market macro and regional risk pulse.
-- Article-four semiconductor event shock monitor.
-- Management posture and 0–100 risk score.
-- Model gross-exposure bias and hedge-intensity classification.
-- BUY/SELL breadth and institutional decision breadth.
-- Position action matrix: Add, Accumulate, Hold, Event Confirmation, Reduce and Exit Watch.
-- Current-weight versus risk-contribution discipline.
-- Article-four event exposure and severe-event-name count.
-- Regional benchmark expansion: Taiwan `^TWII`, Hong Kong `^HSI`, Singapore `^STI`.
-- Macro monitoring factors: WTI `CL=F`, DXY `DX-Y.NYB`, US 10Y yield `^TNX`.
-- HTML and Excel exports extended with management summaries, macro pulse, event monitor and action matrix.
+New local listings:
 
-## Existing structure preserved
+- `ASML.AS` — ASML Holding
+- `ASM.AS` — ASM International
+- `BESI.AS` — BE Semiconductor Industries
+- `SOI.PA` — Soitec
+- `IFX.DE` — Infineon Technologies
+- `AIXA.DE` — AIXTRON
+- `STMPA.PA` — STMicroelectronics
+- `WAF.DE` — Siltronic
+- `AMS.SW` — ams-OSRAM
 
-- Executive Dashboard
-- Strategy & Signal
-- Market Data
-- Technical Analytics
-- EWMA Volatility
-- Backtest & Risk
-- Strategy Diagnostics
-- Blue-Chip Screener
-- Capital Gain Leaders
-- Portfolio Lab
-- Leading Signal Lab
-- Institutional Decision Engine
-- SOX Diagnostics
-- ADR / Local Cross-Listing
-- News & Governance
-- Export Center
+U.S. shock-source names include `INTC`, `WDC`, `STX`, `SNDK`, `TSM`, and `^SOX`.
 
-All charts remain full-width and vertically stacked. `st.columns()` is used only for KPI cards.
+## New institutional modules
 
-## Data policy
+- European Semiconductor Contagion Universe
+- U.S. / Europe / Asia equal-weight regional chip baskets
+- SOX same-day and lag-1 correlation/beta transmission
+- EWMA-standardized downside shock measurement
+- European security Contagion Score, 0–100
+- Expectations Risk Score, 0–100
+- Subsector stress for WFE, packaging, wafers/materials, power/automotive and sensors
+- Position actions: Selective Accumulate, Hold/Monitor, Hold/Event Confirmation, Reduce, Reduce/Hedge
+- Full-width vertical charts
+- Streamlit, HTML and Excel integration
 
-- Yahoo Finance daily data only.
-- No synthetic security prices.
-- Missing observations are not fabricated.
-- New listings are retained in event monitoring when long-history tests cannot be completed.
-- `1306.T` remains the explicit TOPIX benchmark proxy exception and is never a portfolio constituent.
-- News events influence the monitored risk channels, not the underlying market observations.
+## Data governance
 
-## Streamlit Cloud deployment
+- Yahoo Finance daily observed data only
+- No synthetic security prices
+- No missing-price substitution
+- No ETF portfolio constituents
+- TOPIX `1306.T` remains a benchmark-only exception
+- Mixed-currency European and regional baskets are local-return baskets; no synthetic FX conversion
+- News context defines monitoring scope but does not hard-code returns or force signals
 
-Upload the following files to the repository root:
+## Streamlit Cloud
+
+Place these files at the repository root:
 
 - `app.py`
 - `requirements.txt`
 - `runtime.txt`
 - `.streamlit/config.toml`
 
-Set the main module to `app.py`, then reboot the application.
+Set the main module to `app.py`, then reboot the app.

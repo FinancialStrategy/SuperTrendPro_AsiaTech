@@ -51,7 +51,7 @@ import os
 # ============================================================
 # 2. CONFIGURATION
 # ============================================================
-REPORT_TITLE = "Multi-Universe AI / Chip Institutional Hedge Fund Management Report — SupertrendPro Integrated"
+REPORT_TITLE = "Global AI / Semiconductor Institutional Hedge Fund Management Report — SupertrendPro Integrated"
 AUTHOR_LINE = "MK FinTECH LabGEN @2026 Istanbul, Murat KONUKLAR"
 NEWS_SOURCE_URL = "https://www.investing.com/news/stock-market-news/korea-sinks-as-ai-chip-selloff-deepens-japan-suppliers-tumble-4772256"
 NEWS_SOURCE_TITLE = "Korea sinks as AI-chip selloff deepens; Japan suppliers tumble"
@@ -62,10 +62,32 @@ NEWS_SOURCE_TITLE_3 = "SK Hynix shares slide nearly 14% in Seoul after bumper Na
 NEWS_SOURCE_URL_4 = "https://www.investing.com/news/stock-market-news/asia-stocks-slide-as-s-korea-chip-stocks-tumble-tsmc-earnings-in-focus-4794618"
 NEWS_SOURCE_TITLE_4 = "Asia stocks slide as S. Korea chip stocks tumble; TSMC earnings in focus"
 NEWS_SOURCE_DATE_4 = "2026-07-16"
+NEWS_SOURCE_URL_5 = "https://www.investing.com/news/stock-market-news/european-chip-stocks-fall-after-sharp-us-peers-selloff-4797767"
+NEWS_SOURCE_TITLE_5 = "European chip stocks fall after sharp U.S. peers' selloff"
+NEWS_SOURCE_DATE_5 = "2026-07-17"
+
+# Article-five European semiconductor contagion universe. Yahoo tickers are direct local listings;
+# unavailable names remain visible in exclusion/data-quality logs and are never replaced synthetically.
+NEWS_EVENT_5_TICKERS = [
+    "ASML.AS", "ASM.AS", "BESI.AS", "SOI.PA", "IFX.DE", "AIXA.DE",
+    "STMPA.PA", "WAF.DE", "AMS.SW", "INTC", "WDC", "STX", "SNDK", "TSM", "^SOX"
+]
+EUROPE_SEMICONDUCTOR_SUBSECTORS = {
+    "ASML.AS":"Lithography / WFE", "ASM.AS":"Deposition / WFE", "BESI.AS":"Assembly / Advanced Packaging",
+    "SOI.PA":"Engineered Substrates", "IFX.DE":"Power / Automotive Semiconductors", "AIXA.DE":"Deposition Equipment",
+    "STMPA.PA":"Diversified Semiconductors", "WAF.DE":"Silicon Wafers / Materials", "AMS.SW":"Optical Sensors / Photonics",
+}
+
+SEMICONDUCTOR_REGION_BASKETS = {
+    "United States": ["NVDA","AMD","MU","INTC","WDC","STX","SNDK","AMAT","LRCX","KLAC","AVGO"],
+    "Europe": list(EUROPE_SEMICONDUCTOR_SUBSECTORS.keys()),
+    "Asia": ["005930.KS","000660.KS","2330.TW","2454.TW","285A.T","4062.T"],
+}
 
 # Event-four securities and macro/regional risk factors. These are monitoring inputs,
 # not synthetic prices and not automatic portfolio constituents.
 NEWS_EVENT_4_TICKERS = ["005930.KS", "000660.KS", "2330.TW", "TSM", "NVDA", "AAPL", "ASML.AS", "ASML", "SKHY"]
+NEWS_EVENT_MONITOR_TICKERS = list(dict.fromkeys(NEWS_EVENT_4_TICKERS + NEWS_EVENT_5_TICKERS))
 MANAGEMENT_RISK_FACTORS = {
     "^KS11": {"name": "KOSPI Composite", "type": "equity_return", "risk_sign": -1, "channel": "Korea chip concentration"},
     "^SOX": {"name": "Philadelphia Semiconductor Index", "type": "equity_return", "risk_sign": -1, "channel": "Global semiconductor beta"},
@@ -79,7 +101,7 @@ MANAGEMENT_RISK_FACTORS = {
 }
 
 # SupertrendPro Institutional integration controls
-INSTITUTIONAL_ENGINE_VERSION = "2.1.0"
+INSTITUTIONAL_ENGINE_VERSION = "2.2.0"
 INSTITUTIONAL_MIN_OBS = 260
 INSTITUTIONAL_FORWARD_HORIZON = 60
 INSTITUTIONAL_TRANSACTION_COST_BPS = 8.0
@@ -125,8 +147,8 @@ OUTPUT_DIR = Path(os.environ.get("MULTI_UNIVERSE_OUTPUT_DIR", tempfile.gettempdi
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 NIKKEI_QS_HTML = str(OUTPUT_DIR / "QS_Engine_Nikkei_225_Index_Report.html")
 TOPIX_QS_HTML = str(OUTPUT_DIR / "QS_Engine_TOPIX_1306T_Benchmark_Proxy_Report.html")
-REPORT_OUTPUT = str(OUTPUT_DIR / "Multi_Universe_AI_Chip_Asia_US_SupertrendPro_Institutional_QS_ENGINE.html")
-EXCEL_OUTPUT = str(OUTPUT_DIR / "Multi_Universe_AI_Chip_Asia_US_SupertrendPro_Institutional_QS_ENGINE_Analytics.xlsx")
+REPORT_OUTPUT = str(OUTPUT_DIR / "Global_Semiconductor_SupertrendPro_Institutional_QS_ENGINE.html")
+EXCEL_OUTPUT = str(OUTPUT_DIR / "Global_Semiconductor_SupertrendPro_Institutional_QS_ENGINE_Analytics.xlsx")
 
 TOPIX_BENCHMARK_PROXY = "1306.T"
 TOPIX_BENCHMARK_PROXY_NOTE = "ETF exception applies only to TOPIX benchmark: 1306.T NEXT FUNDS TOPIX ETF is used solely as a benchmark proxy because ^TOPX was unavailable from Yahoo Finance; it is never used as a portfolio constituent."
@@ -199,7 +221,18 @@ ARTICLE_SHOCK_UNIVERSE = {
 "011070.KS":{"name":"LG Innotek Co., Ltd.","sector":"Electronic Components","theme":"Camera modules / electronic components / AI hardware supply chain","country":"South Korea","article_role":"Korean technology component supplier mentioned as falling in related chip-share article","source_article":"Article 2"},
 "SKHY":{"name":"SK hynix Inc. American Depositary Shares","sector":"Semiconductors","theme":"HBM / Memory / Nasdaq ADR","country":"United States / South Korea","article_role":"Nasdaq ADR and cross-listing transmission channel during renewed Seoul selloff","source_article":"Articles 3 & 4"},
 "TSM":{"name":"Taiwan Semiconductor Manufacturing Company Limited ADR","sector":"Semiconductors","theme":"Foundry / AI Supply Chain / US ADR","country":"United States / Taiwan","article_role":"US-listed TSMC earnings and guidance transmission instrument","source_article":"Articles 3 & 4"},
-"ASML.AS":{"name":"ASML Holding N.V. — Euronext Amsterdam","sector":"Semiconductor Equipment","theme":"Advanced Lithography / EUV","country":"Netherlands","article_role":"Equipment-cycle read-through; strong guidance but high earnings-expectation hurdle","source_article":"Articles 3 & 4"}}
+"ASML.AS":{"name":"ASML Holding N.V. — Euronext Amsterdam","sector":"Semiconductor Equipment","theme":"Advanced Lithography / EUV","country":"Netherlands","article_role":"Equipment-cycle read-through and European contagion bellwether","source_article":"Articles 3, 4 & 5"},
+"ASM.AS":{"name":"ASM International N.V.","sector":"Semiconductor Equipment","theme":"Atomic Layer Deposition / WFE","country":"Netherlands","article_role":"European chip-equipment selloff transmission","source_article":"Article 5"},
+"BESI.AS":{"name":"BE Semiconductor Industries N.V.","sector":"Semiconductor Equipment","theme":"Advanced Packaging / Assembly","country":"Netherlands","article_role":"Advanced packaging selloff transmission","source_article":"Article 5"},
+"SOI.PA":{"name":"Soitec S.A.","sector":"Semiconductor Materials","theme":"Engineered Substrates","country":"France","article_role":"European materials selloff transmission","source_article":"Article 5"},
+"IFX.DE":{"name":"Infineon Technologies AG","sector":"Semiconductors","theme":"Power / Automotive Semiconductors","country":"Germany","article_role":"European diversified chip selloff transmission","source_article":"Article 5"},
+"AIXA.DE":{"name":"AIXTRON SE","sector":"Semiconductor Equipment","theme":"Compound Semiconductor Deposition","country":"Germany","article_role":"European WFE selloff transmission","source_article":"Article 5"},
+"STMPA.PA":{"name":"STMicroelectronics N.V.","sector":"Semiconductors","theme":"MCU / Analog / Power","country":"France / Switzerland","article_role":"European diversified chip selloff transmission","source_article":"Article 5"},
+"WAF.DE":{"name":"Siltronic AG","sector":"Semiconductor Materials","theme":"Silicon Wafers","country":"Germany","article_role":"Upstream wafer-materials selloff transmission","source_article":"Article 5"},
+"AMS.SW":{"name":"ams-OSRAM AG","sector":"Electronic Components / Semiconductors","theme":"Optical Sensors / Photonics","country":"Switzerland / Austria","article_role":"European optical-sensor selloff transmission","source_article":"Article 5"},
+"WDC":{"name":"Western Digital Corporation","sector":"Technology Hardware / Storage","theme":"Data Storage / Memory","country":"United States","article_role":"U.S. memory/storage shock source named in Article 5","source_article":"Article 5"},
+"STX":{"name":"Seagate Technology Holdings plc","sector":"Technology Hardware / Storage","theme":"Data Storage / Memory","country":"United States / Ireland","article_role":"U.S. memory/storage shock source named in Article 5","source_article":"Article 5"},
+"INTC":{"name":"Intel Corporation","sector":"Semiconductors","theme":"CPU / Foundry","country":"United States","article_role":"U.S. chip selloff source named in Article 5","source_article":"Article 5"}}
 
 US_TECH_AI_CHIP_UNIVERSE = {
 "NVDA":{"name":"NVIDIA Corporation","sector":"Semiconductors","theme":"AI GPU"},
@@ -230,6 +263,19 @@ US_TECH_AI_CHIP_UNIVERSE = {
 "ASML":{"name":"ASML Holding N.V. Nasdaq Registry Shares","sector":"Semiconductor Equipment","theme":"Advanced Lithography / EUV / US Listing"},
 "SKHY":{"name":"SK hynix Inc. American Depositary Shares","sector":"Semiconductors","theme":"HBM / Memory / New Nasdaq ADR"}}
 
+
+EUROPEAN_SEMICONDUCTOR_UNIVERSE = {
+"ASML.AS":{"name":"ASML Holding N.V.","sector":"Semiconductor Equipment","theme":"EUV Lithography / WFE","country":"Netherlands","article_role":"European bellwether; sharp selloff after U.S. peer weakness","source_article":"Article 5"},
+"ASM.AS":{"name":"ASM International N.V.","sector":"Semiconductor Equipment","theme":"Atomic Layer Deposition / WFE","country":"Netherlands","article_role":"European deposition-equipment contagion channel","source_article":"Article 5"},
+"BESI.AS":{"name":"BE Semiconductor Industries N.V.","sector":"Semiconductor Equipment","theme":"Advanced Packaging / Assembly","country":"Netherlands","article_role":"Advanced-packaging beta and high-expectation risk channel","source_article":"Article 5"},
+"SOI.PA":{"name":"Soitec S.A.","sector":"Semiconductor Materials","theme":"Engineered Substrates / SOI Wafers","country":"France","article_role":"European substrate and materials shock channel","source_article":"Article 5"},
+"IFX.DE":{"name":"Infineon Technologies AG","sector":"Semiconductors","theme":"Power / Automotive / Industrial Chips","country":"Germany","article_role":"European diversified semiconductor beta","source_article":"Article 5"},
+"AIXA.DE":{"name":"AIXTRON SE","sector":"Semiconductor Equipment","theme":"Compound Semiconductor Deposition","country":"Germany","article_role":"High-beta deposition-equipment contagion channel","source_article":"Article 5"},
+"STMPA.PA":{"name":"STMicroelectronics N.V.","sector":"Semiconductors","theme":"MCU / Analog / Power / Automotive","country":"France / Switzerland","article_role":"European diversified chip de-rating channel","source_article":"Article 5"},
+"WAF.DE":{"name":"Siltronic AG","sector":"Semiconductor Materials","theme":"Silicon Wafers / Materials","country":"Germany","article_role":"Upstream wafer-materials stress channel","source_article":"Article 5"},
+"AMS.SW":{"name":"ams-OSRAM AG","sector":"Electronic Components / Semiconductors","theme":"Optical Sensors / Photonics / LEDs","country":"Switzerland / Austria","article_role":"Optical and sensor high-volatility contagion channel","source_article":"Article 5"},
+}
+
 INDEX_BENCHMARKS = {
 "^GSPC":{"name":"S&P 500 Index","region":"United States"}, "^IXIC":{"name":"Nasdaq Composite Index","region":"United States"},
 "^NDX":{"name":"Nasdaq 100 Index","region":"United States"}, "^SOX":{"name":"Philadelphia Semiconductor Index","region":"United States"},
@@ -239,12 +285,16 @@ INDEX_BENCHMARKS = {
 "000001.SS":{"name":"Shanghai Composite Index","region":"China"}, "000300.SS":{"name":"CSI 300 Index","region":"China"},
 "^TWII":{"name":"TWSE Capitalization Weighted Index","region":"Taiwan"}, "^HSI":{"name":"Hang Seng Index","region":"Hong Kong"},
 "^STI":{"name":"Straits Times Index","region":"Singapore"},
+"^STOXX50E":{"name":"EURO STOXX 50 Index","region":"Euro Area"}, "^GDAXI":{"name":"DAX Index","region":"Germany"},
+"^FCHI":{"name":"CAC 40 Index","region":"France"}, "^AEX":{"name":"AEX Index","region":"Netherlands"},
+"^SSMI":{"name":"Swiss Market Index","region":"Switzerland"},
 "NQ=F":{"name":"Nasdaq 100 Futures","region":"US Futures"}, "ES=F":{"name":"S&P 500 Futures","region":"US Futures"}}
 
 UNIVERSE_CONFIGS = {
 "US Major Stocks 10M Portfolio":{"universe":US_MAJOR_UNIVERSE,"primary_benchmark":"^GSPC","benchmarks":["^GSPC","^IXIC"],"min_observations":756,"capital_mode":"whole_share_usd","description":"Original US major single-stock 10M USD portfolio. Existing feature set preserved."},
-"Article Shock Universe — AI Chip Selloff":{"universe":ARTICLE_SHOCK_UNIVERSE,"primary_benchmark":"^KS11","benchmarks":["^KS11","^N225","1306.T","^TWII","^HSI","^STI","^IXIC","^NDX","^SOX","^GSPC","^AXJO","^NSEI","^JKSE","000001.SS","000300.SS","NQ=F","ES=F"],"min_observations":60,"capital_mode":"equal_weight_return_index","description":"Companies and transmission channels identified across four Investing.com AI-chip articles. The fourth event adds renewed Korea selloff, TSMC earnings-risk, BOK tightening, regional-index dispersion and energy-inflation channels. Mixed currencies; analyzed as an actual-return equal-weight basket. New listings remain in the event monitor when long-history requirements are not met."},
-"US Technology + AI + Chip 20+ Universe":{"universe":US_TECH_AI_CHIP_UNIVERSE,"primary_benchmark":"^IXIC","benchmarks":["^IXIC","^SOX","^NDX","^GSPC"],"min_observations":504,"capital_mode":"whole_share_usd","description":"US-listed technology, AI infrastructure, semiconductor and chip ecosystem single stocks, including TSM, ASML and new SKHY ADR. No ETFs."}}
+"Article Shock Universe — AI Chip Selloff":{"universe":ARTICLE_SHOCK_UNIVERSE,"primary_benchmark":"^KS11","benchmarks":["^KS11","^N225","1306.T","^TWII","^HSI","^STI","^IXIC","^NDX","^SOX","^GSPC","^AXJO","^NSEI","^JKSE","000001.SS","000300.SS","NQ=F","ES=F"],"min_observations":60,"capital_mode":"equal_weight_return_index","description":"Companies and transmission channels identified across five Investing.com AI-chip articles. The fourth event adds renewed Korea selloff, TSMC earnings-risk, BOK tightening, regional-index dispersion and energy-inflation channels. Mixed currencies; analyzed as an actual-return equal-weight basket. New listings remain in the event monitor when long-history requirements are not met."},
+"US Technology + AI + Chip 20+ Universe":{"universe":US_TECH_AI_CHIP_UNIVERSE,"primary_benchmark":"^IXIC","benchmarks":["^IXIC","^SOX","^NDX","^GSPC"],"min_observations":504,"capital_mode":"whole_share_usd","description":"US-listed technology, AI infrastructure, semiconductor and chip ecosystem single stocks, including TSM, ASML and new SKHY ADR. No ETFs."},
+"European Semiconductor Contagion Universe":{"universe":EUROPEAN_SEMICONDUCTOR_UNIVERSE,"primary_benchmark":"^STOXX50E","benchmarks":["^STOXX50E","^AEX","^GDAXI","^FCHI","^SSMI","^SOX","^NDX"],"min_observations":504,"capital_mode":"equal_weight_return_index","description":"European semiconductor, equipment and materials companies identified in Article 5. Mixed European currencies are analyzed as local-currency actual-return series; no synthetic FX conversion and no ETF constituents."}}
 
 # ============================================================
 # 3. METRIC HELPERS
@@ -1050,8 +1100,8 @@ PCT_COLS={"Target Weight","Current Weight","Missing % Raw","Annualized Return","
 MONEY_COLS={"Target Dollars","Invested Dollars","Residual Cash Allocation","Latest Market Value"}
 FLOAT_COLS={"Initial Price","Latest Price","Whole Shares","Observations","Observations Raw","Sharpe Ratio","Sortino Ratio","Calmar Ratio","Payoff Ratio","Profit Factor","Skewness","Excess Kurtosis","Tail Ratio 95/5","Jarque-Bera p-value","Information Ratio","Beta","R-squared","Correlation","Expected Sharpe","Effective Number of Names","Marginal Risk Contribution","Total Risk Contribution","Institutional Score","Confidence Score","Technical Grade","Positive 60D Probability %","+10% 60D Probability %","Outperform Benchmark 60D Probability %","Historical Analog Count","Best Strategy Sharpe","Latest Premium Z 20D","Return Correlation","Ordinary Shares per ADR"}
 DATE_COLS={"First Date","Last Date","Start","End","Date"}
-PCT_COLS.update({"1D Return","5D Return","20D Return","Current Drawdown","Current Weight","Risk Contribution %","Risk Budget Gap","EWMA Ann Vol","Vol Percentile","Momentum 20D","Momentum 63D","Article 4 Event Exposure","Buy Breadth","Sell Breadth","Portfolio EWMA Vol","Portfolio Vol Percentile","Portfolio 1D","Portfolio 5D","Portfolio 20D","Weight HHI"})
-FLOAT_COLS.update({"Shock Z","Risk Pressure Z","Event Stress Score","Conviction Score","Risk Score","Average Institutional Score","Average Confidence"})
+PCT_COLS.update({"1D Return","5D Return","20D Return","Current Drawdown","Current Weight","Risk Contribution %","Risk Budget Gap","EWMA Ann Vol","Vol Percentile","Momentum 20D","Momentum 63D","News Event Exposure","Buy Breadth","Sell Breadth","Portfolio EWMA Vol","Portfolio Vol Percentile","Portfolio 1D","Portfolio 5D","Portfolio 20D","Weight HHI","Negative Breadth","EWMA Volatility","Volatility Percentile","1D Basket Return","5D Basket Return","20D Basket Return","252D Return","Distance From 52W High"})
+FLOAT_COLS.update({"Shock Z","Risk Pressure Z","Event Stress Score","Conviction Score","Risk Score","Average Institutional Score","Average Confidence","Contagion Score","Expectation Risk Score","SOX Same-Day Beta","SOX Lag-1 Beta","SOX Same-Day Correlation","SOX Lag-1 Correlation","Downside Shock Z"})
 def fmt(df):
     if df is None or df.empty: return pd.DataFrame({"Info":["No data available"]})
     out=df.copy()
@@ -1075,6 +1125,7 @@ def news_event_register():
         {"Event ID":"AI_CHIP_02","Event Date":"2026-07-08","News Source":NEWS_SOURCE_TITLE_2,"Primary Shock":"AI valuation concerns despite strong earnings","Affected Securities":"Samsung, Asian AI hardware chain","Risk Channels":"Earnings hurdle, capex sustainability, factor rotation","Management Horizon":"1D / earnings window / 60D"},
         {"Event ID":"AI_CHIP_03","Event Date":"2026-07-13","News Source":NEWS_SOURCE_TITLE_3,"Primary Shock":"SK Hynix ADR/local cross-listing dislocation","Affected Securities":"000660.KS, SKHY, MU, SNDK, SOX","Risk Channels":"ADR liquidity, price discovery, memory volatility","Management Horizon":"Intraday / 5D / 20D"},
         {"Event ID":"AI_CHIP_04","Event Date":NEWS_SOURCE_DATE_4,"News Source":NEWS_SOURCE_TITLE_4,"Primary Shock":"KOSPI trading halt and renewed chip selloff ahead of TSMC earnings","Affected Securities":"005930.KS, 000660.KS, 2330.TW, TSM, NVDA, AAPL, ASML.AS","Risk Channels":"Korea concentration, TSMC earnings hurdle, BOK +25bp, oil inflation, Hormuz risk","Management Horizon":"1D shock / 20D tactical / 60D allocation"},
+        {"Event ID":"AI_CHIP_05","Event Date":NEWS_SOURCE_DATE_5,"News Source":NEWS_SOURCE_TITLE_5,"Primary Shock":"U.S. semiconductor selloff transmitted into European chip, equipment and materials names","Affected Securities":"ASML.AS, ASM.AS, BESI.AS, SOI.PA, IFX.DE, AIXA.DE, STMPA.PA, WAF.DE, AMS.SW, INTC, WDC, STX, TSM, SOX","Risk Channels":"SOX beta, overnight contagion, memory/storage shock, expectations de-rating, WFE and materials breadth","Management Horizon":"1D event / 5D contagion / 20D tactical / 60D allocation"},
     ])
 def download_index_close_for_qs_engine(ticker, label):
     """Downloads a real index/proxy series for QS Engine. No synthetic fallback is used."""
@@ -1151,14 +1202,17 @@ def section(res,js=False):
     ex=res["ud"]["exclusions"] if not res["ud"]["exclusions"].empty else pd.DataFrame([{"Ticker":"—","Name":"—","Reason":"No exclusions"}])
     bex=res["ud"]["benchmark_exclusions"] if not res["ud"]["benchmark_exclusions"].empty else pd.DataFrame([{"Benchmark":"—","Name":"—","Reason":"No benchmark exclusions"}])
     return f"""<div class="section"><h2>{name}</h2><div class="note"><b>Description:</b> {res["ud"]["cfg"]["description"]}<br><b>Implementation:</b> {res["pf"]["mode_note"]}<br><b>Primary benchmark:</b> {res["ud"]["primary"]} — {INDEX_BENCHMARKS.get(res["ud"]["primary"],{}).get("name",res["ud"]["primary"])}<br><b>Sample:</b> {res["ud"]["start"].date()} to {res["ud"]["end"].date()}</div><br><div class="kpi-grid">{kpis(res)}</div><h3>Interactive Charts</h3>{''.join([f'<div class="chart-block">{x}</div>' for x in ds])}<h3>Portfolio Metrics</h3>{table(metrics_df(res["pm"]),"m"+str(uid))}<h3>Holdings / Constituents</h3>{table(res["pf"]["holdings"],"h"+str(uid))}<h3>Asset Metrics</h3>{table(res["am"].sort_values("Sharpe Ratio",ascending=False),"a"+str(uid))}<h3>Risk Contribution</h3>{table(res["rc"],"r"+str(uid))}<h3>Multi-Benchmark Comparison</h3>{table(res["bt"],"b"+str(uid))}<h3>Stress Tests</h3>{table(res["st"],"s"+str(uid))}<h3>Optimization Summary</h3>{table(res["os"],"os"+str(uid))}<h3>Optimization Weights</h3>{table(res["ow"],"ow"+str(uid))}<h3>Data Quality</h3>{table(res["ud"]["data_quality"],"dq"+str(uid))}<h3>Security Exclusion Log</h3>{table(ex,"ex"+str(uid))}<h3>Benchmark Exclusion Log</h3>{table(bex,"bex"+str(uid))}</div>"""
-def create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None):
+def create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None):
     ac,ai=article_tables(); all_rows=[]
     for uname,cfg in UNIVERSE_CONFIGS.items():
         for t,m in cfg["universe"].items(): all_rows.append({"Universe":uname,"Ticker":t,"Company":m["name"],"Sector":m.get("sector","N/A"),"Theme":m.get("theme","N/A"),"Country":m.get("country","United States")})
-    tabs=['<button class="tablink active" onclick="openTab(event, \'source\')">News Source & Universes</button>']; contents=[f'<div id="source" class="tabcontent active-content"><div class="section"><h2>News Source & Project Scope</h2><div class="note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br><b>URL 1:</b> {NEWS_SOURCE_URL}<br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br><b>URL 2:</b> {NEWS_SOURCE_URL_2}<br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br><b>URL 3:</b> {NEWS_SOURCE_URL_3}<br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br><b>URL 4:</b> {NEWS_SOURCE_URL_4}<br><b>Rule:</b> Existing features preserved. Added Article Shock Universe from all four Investing.com articles and US Technology + AI + Chip Universe. The third article adds the SKHY cross-listing channel; the fourth adds renewed Korea selloff, TSMC earnings-risk, Bank of Korea tightening, regional-index dispersion and oil-inflation monitoring. SKHY, TSM, ASML.AS, ASML and related listings are analyzed where real Yahoo history permits. No ETF constituents in investment universes. Interactive charts are rendered in full horizontal page width. <b>TOPIX exception:</b> because Yahoo Finance did not return ^TOPX index data, TOPIX benchmark exposure is represented only by 1306.T, NEXT FUNDS TOPIX ETF. This ETF is used solely as a benchmark proxy, never as a portfolio constituent. No synthetic fallback.<br><b>SOX diagnostics:</b> Philadelphia Semiconductor Index <code>^SOX</code> is separately downloaded from 2018-01-01. The report includes daily log returns, 20D rolling mean, 20D ±2σ bands, breach counts and largest breach dates.</div><h3>Structured News Event Register</h3>{table(news_event_register(),"news_events")}<h3>Article Companies</h3>{table(ac,"articlec")}<h3>Article Indices / Benchmarks</h3>{table(ai,"articlei")}<h3>All Configured Universes</h3>{table(pd.DataFrame(all_rows),"allu")}</div></div>']
+    tabs=['<button class="tablink active" onclick="openTab(event, \'source\')">News Source & Universes</button>']; contents=[f'<div id="source" class="tabcontent active-content"><div class="section"><h2>News Source & Project Scope</h2><div class="note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br><b>URL 1:</b> {NEWS_SOURCE_URL}<br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br><b>URL 2:</b> {NEWS_SOURCE_URL_2}<br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br><b>URL 3:</b> {NEWS_SOURCE_URL_3}<br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br><b>URL 4:</b> {NEWS_SOURCE_URL_4}<br><b>News 5:</b> {NEWS_SOURCE_TITLE_5}<br><b>URL 5:</b> {NEWS_SOURCE_URL_5}<br><b>Rule:</b> Existing features preserved. Added Article Shock Universe from all five Investing.com articles and US Technology + AI + Chip Universe. The third article adds the SKHY cross-listing channel; the fourth adds renewed Korea selloff and macro-risk monitoring; the fifth adds U.S.-to-Europe semiconductor contagion, WFE/materials breadth and expectations de-rating analysis. SKHY, TSM, ASML.AS, ASML and related listings are analyzed where real Yahoo history permits. No ETF constituents in investment universes. Interactive charts are rendered in full horizontal page width. <b>TOPIX exception:</b> because Yahoo Finance did not return ^TOPX index data, TOPIX benchmark exposure is represented only by 1306.T, NEXT FUNDS TOPIX ETF. This ETF is used solely as a benchmark proxy, never as a portfolio constituent. No synthetic fallback.<br><b>SOX diagnostics:</b> Philadelphia Semiconductor Index <code>^SOX</code> is separately downloaded from 2018-01-01. The report includes daily log returns, 20D rolling mean, 20D ±2σ bands, breach counts and largest breach dates.</div><h3>Structured News Event Register</h3>{table(news_event_register(),"news_events")}<h3>Article Companies</h3>{table(ac,"articlec")}<h3>Article Indices / Benchmarks</h3>{table(ai,"articlei")}<h3>All Configured Universes</h3>{table(pd.DataFrame(all_rows),"allu")}</div></div>']
     if management_packs:
         tabs.append("<button class='tablink' onclick=\"openTab(event, 'managementbrief')\">Hedge Fund Management Brief</button>")
         contents.append(f'<div id="managementbrief" class="tabcontent">{management_pack_html(management_packs)}</div>')
+    if contagion_pack:
+        tabs.append("<button class='tablink' onclick=\"openTab(event, 'globalcontagion')\">Global Semiconductor Contagion</button>")
+        contents.append(f'<div id="globalcontagion" class="tabcontent">{global_contagion_tab_html(contagion_pack)}</div>')
     sox_summary_table = table(sox["summary"], "soxsummary")
     sox_breach_top = sox["breaches"].head(SOX_TOP_BREACH_ROWS).copy()
     sox_breach_table = table(sox_breach_top, "soxbreaches")
@@ -1188,7 +1242,7 @@ window.addEventListener('resize',function(){{resizeVisiblePlots(document)}});</s
 def sheet(s):
     for ch in r'\/*?:[]': s=s.replace(ch,'_')
     return s[:31]
-def export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None):
+def export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None):
     with pd.ExcelWriter(EXCEL_OUTPUT,engine="xlsxwriter") as writer:
         ac,ai=article_tables(); ac.to_excel(writer,"Article_Companies",index=False); ai.to_excel(writer,"Article_Indices",index=False); news_event_register().to_excel(writer,"News_Event_Register",index=False)
         sox["summary"].to_excel(writer, "SOX_Summary", index=False)
@@ -1213,6 +1267,13 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing,
                 pack["macro"].to_excel(writer,sheet(p+"_Macro"),index=False)
                 pack["event"].to_excel(writer,sheet(p+"_Event"),index=False)
                 pack["actions"].to_excel(writer,sheet(p+"_Actions"),index=False)
+        if contagion_pack:
+            metrics_df(contagion_pack["summary"]).to_excel(writer,"Global_Contagion_Summary",index=False)
+            contagion_pack["regional"].to_excel(writer,"Regional_Chip_Baskets",index=False)
+            contagion_pack["europe"].to_excel(writer,"Europe_Contagion",index=False)
+            contagion_pack["segments"].to_excel(writer,"Europe_Subsector_Stress",index=False)
+            for region,hist in contagion_pack.get("regional_history",{}).items():
+                hist.to_excel(writer,sheet("Region_"+region))
         cross_listing["summary"].to_excel(writer,"Cross_Listing_Summary",index=False)
         cross_listing["exclusions"].to_excel(writer,"Cross_Listing_Excl",index=False)
         for pair_name,hist in cross_listing["histories"].items():
@@ -1227,10 +1288,10 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing,
 # ============================================================
 # 8. STREAMLIT APPLICATION LAYER
 # ============================================================
-STREAMLIT_APP_VERSION = "2.3.0"
+STREAMLIT_APP_VERSION = "2.4.0"
 
 st.set_page_config(
-    page_title="AI / Chip Institutional Platform",
+    page_title="Global Semiconductor Institutional Platform",
     page_icon="◼",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -1690,7 +1751,7 @@ def build_macro_risk_pulse(close):
 def build_event_shock_monitor(inst, close):
     rows = []
     details = inst.get("details", {})
-    for ticker in NEWS_EVENT_4_TICKERS:
+    for ticker in NEWS_EVENT_MONITOR_TICKERS:
         meta = ARTICLE_SHOCK_UNIVERSE.get(ticker, US_TECH_AI_CHIP_UNIVERSE.get(ticker, {"name":ticker,"sector":"N/A","theme":"N/A","country":"N/A"}))
         detail = details.get(ticker)
         if detail is not None:
@@ -1724,7 +1785,7 @@ def build_event_shock_monitor(inst, close):
         state = "SEVERE" if stress >= 80 else ("ELEVATED" if stress >= 65 else ("WATCH" if stress >= 50 else "STABLE"))
         rows.append({
             "Ticker":ticker,"Company":meta.get("name",ticker),"Country":meta.get("country","N/A"),
-            "Sector":meta.get("sector","N/A"),"Event Role":meta.get("article_role","Article 4 transmission channel"),
+            "Sector":meta.get("sector","N/A"),"Event Role":meta.get("article_role","Multi-event transmission channel"),
             "1D Return":one,"5D Return":five,"20D Return":twenty,"Shock Z":shock_z,"Current Drawdown":drawdown,
             "Event Stress Score":stress,"Event State":state,"Institutional Score":score,"Confidence Score":confidence,
             "Recommendation":recommendation,"Status":"LIVE",
@@ -1752,7 +1813,7 @@ def build_management_action_matrix(res, inst):
         vol_pct = float(vol["EWMA 0.94 Percentile 252D"].iloc[-1]) if not vol.empty and pd.notna(vol["EWMA 0.94 Percentile 252D"].iloc[-1]) else np.nan
         score = float(r.get("Institutional Score", np.nan)); conf = float(r.get("Confidence Score", np.nan))
         mom20 = float(last.get("Momentum_20D", np.nan)); mom63 = float(last.get("Momentum_63D", np.nan)); dd = float(last.get("Drawdown", np.nan))
-        event_flag = ticker in NEWS_EVENT_4_TICKERS
+        event_flag = ticker in NEWS_EVENT_MONITOR_TICKERS
         if score >= 80 and conf >= 65 and (pd.isna(vol_pct) or vol_pct < .85): action = "ADD / HIGH CONVICTION"
         elif score >= 65 and conf >= 55: action = "ACCUMULATE"
         elif score <= 20: action = "EXIT WATCH"
@@ -1772,7 +1833,7 @@ def build_management_action_matrix(res, inst):
             "Action":action,"Conviction Score":float(conviction),"Institutional Score":score,"Confidence Score":conf,
             "Recommendation":r.get("Recommendation"),"Current Weight":weight,"Risk Contribution %":risk_contrib,
             "Risk Budget Gap":budget_gap,"EWMA Ann Vol":vol_now,"Vol Percentile":vol_pct,"Momentum 20D":mom20,
-            "Momentum 63D":mom63,"Current Drawdown":dd,"Article 4 Event Flag":event_flag,"Position Discipline":discipline,
+            "Momentum 63D":mom63,"Current Drawdown":dd,"News Event Flag":event_flag,"Position Discipline":discipline,
         })
     priority = {"EXIT WATCH":0,"REDUCE / DRAWDOWN CONTROL":1,"REDUCE":2,"HOLD / EVENT CONFIRMATION":3,"HOLD / MONITOR":4,"ACCUMULATE":5,"ADD / HIGH CONVICTION":6}
     out = pd.DataFrame(rows)
@@ -1799,7 +1860,7 @@ def build_hedge_fund_management_pack(res, inst, close):
     average_conf = float(pd.to_numeric(ranking.get("Confidence Score"), errors="coerce").mean()) if not ranking.empty else np.nan
     weights = res["pf"]["current_weights"]
     weight_hhi = float((pd.Series(weights, dtype=float).fillna(0.0)**2).sum()) if len(weights) else np.nan
-    event_exposure = float(pd.Series(weights).reindex(NEWS_EVENT_4_TICKERS).fillna(0.0).sum()) if len(weights) else 0.0
+    event_exposure = float(pd.Series(weights).reindex(NEWS_EVENT_MONITOR_TICKERS).fillna(0.0).sum()) if len(weights) else 0.0
     positive_pressure = pd.to_numeric(macro.get("Risk Pressure Z"), errors="coerce").clip(lower=0).mean() if not macro.empty else 0.0
     risk_score = float(np.clip(45 + 12*np.nan_to_num(positive_pressure, nan=0.0) + 20*(np.nan_to_num(vol_pct, nan=.5)-.5) + 18*(np.nan_to_num(sell_breadth, nan=0.0)-np.nan_to_num(buy_breadth, nan=0.0)) + 8*min(event_exposure/.25,1.0), 0, 100))
     if risk_score >= 75: stance, exposure, hedge = "DEFENSIVE", "45–65%", "HIGH"
@@ -1812,7 +1873,7 @@ def build_hedge_fund_management_pack(res, inst, close):
         "Management Stance":stance,"Risk Score":risk_score,"Model Gross Exposure Bias":exposure,"Hedge Intensity":hedge,
         "Portfolio EWMA Vol":vol_now,"Portfolio Vol Percentile":vol_pct,"Buy Breadth":buy_breadth,"Sell Breadth":sell_breadth,
         "Average Institutional Score":average_score,"Average Confidence":average_conf,"Weight HHI":weight_hhi,
-        "Article 4 Event Exposure":event_exposure,"Severe Event Names":severe,
+        "News Event Exposure":event_exposure,"Severe Event Names":severe,
         "Portfolio 1D":float(portfolio_return.iloc[-1]) if len(portfolio_return) else np.nan,
         "Portfolio 5D":float((1+portfolio_return.tail(5)).prod()-1) if len(portfolio_return)>=5 else np.nan,
         "Portfolio 20D":float((1+portfolio_return.tail(20)).prod()-1) if len(portfolio_return)>=20 else np.nan,
@@ -1820,7 +1881,7 @@ def build_hedge_fund_management_pack(res, inst, close):
     summary["Executive Interpretation"] = (
         f"{stance} posture with model gross-exposure bias {exposure} and {hedge.lower()} hedge intensity. "
         f"Decision breadth is {buy_breadth:.0%} BUY versus {sell_breadth:.0%} SELL where available. "
-        f"Article-four exposure is {event_exposure:.1%}; {severe} monitored names are in severe event stress. "
+        f"Multi-event exposure is {event_exposure:.1%}; {severe} monitored names are in severe event stress. "
         "Actions are conditional model outputs, not automatic trades."
     )
     return {"summary":summary,"macro":macro,"event":event,"actions":actions,"event_register":news_event_register()}
@@ -1841,13 +1902,13 @@ def chart_macro_risk_pulse(df):
 def chart_event_shock_monitor(df):
     live = df.dropna(subset=["Shock Z"]).copy() if df is not None and not df.empty else pd.DataFrame()
     if live.empty:
-        return layout(go.Figure(), "Article 4 Semiconductor Event Shock Monitor", CHART_FULL_HEIGHT)
+        return layout(go.Figure(), "Multi-Event Semiconductor Shock Monitor", CHART_FULL_HEIGHT)
     live = live.sort_values("Shock Z", ascending=True)
     colors = np.where(live["Shock Z"] < -1, "#b42318", np.where(live["Shock Z"] > 1, "#16794a", "#667085"))
     fig = go.Figure(go.Bar(x=live["Shock Z"], y=live["Ticker"], orientation="h", marker_color=colors, customdata=np.stack([live["Company"],live["Event Stress Score"],live["Recommendation"].fillna("N/A")],axis=-1), hovertemplate="%{y}<br>%{customdata[0]}<br>Daily shock=%{x:.2f}σ<br>Event stress=%{customdata[1]:.1f}<br>Decision=%{customdata[2]}<extra></extra>"))
     fig.add_vline(x=0,line_width=1); fig.add_vline(x=-2,line_dash="dash"); fig.add_vline(x=2,line_dash="dash")
     fig.update_xaxes(title="Latest return shock / EWMA daily sigma")
-    return layout(fig, "Article 4 Semiconductor Event Shock Monitor", CHART_FULL_HEIGHT)
+    return layout(fig, "Multi-Event Semiconductor Shock Monitor", CHART_FULL_HEIGHT)
 
 
 def chart_decision_breadth(ranking):
@@ -1865,7 +1926,7 @@ def chart_management_action_map(actions):
         return layout(go.Figure(), "Position Action and Risk Map", CHART_FULL_HEIGHT)
     d = actions.copy(); d["Bubble Size"] = (pd.to_numeric(d["Current Weight"],errors="coerce").fillna(0)*100 + 1.0).clip(lower=1)
     color_map = {"ADD / HIGH CONVICTION":"#065f46","ACCUMULATE":"#16794a","HOLD / MONITOR":"#667085","HOLD / EVENT CONFIRMATION":"#b7791f","REDUCE":"#b42318","REDUCE / DRAWDOWN CONTROL":"#991b1b","EXIT WATCH":"#7f1d1d"}
-    fig = px.scatter(d, x="Institutional Score", y="EWMA Ann Vol", size="Bubble Size", text="Ticker", color="Action", color_discrete_map=color_map, hover_data=["Company","Confidence Score","Momentum 20D","Current Drawdown","Current Weight","Risk Contribution %","Article 4 Event Flag"], template=PLOT_TEMPLATE)
+    fig = px.scatter(d, x="Institutional Score", y="EWMA Ann Vol", size="Bubble Size", text="Ticker", color="Action", color_discrete_map=color_map, hover_data=["Company","Confidence Score","Momentum 20D","Current Drawdown","Current Weight","Risk Contribution %","News Event Flag"], template=PLOT_TEMPLATE)
     fig.update_traces(textposition="top center")
     fig.add_vline(x=40,line_dash="dot"); fig.add_vline(x=65,line_dash="dot"); fig.add_vline(x=80,line_dash="dash")
     fig.update_xaxes(range=[0,100]); fig.update_yaxes(tickformat=".1%",title="EWMA annualized volatility")
@@ -1877,8 +1938,237 @@ def management_pack_html(management_packs):
     for uname, pack in management_packs.items():
         safe = re.sub(r"[^A-Za-z0-9]+","_",uname).strip("_").lower()
         summary = metrics_df(pack["summary"])
-        blocks.append(f'<div class="section"><h2>{uname} — Hedge Fund Management Brief</h2><div class="note">{pack["summary"].get("Executive Interpretation","")}</div><h3>Management KPI Summary</h3>{table(summary,"mgmt_sum_"+safe)}<h3>Macro / Regional Risk Pulse</h3>{table(pack["macro"],"mgmt_macro_"+safe)}<h3>Article 4 Event Shock Monitor</h3>{table(pack["event"],"mgmt_event_"+safe)}<h3>Position Action Matrix</h3>{table(pack["actions"],"mgmt_actions_"+safe)}</div>')
+        blocks.append(f'<div class="section"><h2>{uname} — Hedge Fund Management Brief</h2><div class="note">{pack["summary"].get("Executive Interpretation","")}</div><h3>Management KPI Summary</h3>{table(summary,"mgmt_sum_"+safe)}<h3>Macro / Regional Risk Pulse</h3>{table(pack["macro"],"mgmt_macro_"+safe)}<h3>Multi-Event Shock Monitor</h3>{table(pack["event"],"mgmt_event_"+safe)}<h3>Position Action Matrix</h3>{table(pack["actions"],"mgmt_actions_"+safe)}</div>')
     return "".join(blocks)
+
+
+# -------------------------------------------------------------------------
+# GLOBAL SEMICONDUCTOR CONTAGION & POSITIONING ENGINE — ARTICLE 5
+# -------------------------------------------------------------------------
+def _all_institutional_details(institutional_results):
+    out = {}
+    for inst in institutional_results.values():
+        for ticker, detail in inst.get("details", {}).items():
+            out.setdefault(ticker, detail)
+    return out
+
+
+def _basket_return_series(close, tickers, min_names=2):
+    available = [t for t in tickers if t in close.columns and close[t].dropna().shape[0] >= 30]
+    if not available:
+        return pd.Series(dtype=float), pd.Series(dtype=float), []
+    returns = close[available].pct_change()
+    count = returns.notna().sum(axis=1)
+    basket = returns.mean(axis=1, skipna=True).where(count >= min(min_names, len(available))).dropna()
+    return basket, count.reindex(basket.index), available
+
+
+def _ewma_latest_from_returns(r):
+    r = pd.Series(r, dtype=float).replace([np.inf, -np.inf], np.nan).dropna()
+    if len(r) < 20:
+        return np.nan, np.nan, np.nan
+    var = r.pow(2).shift(1).ewm(alpha=0.06, adjust=False, min_periods=20).mean()
+    ann = np.sqrt(var * TRADING_DAYS)
+    pct_rank = ann.rolling(252, min_periods=63).apply(lambda a: float(pd.Series(a).rank(pct=True).iloc[-1]), raw=False)
+    sigma = np.sqrt(var)
+    return float(ann.iloc[-1]) if pd.notna(ann.iloc[-1]) else np.nan, float(pct_rank.iloc[-1]) if pd.notna(pct_rank.iloc[-1]) else np.nan, float(sigma.iloc[-1]) if pd.notna(sigma.iloc[-1]) else np.nan
+
+
+def build_regional_semiconductor_baskets(close):
+    summary_rows, history = [], {}
+    for region, tickers in SEMICONDUCTOR_REGION_BASKETS.items():
+        r, count, available = _basket_return_series(close, tickers, min_names=2)
+        if r.empty:
+            summary_rows.append({"Region":region,"Status":"INSUFFICIENT","Available Names":len(available)})
+            continue
+        equity = (1+r).cumprod()
+        ann_vol, vol_pct, daily_sigma = _ewma_latest_from_returns(r)
+        shock_z = float(r.iloc[-1]/daily_sigma) if pd.notna(daily_sigma) and daily_sigma > 0 else np.nan
+        latest_constituent_returns = close[available].pct_change().iloc[-1].dropna()
+        negative_breadth = float((latest_constituent_returns < 0).mean()) if len(latest_constituent_returns) else np.nan
+        history[region] = pd.DataFrame({"Basket Return":r,"Basket Equity":equity,"Constituent Count":count})
+        summary_rows.append({
+            "Region":region,"Status":"LIVE","Available Names":len(available),"Constituents":", ".join(available),
+            "1D Basket Return":float(r.iloc[-1]),"5D Basket Return":float((1+r.tail(5)).prod()-1) if len(r)>=5 else np.nan,
+            "20D Basket Return":float((1+r.tail(20)).prod()-1) if len(r)>=20 else np.nan,
+            "EWMA Volatility":ann_vol,"Volatility Percentile":vol_pct,"Downside Shock Z":-shock_z if pd.notna(shock_z) else np.nan,
+            "Negative Breadth":negative_breadth,
+        })
+    return pd.DataFrame(summary_rows), history
+
+
+def _sox_transmission_metrics(asset_return, sox_return):
+    pair = pd.concat([pd.Series(asset_return,name="a"),pd.Series(sox_return,name="s")],axis=1).dropna()
+    if len(pair) < 60:
+        return {"same_corr":np.nan,"lag_corr":np.nan,"same_beta":np.nan,"lag_beta":np.nan}
+    tail = pair.tail(min(252,len(pair)))
+    same_corr = tail["a"].corr(tail["s"])
+    same_var = tail["s"].var(ddof=1)
+    same_beta = tail["a"].cov(tail["s"])/same_var if same_var>0 else np.nan
+    lag = pd.concat([pair["a"],pair["s"].shift(1).rename("s_lag")],axis=1).dropna().tail(min(252,len(pair)))
+    lag_corr = lag["a"].corr(lag["s_lag"]) if len(lag)>=60 else np.nan
+    lag_var = lag["s_lag"].var(ddof=1) if len(lag)>=60 else np.nan
+    lag_beta = lag["a"].cov(lag["s_lag"])/lag_var if pd.notna(lag_var) and lag_var>0 else np.nan
+    return {"same_corr":same_corr,"lag_corr":lag_corr,"same_beta":same_beta,"lag_beta":lag_beta}
+
+
+def build_european_contagion_monitor(close, institutional_results):
+    rows=[]; details=_all_institutional_details(institutional_results)
+    if "^SOX" not in close.columns:
+        sox_r=pd.Series(dtype=float)
+    else:
+        sox_r=close["^SOX"].pct_change()
+    for ticker, meta in EUROPEAN_SEMICONDUCTOR_UNIVERSE.items():
+        if ticker not in close.columns or close[ticker].dropna().shape[0] < 30:
+            rows.append({"Ticker":ticker,"Company":meta["name"],"Subsector":EUROPE_SEMICONDUCTOR_SUBSECTORS.get(ticker,"N/A"),"Status":"NO DATA"})
+            continue
+        s=close[ticker].dropna().sort_index(); r=s.pct_change(); ann_vol,vol_pct,daily_sigma=_ewma_latest_from_returns(r)
+        one=float(r.iloc[-1]) if len(r)>1 else np.nan
+        lr=float(np.log(s.iloc[-1]/s.iloc[-2])) if len(s)>1 else np.nan
+        shock_z=lr/daily_sigma if pd.notna(daily_sigma) and daily_sigma>0 else np.nan
+        trans=_sox_transmission_metrics(r,sox_r)
+        ret252=float(s.iloc[-1]/s.iloc[-253]-1) if len(s)>252 else np.nan
+        high252=float(s.tail(252).max()) if len(s)>=60 else np.nan
+        dist_high=float(s.iloc[-1]/high252-1) if pd.notna(high252) and high252>0 else np.nan
+        drawdown=float(s.iloc[-1]/s.cummax().iloc[-1]-1)
+        detail=details.get(ticker,{})
+        decision=detail.get("decision",{}) if detail else {}
+        inst_score=decision.get("Institutional Score",np.nan); confidence=decision.get("Confidence Score",np.nan); recommendation=decision.get("Recommendation","N/A")
+        downside_component=np.clip(max(0,-shock_z)/3 if pd.notna(shock_z) else 0,0,1)
+        beta_component=np.clip(max(0,trans["same_beta"],trans["lag_beta"])/2 if any(pd.notna(v) for v in [trans["same_beta"],trans["lag_beta"]]) else 0,0,1)
+        corr_component=np.clip(max(0,trans["same_corr"],trans["lag_corr"]) if any(pd.notna(v) for v in [trans["same_corr"],trans["lag_corr"]]) else 0,0,1)
+        vol_component=np.clip(vol_pct if pd.notna(vol_pct) else 0,0,1)
+        draw_component=np.clip(abs(min(drawdown,0))/0.35,0,1)
+        contagion=100*(0.30*downside_component+0.20*beta_component+0.15*corr_component+0.20*vol_component+0.15*draw_component)
+        expectation=100*(0.40*np.clip((ret252 if pd.notna(ret252) else 0)/0.80,0,1)+0.30*np.clip(1-abs(min(dist_high if pd.notna(dist_high) else -1,0))/0.30,0,1)+0.30*vol_component)
+        if contagion>=75 or (pd.notna(inst_score) and inst_score<35): action="REDUCE / HEDGE"
+        elif contagion>=55: action="HOLD / EVENT CONFIRMATION"
+        elif pd.notna(inst_score) and inst_score>=75 and contagion<40: action="SELECTIVE ACCUMULATE"
+        elif pd.notna(inst_score) and inst_score<50: action="REDUCE"
+        else: action="HOLD / MONITOR"
+        rows.append({
+            "Ticker":ticker,"Company":meta["name"],"Country":meta.get("country","N/A"),"Subsector":EUROPE_SEMICONDUCTOR_SUBSECTORS.get(ticker,"N/A"),"Status":"LIVE",
+            "1D Return":one,"5D Return":_window_total_return(s,5),"20D Return":_window_total_return(s,20),"252D Return":ret252,
+            "Distance From 52W High":dist_high,"Current Drawdown":drawdown,"EWMA Volatility":ann_vol,"Volatility Percentile":vol_pct,
+            "Downside Shock Z":-shock_z if pd.notna(shock_z) else np.nan,"SOX Same-Day Correlation":trans["same_corr"],"SOX Lag-1 Correlation":trans["lag_corr"],
+            "SOX Same-Day Beta":trans["same_beta"],"SOX Lag-1 Beta":trans["lag_beta"],"Contagion Score":float(np.clip(contagion,0,100)),
+            "Expectation Risk Score":float(np.clip(expectation,0,100)),"Institutional Score":inst_score,"Confidence Score":confidence,
+            "Recommendation":recommendation,"Position Action":action,
+        })
+    return pd.DataFrame(rows)
+
+
+def build_european_subsector_stress(europe_monitor):
+    if europe_monitor is None or europe_monitor.empty or "Subsector" not in europe_monitor:
+        return pd.DataFrame()
+    live=europe_monitor[europe_monitor["Status"].eq("LIVE")].copy()
+    if live.empty: return pd.DataFrame()
+    agg=live.groupby("Subsector",as_index=False).agg(
+        Names=("Ticker","count"),
+        **{"1D Return":("1D Return","mean"),"5D Return":("5D Return","mean"),"20D Return":("20D Return","mean"),
+           "Contagion Score":("Contagion Score","mean"),"Expectation Risk Score":("Expectation Risk Score","mean"),
+           "EWMA Volatility":("EWMA Volatility","mean"),"Negative Breadth":("1D Return",lambda s: float((s<0).mean()))}
+    )
+    return agg.sort_values("Contagion Score",ascending=False)
+
+
+def build_global_semiconductor_contagion_pack(close, institutional_results):
+    regional,history=build_regional_semiconductor_baskets(close)
+    europe=build_european_contagion_monitor(close,institutional_results)
+    segments=build_european_subsector_stress(europe)
+    live_eu=europe[europe.get("Status",pd.Series(dtype=str)).eq("LIVE")] if not europe.empty else pd.DataFrame()
+    avg_cont=float(live_eu["Contagion Score"].mean()) if not live_eu.empty else np.nan
+    severe=int((live_eu["Contagion Score"]>=70).sum()) if not live_eu.empty else 0
+    reduce_count=int(live_eu["Position Action"].str.contains("REDUCE|HEDGE",regex=True,na=False).sum()) if not live_eu.empty else 0
+    reg_live=regional[regional.get("Status",pd.Series(dtype=str)).eq("LIVE")] if not regional.empty else pd.DataFrame()
+    global_negative=float(reg_live["Negative Breadth"].mean()) if not reg_live.empty else np.nan
+    global_risk=0.55*(avg_cont if pd.notna(avg_cont) else 50)+45*(global_negative if pd.notna(global_negative) else 0.5)
+    if global_risk>=75: stance="DEFENSIVE / HIGH HEDGE"
+    elif global_risk>=60: stance="CAUTIOUS / REDUCED GROSS"
+    elif global_risk>=45: stance="SELECTIVE / EVENT-DRIVEN"
+    else: stance="BALANCED / SELECTIVE RISK-ON"
+    summary={
+        "Global Contagion Risk Score":float(np.clip(global_risk,0,100)),"Management Stance":stance,
+        "Average Europe Contagion Score":avg_cont,"Severe European Names":severe,"Reduce / Hedge Names":reduce_count,
+        "Global Negative Breadth":global_negative,"European Live Names":int(len(live_eu)),
+        "Executive Interpretation":f"{stance}: U.S. semiconductor weakness is evaluated through same-day and lagged SOX transmission, European breadth, EWMA volatility and institutional positioning. No news return is hard-coded; all live classifications come from Yahoo Finance observations."
+    }
+    return {"summary":summary,"regional":regional,"regional_history":history,"europe":europe,"segments":segments,"event_register":news_event_register()}
+
+
+def chart_regional_semiconductor_growth(pack):
+    fig=go.Figure()
+    for region,d in pack.get("regional_history",{}).items():
+        if not d.empty: fig.add_trace(go.Scatter(x=d.index,y=d["Basket Equity"]*100,mode="lines",name=region))
+    fig.update_yaxes(title="Equal-weight local-return basket, base 100")
+    return layout(fig,"Global Semiconductor Regional Basket Performance",CHART_EXTRA_LARGE_HEIGHT)
+
+
+def chart_regional_contagion_risk(regional):
+    live=regional[regional["Status"].eq("LIVE")].copy() if regional is not None and not regional.empty else pd.DataFrame()
+    if live.empty: return layout(go.Figure(),"Regional Semiconductor Risk Pulse",CHART_FULL_HEIGHT)
+    live=live.sort_values("Downside Shock Z",ascending=True)
+    fig=go.Figure(go.Bar(x=live["Downside Shock Z"],y=live["Region"],orientation="h",customdata=np.stack([live["Negative Breadth"],live["EWMA Volatility"],live["1D Basket Return"]],axis=-1),hovertemplate="%{y}<br>Downside shock=%{x:.2f}σ<br>Negative breadth=%{customdata[0]:.1%}<br>EWMA vol=%{customdata[1]:.1%}<br>1D=%{customdata[2]:.2%}<extra></extra>"))
+    fig.add_vline(x=0,line_width=1); fig.add_vline(x=2,line_dash="dash")
+    fig.update_xaxes(title="Downside shock intensity (positive = risk pressure)")
+    return layout(fig,"Regional Semiconductor Risk Pulse",CHART_FULL_HEIGHT)
+
+
+def chart_europe_contagion_map(europe):
+    live=europe[europe["Status"].eq("LIVE")].copy() if europe is not None and not europe.empty else pd.DataFrame()
+    if live.empty: return layout(go.Figure(),"European Semiconductor Contagion Map",CHART_FULL_HEIGHT)
+    fig=px.scatter(live,x="Contagion Score",y="Institutional Score",size="EWMA Volatility",color="Position Action",text="Ticker",hover_data=["Company","Subsector","1D Return","20D Return","SOX Same-Day Beta","SOX Lag-1 Beta","Expectation Risk Score"],template=PLOT_TEMPLATE)
+    fig.update_traces(textposition="top center"); fig.add_vline(x=55,line_dash="dot"); fig.add_vline(x=75,line_dash="dash"); fig.add_hline(y=50,line_dash="dot")
+    fig.update_xaxes(range=[0,100]); fig.update_yaxes(range=[0,100])
+    return layout(fig,"European Semiconductor Contagion & Positioning Map",CHART_EXTRA_LARGE_HEIGHT)
+
+
+def chart_europe_contagion_scores(europe):
+    live=europe[europe["Status"].eq("LIVE")].sort_values("Contagion Score") if europe is not None and not europe.empty else pd.DataFrame()
+    if live.empty: return layout(go.Figure(),"European Contagion Score Ranking",CHART_FULL_HEIGHT)
+    fig=go.Figure(go.Bar(x=live["Contagion Score"],y=live["Ticker"],orientation="h",customdata=np.stack([live["Company"],live["SOX Lag-1 Beta"],live["Downside Shock Z"],live["Position Action"]],axis=-1),hovertemplate="%{y}<br>%{customdata[0]}<br>Score=%{x:.1f}<br>Lag beta=%{customdata[1]:.2f}<br>Shock=%{customdata[2]:.2f}σ<br>%{customdata[3]}<extra></extra>"))
+    fig.add_vline(x=55,line_dash="dot"); fig.add_vline(x=75,line_dash="dash"); fig.update_xaxes(range=[0,100])
+    return layout(fig,"European Contagion Score Ranking",CHART_FULL_HEIGHT)
+
+
+def chart_subsector_stress(segments):
+    if segments is None or segments.empty: return layout(go.Figure(),"European Subsector Stress",CHART_FULL_HEIGHT)
+    d=segments.sort_values("Contagion Score")
+    fig=go.Figure(go.Bar(x=d["Contagion Score"],y=d["Subsector"],orientation="h",customdata=np.stack([d["1D Return"],d["Negative Breadth"],d["EWMA Volatility"]],axis=-1),hovertemplate="%{y}<br>Stress=%{x:.1f}<br>1D=%{customdata[0]:.2%}<br>Negative breadth=%{customdata[1]:.1%}<br>EWMA vol=%{customdata[2]:.1%}<extra></extra>"))
+    fig.update_xaxes(range=[0,100]); return layout(fig,"European Semiconductor Subsector Stress",CHART_FULL_HEIGHT)
+
+
+def global_contagion_tab_html(pack):
+    figs=[chart_regional_semiconductor_growth(pack),chart_regional_contagion_risk(pack["regional"]),chart_europe_contagion_map(pack["europe"]),chart_europe_contagion_scores(pack["europe"]),chart_subsector_stress(pack["segments"])]
+    charts="".join(f'<div class="chart-block">{div(f,False)}</div>' for f in figs)
+    return f'<div class="section"><h2>Global Semiconductor Contagion & Positioning Engine</h2><div class="note">{pack["summary"].get("Executive Interpretation","")}</div><h3>Executive KPI Summary</h3>{table(metrics_df(pack["summary"]),"gsc_summary")}<h3>Full-Width Contagion Charts</h3>{charts}<h3>Regional Basket Risk Pulse</h3>{table(pack["regional"],"gsc_regional")}<h3>European Security Contagion Monitor</h3>{table(pack["europe"],"gsc_europe")}<h3>European Subsector Stress</h3>{table(pack["segments"],"gsc_segments")}</div>'
+
+
+def _render_global_semiconductor_contagion(pack):
+    summary=pack["summary"]
+    st.markdown(f'<div class="mk-note"><b>Article 5:</b> {NEWS_SOURCE_TITLE_5} ({NEWS_SOURCE_DATE_5}).<br><b>Management interpretation:</b> {summary.get("Executive Interpretation","")}</div>',unsafe_allow_html=True)
+    _metric_grid([
+        ("Global Contagion Risk",_safe_metric_value(summary.get("Global Contagion Risk Score"),"score")),
+        ("Management Stance",summary.get("Management Stance","—")),
+        ("Europe Avg Contagion",_safe_metric_value(summary.get("Average Europe Contagion Score"),"score")),
+        ("Severe Europe Names",_safe_metric_value(summary.get("Severe European Names"),"int")),
+        ("Reduce / Hedge Names",_safe_metric_value(summary.get("Reduce / Hedge Names"),"int")),
+        ("Global Negative Breadth",_safe_metric_value(summary.get("Global Negative Breadth"),"percent")),
+        ("European Live Names",_safe_metric_value(summary.get("European Live Names"),"int")),
+    ],columns=4)
+    _section("Regional semiconductor performance","Equal-weight local-return baskets; no synthetic FX conversion.")
+    _plot(chart_regional_semiconductor_growth(pack),key="gsc_growth")
+    _section("Regional contagion risk pulse")
+    _plot(chart_regional_contagion_risk(pack["regional"]),key="gsc_regional_chart")
+    _show_df(pack["regional"],height=470,key="gsc_regional_table")
+    _section("European contagion and positioning map","SOX same-day and lag-1 transmission is combined with EWMA volatility, drawdown and institutional score.")
+    _plot(chart_europe_contagion_map(pack["europe"]),key="gsc_map")
+    _section("European contagion score ranking")
+    _plot(chart_europe_contagion_scores(pack["europe"]),key="gsc_scores")
+    _show_df(pack["europe"].sort_values("Contagion Score",ascending=False) if not pack["europe"].empty else pack["europe"],height=700,key="gsc_europe_table")
+    _section("European semiconductor subsector stress")
+    _plot(chart_subsector_stress(pack["segments"]),key="gsc_segments_chart")
+    _show_df(pack["segments"],height=520,key="gsc_segments_table")
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_institutional_platform():
@@ -1887,7 +2177,8 @@ def load_institutional_platform():
     results = [analyze(uname, cfg, close) for uname, cfg in UNIVERSE_CONFIGS.items()]
     institutional_results = analyze_supertrend_institutional(results, ohlcv_map, close)
     cross_listing = compute_cross_listing_analysis(close)
-    return close, ohlcv_map, sox, results, institutional_results, cross_listing
+    contagion_pack = build_global_semiconductor_contagion_pack(close, institutional_results)
+    return close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -1900,7 +2191,7 @@ def _render_masthead():
         f"""
         <div class="mk-masthead">
           <div class="mk-kicker">MK FinTECH LabGEN · Institutional Analytics</div>
-          <div class="mk-title">Multi-Universe AI / Chip Institutional Platform</div>
+          <div class="mk-title">Global AI / Semiconductor Institutional Platform</div>
           <div class="mk-subtitle">SupertrendPro Institutional + Hedge Fund Management Cockpit · Version {STREAMLIT_APP_VERSION} · Daily Yahoo Finance data · No synthetic prices</div>
         </div>
         """, unsafe_allow_html=True,
@@ -1942,7 +2233,7 @@ def _render_executive(res, inst, close):
         ("Buy Breadth", _safe_metric_value(summary.get("Buy Breadth"), "percent")),
         ("Sell Breadth", _safe_metric_value(summary.get("Sell Breadth"), "percent")),
         ("Portfolio EWMA Vol", _safe_metric_value(summary.get("Portfolio EWMA Vol"), "percent")),
-        ("Article 4 Exposure", _safe_metric_value(summary.get("Article 4 Event Exposure"), "percent")),
+        ("News Event Exposure", _safe_metric_value(summary.get("News Event Exposure"), "percent")),
         ("Severe Event Names", _safe_metric_value(summary.get("Severe Event Names"), "int")),
         ("Weight HHI", _safe_metric_value(summary.get("Weight HHI"))),
     ]
@@ -2261,7 +2552,7 @@ def _render_hedge_fund_management_brief(res, inst, close):
     pack = build_hedge_fund_management_pack(res, inst, close)
     summary = pack["summary"]
     st.markdown(
-        f'<div class="mk-note"><b>Event context:</b> {NEWS_SOURCE_TITLE_4} ({NEWS_SOURCE_DATE_4}).<br>'
+        f'<div class="mk-note"><b>Event context:</b> Articles 4–5: {NEWS_SOURCE_TITLE_4}; {NEWS_SOURCE_TITLE_5}.<br>'
         f'<b>Management interpretation:</b> {summary.get("Executive Interpretation", "")}</div>',
         unsafe_allow_html=True,
     )
@@ -2273,13 +2564,13 @@ def _render_hedge_fund_management_brief(res, inst, close):
         ("Portfolio EWMA Vol", _safe_metric_value(summary.get("Portfolio EWMA Vol"), "percent")),
         ("Vol Percentile", _safe_metric_value(summary.get("Portfolio Vol Percentile"), "percent")),
         ("Buy / Sell Breadth", f'{summary.get("Buy Breadth", np.nan):.0%} / {summary.get("Sell Breadth", np.nan):.0%}' if pd.notna(summary.get("Buy Breadth")) else "—"),
-        ("Article 4 Exposure", _safe_metric_value(summary.get("Article 4 Event Exposure"), "percent")),
+        ("News Event Exposure", _safe_metric_value(summary.get("News Event Exposure"), "percent")),
     ]
     _metric_grid(kpis, columns=4)
     _section("Macro and regional risk pulse", "Positive risk-pressure z-scores indicate conditions that historically tighten the risk budget.")
     _plot(chart_macro_risk_pulse(pack["macro"]), key="mgmt_macro_chart")
     _show_df(pack["macro"], height=520, key="mgmt_macro_table")
-    _section("Article 4 semiconductor event shock monitor", "Standardized daily shocks are measured against each security's EWMA daily volatility.")
+    _section("Multi-event semiconductor shock monitor", "Standardized daily shocks are measured against each security's EWMA daily volatility.")
     _plot(chart_event_shock_monitor(pack["event"]), key="mgmt_event_chart")
     _show_df(pack["event"], height=620, key="mgmt_event_table")
     _section("Institutional decision breadth")
@@ -2291,8 +2582,8 @@ def _render_hedge_fund_management_brief(res, inst, close):
     _show_df(pack["event_register"], height=420, key="mgmt_event_register")
 
 
-def _render_news_and_governance(res, inst, close):
-    st.markdown(f'<div class="mk-note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br>{NEWS_SOURCE_URL}<br><br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br>{NEWS_SOURCE_URL_2}<br><br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br>{NEWS_SOURCE_URL_3}<br><br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br>{NEWS_SOURCE_URL_4}</div>', unsafe_allow_html=True)
+def _render_news_and_governance(res, inst, close, contagion_pack=None):
+    st.markdown(f'<div class="mk-note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br>{NEWS_SOURCE_URL}<br><br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br>{NEWS_SOURCE_URL_2}<br><br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br>{NEWS_SOURCE_URL_3}<br><br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br>{NEWS_SOURCE_URL_4}<br><br><b>News 5:</b> {NEWS_SOURCE_TITLE_5}<br>{NEWS_SOURCE_URL_5}</div>', unsafe_allow_html=True)
     ac, ai = article_tables()
     _section("Structured news event register")
     _show_df(news_event_register(), height=420, key="news_event_register")
@@ -2303,19 +2594,22 @@ def _render_news_and_governance(res, inst, close):
     _section("Current event shock monitor")
     pack = build_hedge_fund_management_pack(res, inst, close)
     _show_df(pack["event"], height=620, key="news_event_monitor")
+    if contagion_pack:
+        _section("Article 5 European contagion governance")
+        _show_df(contagion_pack.get("europe", pd.DataFrame()), height=650, key="news_europe_contagion")
     _section("Data governance")
     _show_df(res["ud"]["data_quality"], height=560, key="gov_dq")
     st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily observations only; no synthetic security prices and no portfolio ETF constituents.<br><b>Event discipline:</b> News affects the monitoring universe and risk posture, but never overrides quantitative data validation or creates synthetic observations.</div>', unsafe_allow_html=True)
 
 
-def _render_exports(results, sox, institutional_results, cross_listing, close):
+def _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack=None):
     st.markdown('<div class="mk-note">HTML, Excel and standalone QS Engine reports are generated only when requested. This prevents expensive report generation on every Streamlit rerun.</div>', unsafe_allow_html=True)
     if st.button("Generate full institutional report package", type="primary", width="stretch"):
         with st.spinner("Generating QS Engine, HTML and Excel outputs..."):
             qs_reports = generate_qs_reports_cached()
             management_packs = {r["name"]: build_hedge_fund_management_pack(r, institutional_results.get(r["name"], {}), close) for r in results}
-            create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs)
-            export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs)
+            create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack)
+            export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack)
         st.success("Report package generated.")
     files = [
         (REPORT_OUTPUT, "Full Institutional HTML", "text/html"),
@@ -2341,7 +2635,7 @@ def streamlit_main():
 
     try:
         with st.spinner("Loading Yahoo Finance data and institutional analytics..."):
-            close, ohlcv_map, sox, results, institutional_results, cross_listing = load_institutional_platform()
+            close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack = load_institutional_platform()
     except Exception as exc:
         st.error("Institutional platform could not complete the Yahoo Finance data pipeline.")
         st.exception(exc)
@@ -2361,6 +2655,7 @@ def streamlit_main():
     tab_labels = [
         "Executive Dashboard",
         "Hedge Fund Management Brief",
+        "Global Semiconductor Contagion",
         "Strategy & Signal",
         "Market Data",
         "Technical Analytics",
@@ -2380,37 +2675,38 @@ def streamlit_main():
     tabs = st.tabs(tab_labels)
     with tabs[0]: _render_executive(res, inst, close)
     with tabs[1]: _render_hedge_fund_management_brief(res, inst, close)
-    with tabs[2]:
+    with tabs[2]: _render_global_semiconductor_contagion(contagion_pack)
+    with tabs[3]:
         if selected_asset: _render_strategy_signal(inst, selected_asset)
         else: st.info("No security has sufficient history for the selected strategy analysis.")
-    with tabs[3]:
+    with tabs[4]:
         if selected_asset: _render_market_data(inst, selected_asset, res)
         else: st.info("No security has sufficient market data.")
-    with tabs[4]:
+    with tabs[5]:
         if selected_asset: _render_technical_analytics(inst, selected_asset)
         else: st.info("No security has sufficient technical history.")
-    with tabs[5]:
+    with tabs[6]:
         if selected_asset: _render_ewma_volatility(inst, selected_asset, res)
         else: st.info("No security has sufficient EWMA history.")
-    with tabs[6]:
+    with tabs[7]:
         if selected_asset: _render_backtest_risk(inst, selected_asset, res)
         else: st.info("No security has sufficient backtest history.")
-    with tabs[7]:
+    with tabs[8]:
         if selected_asset: _render_strategy_diagnostics(inst, selected_asset)
         else: st.info("No security has sufficient diagnostic history.")
-    with tabs[8]: _render_blue_chip_screener(res, inst)
-    with tabs[9]: _render_capital_gain_leaders(inst)
-    with tabs[10]: _render_portfolio_lab(res)
-    with tabs[11]:
+    with tabs[9]: _render_blue_chip_screener(res, inst)
+    with tabs[10]: _render_capital_gain_leaders(inst)
+    with tabs[11]: _render_portfolio_lab(res)
+    with tabs[12]:
         if selected_asset: _render_leading_signal_lab(inst, selected_asset)
         else: st.info("No security has sufficient leading-signal history.")
-    with tabs[12]:
+    with tabs[13]:
         if selected_asset: _render_institutional_decision(inst, selected_asset, res)
         else: st.info("No security has sufficient institutional decision history.")
-    with tabs[13]: _render_sox(sox)
-    with tabs[14]: _render_cross_listing(cross_listing)
-    with tabs[15]: _render_news_and_governance(res, inst, close)
-    with tabs[16]: _render_exports(results, sox, institutional_results, cross_listing, close)
+    with tabs[14]: _render_sox(sox)
+    with tabs[15]: _render_cross_listing(cross_listing)
+    with tabs[16]: _render_news_and_governance(res, inst, close, contagion_pack)
+    with tabs[17]: _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack)
 
     st.caption(AUTHOR_LINE + " · Institutional analytical model; not investment advice or an automatic order system.")
 
