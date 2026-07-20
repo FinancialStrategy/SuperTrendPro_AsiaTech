@@ -51,7 +51,7 @@ import os
 # ============================================================
 # 2. CONFIGURATION
 # ============================================================
-REPORT_TITLE = "Global AI / Semiconductor Institutional Hedge Fund Management Report — SupertrendPro Integrated"
+REPORT_TITLE = "Global AI / Semiconductor Institutional Hedge Fund Management Report — Asia YTD & Contagion Integrated"
 AUTHOR_LINE = "MK FinTECH LabGEN @2026 Istanbul, Murat KONUKLAR"
 NEWS_SOURCE_URL = "https://www.investing.com/news/stock-market-news/korea-sinks-as-ai-chip-selloff-deepens-japan-suppliers-tumble-4772256"
 NEWS_SOURCE_TITLE = "Korea sinks as AI-chip selloff deepens; Japan suppliers tumble"
@@ -83,6 +83,27 @@ SEMICONDUCTOR_REGION_BASKETS = {
     "Europe": list(EUROPE_SEMICONDUCTOR_SUBSECTORS.keys()),
     "Asia": ["005930.KS","000660.KS","2330.TW","2454.TW","285A.T","4062.T"],
 }
+
+# Asia-origin company registry used by the YTD performance cockpit. Local listings and ADRs are
+# shown separately, while country aggregates prefer primary local listings to avoid double counting.
+ASIA_ORIGIN_SECURITIES = {
+    "005930.KS":{"issuer":"Samsung Electronics Co., Ltd.","country":"South Korea","subsector":"Memory / Foundry / Consumer Electronics","listing_market":"Seoul","listing_type":"Primary Local","currency":"KRW"},
+    "000660.KS":{"issuer":"SK hynix Inc.","country":"South Korea","subsector":"HBM / DRAM / NAND Memory","listing_market":"Seoul","listing_type":"Primary Local","currency":"KRW"},
+    "011070.KS":{"issuer":"LG Innotek Co., Ltd.","country":"South Korea","subsector":"Electronic Components / Camera Modules","listing_market":"Seoul","listing_type":"Primary Local","currency":"KRW"},
+    "SKHY":{"issuer":"SK hynix Inc.","country":"South Korea","subsector":"HBM / DRAM / NAND Memory","listing_market":"Nasdaq","listing_type":"ADR / Cross-Listing","currency":"USD"},
+    "2330.TW":{"issuer":"Taiwan Semiconductor Manufacturing Co.","country":"Taiwan","subsector":"Leading-Edge Foundry","listing_market":"Taiwan","listing_type":"Primary Local","currency":"TWD"},
+    "2317.TW":{"issuer":"Hon Hai Precision Industry / Foxconn","country":"Taiwan","subsector":"AI Servers / Electronics Manufacturing","listing_market":"Taiwan","listing_type":"Primary Local","currency":"TWD"},
+    "2454.TW":{"issuer":"MediaTek Inc.","country":"Taiwan","subsector":"Mobile / Edge AI Semiconductors","listing_market":"Taiwan","listing_type":"Primary Local","currency":"TWD"},
+    "TSM":{"issuer":"Taiwan Semiconductor Manufacturing Co.","country":"Taiwan","subsector":"Leading-Edge Foundry","listing_market":"NYSE","listing_type":"ADR / Cross-Listing","currency":"USD"},
+    "285A.T":{"issuer":"Kioxia Holdings Corporation","country":"Japan","subsector":"NAND Flash Memory","listing_market":"Tokyo","listing_type":"Primary Local","currency":"JPY"},
+    "4062.T":{"issuer":"Ibiden Co., Ltd.","country":"Japan","subsector":"Advanced IC Substrates","listing_market":"Tokyo","listing_type":"Primary Local","currency":"JPY"},
+    "6981.T":{"issuer":"Murata Manufacturing Co., Ltd.","country":"Japan","subsector":"Electronic Components","listing_market":"Tokyo","listing_type":"Primary Local","currency":"JPY"},
+    "5801.T":{"issuer":"Furukawa Electric Co., Ltd.","country":"Japan","subsector":"Fiber / Cables / AI Connectivity","listing_market":"Tokyo","listing_type":"Primary Local","currency":"JPY"},
+    "5706.T":{"issuer":"Mitsui Mining and Smelting Co., Ltd.","country":"Japan","subsector":"Electronic Materials / Copper Foil","listing_market":"Tokyo","listing_type":"Primary Local","currency":"JPY"},
+    "9984.T":{"issuer":"SoftBank Group Corp.","country":"Japan","subsector":"Technology Investment / AI Exposure","listing_market":"Tokyo","listing_type":"Primary Local","currency":"JPY"},
+    "2371.T":{"issuer":"Kakaku.com, Inc.","country":"Japan","subsector":"Internet Services / Technology","listing_market":"Tokyo","listing_type":"Primary Local","currency":"JPY"},
+}
+ASIA_ORIGIN_COUNTRY_ORDER = ["South Korea", "Taiwan", "Japan"]
 
 # Event-four securities and macro/regional risk factors. These are monitoring inputs,
 # not synthetic prices and not automatic portfolio constituents.
@@ -1100,8 +1121,9 @@ PCT_COLS={"Target Weight","Current Weight","Missing % Raw","Annualized Return","
 MONEY_COLS={"Target Dollars","Invested Dollars","Residual Cash Allocation","Latest Market Value"}
 FLOAT_COLS={"Initial Price","Latest Price","Whole Shares","Observations","Observations Raw","Sharpe Ratio","Sortino Ratio","Calmar Ratio","Payoff Ratio","Profit Factor","Skewness","Excess Kurtosis","Tail Ratio 95/5","Jarque-Bera p-value","Information Ratio","Beta","R-squared","Correlation","Expected Sharpe","Effective Number of Names","Marginal Risk Contribution","Total Risk Contribution","Institutional Score","Confidence Score","Technical Grade","Positive 60D Probability %","+10% 60D Probability %","Outperform Benchmark 60D Probability %","Historical Analog Count","Best Strategy Sharpe","Latest Premium Z 20D","Return Correlation","Ordinary Shares per ADR"}
 DATE_COLS={"First Date","Last Date","Start","End","Date"}
-PCT_COLS.update({"1D Return","5D Return","20D Return","Current Drawdown","Current Weight","Risk Contribution %","Risk Budget Gap","EWMA Ann Vol","Vol Percentile","Momentum 20D","Momentum 63D","News Event Exposure","Buy Breadth","Sell Breadth","Portfolio EWMA Vol","Portfolio Vol Percentile","Portfolio 1D","Portfolio 5D","Portfolio 20D","Weight HHI","Negative Breadth","EWMA Volatility","Volatility Percentile","1D Basket Return","5D Basket Return","20D Basket Return","252D Return","Distance From 52W High"})
-FLOAT_COLS.update({"Shock Z","Risk Pressure Z","Event Stress Score","Conviction Score","Risk Score","Average Institutional Score","Average Confidence","Contagion Score","Expectation Risk Score","SOX Same-Day Beta","SOX Lag-1 Beta","SOX Same-Day Correlation","SOX Lag-1 Correlation","Downside Shock Z"})
+PCT_COLS.update({"1D Return","5D Return","20D Return","Current Drawdown","Current Weight","Risk Contribution %","Risk Budget Gap","EWMA Ann Vol","Vol Percentile","Momentum 20D","Momentum 63D","News Event Exposure","Buy Breadth","Sell Breadth","Portfolio EWMA Vol","Portfolio Vol Percentile","Portfolio 1D","Portfolio 5D","Portfolio 20D","Weight HHI","Negative Breadth","EWMA Volatility","Volatility Percentile","1D Basket Return","5D Basket Return","20D Basket Return","252D Return","Distance From 52W High","YTD Return","60D Return","Distance to YTD High","YTD Max Drawdown","Average YTD Return","Median YTD Return","Positive Breadth","Best YTD Return","Worst YTD Return","Average EWMA Volatility"})
+FLOAT_COLS.update({"Shock Z","Risk Pressure Z","Event Stress Score","Conviction Score","Risk Score","Average Institutional Score","Average Confidence","Contagion Score","Expectation Risk Score","SOX Same-Day Beta","SOX Lag-1 Beta","SOX Same-Day Correlation","SOX Lag-1 Correlation","Downside Shock Z","Reference Price","YTD High","YTD Low"})
+DATE_COLS.update({"Reference Date","Latest Date"})
 def fmt(df):
     if df is None or df.empty: return pd.DataFrame({"Info":["No data available"]})
     out=df.copy()
@@ -1202,11 +1224,11 @@ def section(res,js=False):
     ex=res["ud"]["exclusions"] if not res["ud"]["exclusions"].empty else pd.DataFrame([{"Ticker":"—","Name":"—","Reason":"No exclusions"}])
     bex=res["ud"]["benchmark_exclusions"] if not res["ud"]["benchmark_exclusions"].empty else pd.DataFrame([{"Benchmark":"—","Name":"—","Reason":"No benchmark exclusions"}])
     return f"""<div class="section"><h2>{name}</h2><div class="note"><b>Description:</b> {res["ud"]["cfg"]["description"]}<br><b>Implementation:</b> {res["pf"]["mode_note"]}<br><b>Primary benchmark:</b> {res["ud"]["primary"]} — {INDEX_BENCHMARKS.get(res["ud"]["primary"],{}).get("name",res["ud"]["primary"])}<br><b>Sample:</b> {res["ud"]["start"].date()} to {res["ud"]["end"].date()}</div><br><div class="kpi-grid">{kpis(res)}</div><h3>Interactive Charts</h3>{''.join([f'<div class="chart-block">{x}</div>' for x in ds])}<h3>Portfolio Metrics</h3>{table(metrics_df(res["pm"]),"m"+str(uid))}<h3>Holdings / Constituents</h3>{table(res["pf"]["holdings"],"h"+str(uid))}<h3>Asset Metrics</h3>{table(res["am"].sort_values("Sharpe Ratio",ascending=False),"a"+str(uid))}<h3>Risk Contribution</h3>{table(res["rc"],"r"+str(uid))}<h3>Multi-Benchmark Comparison</h3>{table(res["bt"],"b"+str(uid))}<h3>Stress Tests</h3>{table(res["st"],"s"+str(uid))}<h3>Optimization Summary</h3>{table(res["os"],"os"+str(uid))}<h3>Optimization Weights</h3>{table(res["ow"],"ow"+str(uid))}<h3>Data Quality</h3>{table(res["ud"]["data_quality"],"dq"+str(uid))}<h3>Security Exclusion Log</h3>{table(ex,"ex"+str(uid))}<h3>Benchmark Exclusion Log</h3>{table(bex,"bex"+str(uid))}</div>"""
-def create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None):
+def create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None, asia_ytd_pack=None):
     ac,ai=article_tables(); all_rows=[]
     for uname,cfg in UNIVERSE_CONFIGS.items():
         for t,m in cfg["universe"].items(): all_rows.append({"Universe":uname,"Ticker":t,"Company":m["name"],"Sector":m.get("sector","N/A"),"Theme":m.get("theme","N/A"),"Country":m.get("country","United States")})
-    tabs=['<button class="tablink active" onclick="openTab(event, \'source\')">News Source & Universes</button>']; contents=[f'<div id="source" class="tabcontent active-content"><div class="section"><h2>News Source & Project Scope</h2><div class="note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br><b>URL 1:</b> {NEWS_SOURCE_URL}<br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br><b>URL 2:</b> {NEWS_SOURCE_URL_2}<br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br><b>URL 3:</b> {NEWS_SOURCE_URL_3}<br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br><b>URL 4:</b> {NEWS_SOURCE_URL_4}<br><b>News 5:</b> {NEWS_SOURCE_TITLE_5}<br><b>URL 5:</b> {NEWS_SOURCE_URL_5}<br><b>Rule:</b> Existing features preserved. Added Article Shock Universe from all five Investing.com articles and US Technology + AI + Chip Universe. The third article adds the SKHY cross-listing channel; the fourth adds renewed Korea selloff and macro-risk monitoring; the fifth adds U.S.-to-Europe semiconductor contagion, WFE/materials breadth and expectations de-rating analysis. SKHY, TSM, ASML.AS, ASML and related listings are analyzed where real Yahoo history permits. No ETF constituents in investment universes. Interactive charts are rendered in full horizontal page width. <b>TOPIX exception:</b> because Yahoo Finance did not return ^TOPX index data, TOPIX benchmark exposure is represented only by 1306.T, NEXT FUNDS TOPIX ETF. This ETF is used solely as a benchmark proxy, never as a portfolio constituent. No synthetic fallback.<br><b>SOX diagnostics:</b> Philadelphia Semiconductor Index <code>^SOX</code> is separately downloaded from 2018-01-01. The report includes daily log returns, 20D rolling mean, 20D ±2σ bands, breach counts and largest breach dates.</div><h3>Structured News Event Register</h3>{table(news_event_register(),"news_events")}<h3>Article Companies</h3>{table(ac,"articlec")}<h3>Article Indices / Benchmarks</h3>{table(ai,"articlei")}<h3>All Configured Universes</h3>{table(pd.DataFrame(all_rows),"allu")}</div></div>']
+    tabs=['<button class="tablink active" onclick="openTab(event, \'source\')">News Source & Universes</button>']; contents=[f'<div id="source" class="tabcontent active-content"><div class="section"><h2>News Source & Project Scope</h2><div class="note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br><b>URL 1:</b> {NEWS_SOURCE_URL}<br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br><b>URL 2:</b> {NEWS_SOURCE_URL_2}<br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br><b>URL 3:</b> {NEWS_SOURCE_URL_3}<br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br><b>URL 4:</b> {NEWS_SOURCE_URL_4}<br><b>News 5:</b> {NEWS_SOURCE_TITLE_5}<br><b>URL 5:</b> {NEWS_SOURCE_URL_5}<br><b>Rule:</b> Existing features preserved. Added Article Shock Universe from all five Investing.com articles and US Technology + AI + Chip Universe. The third article adds the SKHY cross-listing channel; the fourth adds renewed Korea selloff and macro-risk monitoring; the fifth adds U.S.-to-Europe semiconductor contagion, WFE/materials breadth and expectations de-rating analysis. The Asia YTD cockpit groups all configured South Korean, Taiwanese and Japanese-origin issuers by country, listing type and subsector with strict YTD governance. SKHY, TSM, ASML.AS, ASML and related listings are analyzed where real Yahoo history permits. No ETF constituents in investment universes. Interactive charts are rendered in full horizontal page width. <b>TOPIX exception:</b> because Yahoo Finance did not return ^TOPX index data, TOPIX benchmark exposure is represented only by 1306.T, NEXT FUNDS TOPIX ETF. This ETF is used solely as a benchmark proxy, never as a portfolio constituent. No synthetic fallback.<br><b>SOX diagnostics:</b> Philadelphia Semiconductor Index <code>^SOX</code> is separately downloaded from 2018-01-01. The report includes daily log returns, 20D rolling mean, 20D ±2σ bands, breach counts and largest breach dates.</div><h3>Structured News Event Register</h3>{table(news_event_register(),"news_events")}<h3>Article Companies</h3>{table(ac,"articlec")}<h3>Article Indices / Benchmarks</h3>{table(ai,"articlei")}<h3>All Configured Universes</h3>{table(pd.DataFrame(all_rows),"allu")}</div></div>']
     if management_packs:
         tabs.append("<button class='tablink' onclick=\"openTab(event, 'managementbrief')\">Hedge Fund Management Brief</button>")
         contents.append(f'<div id="managementbrief" class="tabcontent">{management_pack_html(management_packs)}</div>')
@@ -1231,6 +1253,9 @@ def create_report(results, sox, qs_reports, institutional_results, cross_listing
     contents.append(f'<div id="institutionalengine" class="tabcontent">{institutional_engine_tab_html(institutional_results)}</div>')
     tabs.append('<button class="tablink" onclick="openTab(event, \'crosslisting\')">ADR / Local Cross-Listing</button>')
     contents.append(f'<div id="crosslisting" class="tabcontent">{cross_listing_tab_html(cross_listing)}</div>')
+    if asia_ytd_pack:
+        tabs.append('<button class="tablink" onclick="openTab(event, \'asiaytd\')">Asia YTD Performance</button>')
+        contents.append(f'<div id="asiaytd" class="tabcontent">{asia_ytd_tab_html(asia_ytd_pack)}</div>')
     first_js=False
     for i,res in enumerate(results):
         tid=f"tab{i}"; tabs.append(f'<button class="tablink" onclick="openTab(event, \'{tid}\')">{res["name"]}</button>'); contents.append(f'<div id="{tid}" class="tabcontent">{section(res,first_js)}</div>'); first_js=False
@@ -1242,7 +1267,7 @@ window.addEventListener('resize',function(){{resizeVisiblePlots(document)}});</s
 def sheet(s):
     for ch in r'\/*?:[]': s=s.replace(ch,'_')
     return s[:31]
-def export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None):
+def export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None, asia_ytd_pack=None):
     with pd.ExcelWriter(EXCEL_OUTPUT,engine="xlsxwriter") as writer:
         ac,ai=article_tables(); ac.to_excel(writer,"Article_Companies",index=False); ai.to_excel(writer,"Article_Indices",index=False); news_event_register().to_excel(writer,"News_Event_Register",index=False)
         sox["summary"].to_excel(writer, "SOX_Summary", index=False)
@@ -1274,6 +1299,12 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing,
             contagion_pack["segments"].to_excel(writer,"Europe_Subsector_Stress",index=False)
             for region,hist in contagion_pack.get("regional_history",{}).items():
                 hist.to_excel(writer,sheet("Region_"+region))
+        if asia_ytd_pack:
+            metrics_df(asia_ytd_pack.get("summary", {})).to_excel(writer,"Asia_YTD_Summary",index=False)
+            asia_ytd_pack.get("securities", pd.DataFrame()).drop(columns=["Country Order"], errors="ignore").to_excel(writer,"Asia_YTD_Securities",index=False)
+            asia_ytd_pack.get("countries", pd.DataFrame()).to_excel(writer,"Asia_YTD_Countries",index=False)
+            asia_ytd_pack.get("subsectors", pd.DataFrame()).to_excel(writer,"Asia_YTD_Subsectors",index=False)
+            asia_ytd_pack.get("exclusions", pd.DataFrame()).to_excel(writer,"Asia_YTD_Exclusions",index=False)
         cross_listing["summary"].to_excel(writer,"Cross_Listing_Summary",index=False)
         cross_listing["exclusions"].to_excel(writer,"Cross_Listing_Excl",index=False)
         for pair_name,hist in cross_listing["histories"].items():
@@ -1285,13 +1316,234 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing,
         for ws in writer.sheets.values(): ws.freeze_panes(1,0); ws.set_row(0,None,fmt); ws.set_column(0,20,18)
     print(f"[OUTPUT] Excel: {EXCEL_OUTPUT}")
 
+
+# -------------------------------------------------------------------------
+# ASIA-ORIGIN YTD PERFORMANCE & BREADTH ENGINE
+# -------------------------------------------------------------------------
+def _strict_ytd_snapshot(series):
+    """Return strict YTD metrics using the last observed close before Jan 1.
+
+    New listings without a prior-year close use the first available current-year observation and
+    are explicitly labelled as a since-listing/YTD proxy rather than being silently overstated.
+    """
+    s = pd.Series(series, dtype=float).replace([np.inf, -np.inf], np.nan).dropna().sort_index()
+    if s.empty:
+        return None
+    normalized_index = pd.to_datetime(s.index)
+    if getattr(normalized_index, "tz", None) is not None:
+        normalized_index = normalized_index.tz_localize(None)
+    s.index = normalized_index
+    latest_date = pd.Timestamp(s.index[-1])
+    latest_price = float(s.iloc[-1])
+    year_start = pd.Timestamp(year=latest_date.year, month=1, day=1)
+    prior = s[s.index < year_start]
+    current = s[s.index >= year_start]
+    if current.empty:
+        return None
+    if not prior.empty:
+        reference_date = pd.Timestamp(prior.index[-1])
+        reference_price = float(prior.iloc[-1])
+        basis = "Prior-year closing observation"
+        strict_ytd = True
+    else:
+        reference_date = pd.Timestamp(current.index[0])
+        reference_price = float(current.iloc[0])
+        basis = "First available current-year observation (since-listing proxy)"
+        strict_ytd = False
+    ytd_return = latest_price / reference_price - 1 if reference_price > 0 else np.nan
+    ytd_path = current / reference_price - 1 if reference_price > 0 else pd.Series(dtype=float)
+    ytd_high = float(current.max()) if not current.empty else np.nan
+    ytd_low = float(current.min()) if not current.empty else np.nan
+    ytd_dd = current / current.cummax() - 1 if not current.empty else pd.Series(dtype=float)
+    return {
+        "Reference Date": reference_date,
+        "Reference Price": reference_price,
+        "Latest Date": latest_date,
+        "Latest Price": latest_price,
+        "YTD Return": ytd_return,
+        "YTD High": ytd_high,
+        "YTD Low": ytd_low,
+        "Distance to YTD High": latest_price / ytd_high - 1 if ytd_high > 0 else np.nan,
+        "YTD Max Drawdown": float(ytd_dd.min()) if not ytd_dd.empty else np.nan,
+        "YTD Positive Days": int((ytd_path.diff() > 0).sum()) if len(ytd_path) > 1 else 0,
+        "YTD Negative Days": int((ytd_path.diff() < 0).sum()) if len(ytd_path) > 1 else 0,
+        "Performance Basis": basis,
+        "Strict YTD": strict_ytd,
+    }
+
+
+def build_asia_origin_ytd_pack(close, institutional_results):
+    """Create security-, country- and subsector-level Asia-origin YTD analytics."""
+    details = _all_institutional_details(institutional_results)
+    rows, exclusions = [], []
+    for ticker, meta in ASIA_ORIGIN_SECURITIES.items():
+        if ticker not in close.columns:
+            exclusions.append({"Ticker":ticker,"Issuer":meta["issuer"],"Origin Country":meta["country"],"Reason":"No Yahoo Finance close series returned"})
+            continue
+        s = pd.Series(close[ticker], dtype=float).replace([np.inf, -np.inf], np.nan).dropna().sort_index()
+        snap = _strict_ytd_snapshot(s)
+        if snap is None:
+            exclusions.append({"Ticker":ticker,"Issuer":meta["issuer"],"Origin Country":meta["country"],"Reason":"No current-year observations available"})
+            continue
+        ewma_vol, vol_pct, _ = _ewma_latest_from_returns(s.pct_change())
+        detail = details.get(ticker, {})
+        decision = detail.get("decision", {}) if isinstance(detail, dict) else {}
+        row = {
+            "Ticker":ticker,
+            "Issuer":meta["issuer"],
+            "Origin Country":meta["country"],
+            "Subsector":meta["subsector"],
+            "Listing Market":meta["listing_market"],
+            "Listing Type":meta["listing_type"],
+            "Currency":meta["currency"],
+            **snap,
+            "1D Return":_window_total_return(s, 1),
+            "5D Return":_window_total_return(s, 5),
+            "20D Return":_window_total_return(s, 20),
+            "60D Return":_window_total_return(s, 60),
+            "EWMA Volatility":ewma_vol,
+            "Volatility Percentile":vol_pct,
+            "Institutional Score":decision.get("Institutional Score", np.nan),
+            "Confidence Score":decision.get("Confidence Score", np.nan),
+            "Recommendation":decision.get("Recommendation", "INSUFFICIENT HISTORY"),
+            "Available Observations":int(len(s)),
+        }
+        row["YTD Direction"] = "GAIN" if row["YTD Return"] > 0.001 else ("LOSS" if row["YTD Return"] < -0.001 else "FLAT")
+        rows.append(row)
+    securities = pd.DataFrame(rows)
+    exclusions_df = pd.DataFrame(exclusions)
+    if securities.empty:
+        return {"summary":{},"securities":securities,"countries":pd.DataFrame(),"subsectors":pd.DataFrame(),"exclusions":exclusions_df}
+    country_order = {c:i for i,c in enumerate(ASIA_ORIGIN_COUNTRY_ORDER)}
+    securities["Country Order"] = securities["Origin Country"].map(country_order).fillna(99).astype(int)
+    securities["Global YTD Rank"] = securities["YTD Return"].rank(ascending=False, method="min").astype("Int64")
+    securities["Country YTD Rank"] = securities.groupby("Origin Country")["YTD Return"].rank(ascending=False, method="min").astype("Int64")
+    securities = securities.sort_values(["Country Order","YTD Return"], ascending=[True,False]).reset_index(drop=True)
+
+    country_rows = []
+    for country, group_all in securities.groupby("Origin Country", sort=False):
+        primary = group_all[group_all["Listing Type"].eq("Primary Local")]
+        group = primary if not primary.empty else group_all
+        best = group.loc[group["YTD Return"].idxmax()]
+        worst = group.loc[group["YTD Return"].idxmin()]
+        country_rows.append({
+            "Origin Country":country,
+            "Aggregation Basis":"Primary local listings" if not primary.empty else "All available listings",
+            "Unique Issuers":int(group["Issuer"].nunique()),
+            "Listed Instruments":int(len(group_all)),
+            "Average YTD Return":float(group["YTD Return"].mean()),
+            "Median YTD Return":float(group["YTD Return"].median()),
+            "Positive Breadth":float((group["YTD Return"] > 0).mean()),
+            "Gainers":int((group["YTD Return"] > 0).sum()),
+            "Decliners":int((group["YTD Return"] < 0).sum()),
+            "Best Ticker":best["Ticker"],
+            "Best YTD Return":float(best["YTD Return"]),
+            "Worst Ticker":worst["Ticker"],
+            "Worst YTD Return":float(worst["YTD Return"]),
+            "Average EWMA Volatility":float(group["EWMA Volatility"].mean()) if group["EWMA Volatility"].notna().any() else np.nan,
+            "Average Institutional Score":float(group["Institutional Score"].mean()) if group["Institutional Score"].notna().any() else np.nan,
+        })
+    countries = pd.DataFrame(country_rows)
+    countries["Country Order"] = countries["Origin Country"].map(country_order).fillna(99).astype(int)
+    countries = countries.sort_values("Country Order").drop(columns=["Country Order"]).reset_index(drop=True)
+
+    subsectors = securities[securities["Listing Type"].eq("Primary Local")].groupby(["Origin Country","Subsector"], as_index=False).agg(
+        Securities=("Ticker","count"),
+        Average_YTD_Return=("YTD Return","mean"),
+        Median_YTD_Return=("YTD Return","median"),
+        Positive_Breadth=("YTD Return",lambda x: float((x>0).mean())),
+        Average_EWMA_Volatility=("EWMA Volatility","mean"),
+    ).rename(columns={
+        "Average_YTD_Return":"Average YTD Return","Median_YTD_Return":"Median YTD Return",
+        "Positive_Breadth":"Positive Breadth","Average_EWMA_Volatility":"Average EWMA Volatility"
+    })
+    best_all = securities.loc[securities["YTD Return"].idxmax()]
+    worst_all = securities.loc[securities["YTD Return"].idxmin()]
+    latest_date = pd.to_datetime(securities["Latest Date"]).max()
+    strict_count = int(securities["Strict YTD"].sum())
+    summary = {
+        "As of Date":latest_date.strftime("%Y-%m-%d") if pd.notna(latest_date) else "N/A",
+        "Asian-Origin Listed Instruments":int(len(securities)),
+        "Unique Asian Issuers":int(securities["Issuer"].nunique()),
+        "Origin Countries":int(securities["Origin Country"].nunique()),
+        "Strict YTD Observations":strict_count,
+        "Since-Listing Proxies":int(len(securities)-strict_count),
+        "Gainers":int((securities["YTD Return"]>0).sum()),
+        "Decliners":int((securities["YTD Return"]<0).sum()),
+        "Median Security YTD Return":float(securities["YTD Return"].median()),
+        "Best YTD Security":f'{best_all["Ticker"]} ({best_all["YTD Return"]:.2%})',
+        "Worst YTD Security":f'{worst_all["Ticker"]} ({worst_all["YTD Return"]:.2%})',
+    }
+    return {"summary":summary,"securities":securities,"countries":countries,"subsectors":subsectors,"exclusions":exclusions_df}
+
+
+def chart_asia_ytd_grouped(securities):
+    """One full-width smart chart, vertically grouped by origin country."""
+    d = securities.copy()
+    if d.empty:
+        return layout(go.Figure(), "Asia-Origin Companies — YTD Performance", CHART_FULL_HEIGHT)
+    countries = [c for c in ASIA_ORIGIN_COUNTRY_ORDER if c in d["Origin Country"].unique()]
+    other = [c for c in d["Origin Country"].dropna().unique() if c not in countries]
+    countries += sorted(other)
+    fig = make_subplots(rows=len(countries), cols=1, shared_xaxes=True, vertical_spacing=max(0.025, 0.08/max(len(countries),1)), subplot_titles=countries)
+    for row_no, country in enumerate(countries, 1):
+        g = d[d["Origin Country"].eq(country)].sort_values("YTD Return", ascending=True)
+        colors = np.where(g["YTD Return"] >= 0, "#16794a", "#b42318")
+        custom = np.column_stack([
+            g["Issuer"], g["Subsector"], g["Listing Type"], g["Listing Market"],
+            g["1D Return"], g["20D Return"], g["EWMA Volatility"], g["Recommendation"], g["Performance Basis"]
+        ])
+        fig.add_trace(go.Bar(
+            x=g["YTD Return"]*100, y=g["Ticker"], orientation="h", name=country, showlegend=False,
+            marker=dict(color=colors), text=(g["YTD Return"]*100).map(lambda x:f"{x:+.1f}%"), textposition="outside",
+            customdata=custom,
+            hovertemplate=("<b>%{y}</b><br>%{customdata[0]}<br>YTD: %{x:.2f}%<br>Subsector: %{customdata[1]}"
+                           "<br>Listing: %{customdata[2]} · %{customdata[3]}<br>1D: %{customdata[4]:.2%}"
+                           "<br>20D: %{customdata[5]:.2%}<br>EWMA vol: %{customdata[6]:.2%}"
+                           "<br>Decision: %{customdata[7]}<br>Basis: %{customdata[8]}<extra></extra>"),
+        ), row=row_no, col=1)
+        fig.add_vline(x=0, line_width=1, line_dash="dot", line_color="#667085", row=row_no, col=1)
+        fig.update_yaxes(categoryorder="array", categoryarray=list(g["Ticker"]), row=row_no, col=1)
+    fig.update_xaxes(title_text="Year-to-date return (%)", ticksuffix="%", row=len(countries), col=1)
+    height = max(CHART_EXTRA_LARGE_HEIGHT, 300*len(countries) + 220)
+    fig = layout(fig, "Asia-Origin Companies — Grouped YTD Performance", height)
+    fig.update_layout(hovermode="closest", bargap=0.26)
+    return fig
+
+
+def chart_asia_country_breadth(countries):
+    d = countries.copy()
+    if d.empty:
+        return layout(go.Figure(), "Asia Country YTD Breadth", CHART_FULL_HEIGHT)
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=d["Origin Country"], y=d["Median YTD Return"]*100, name="Median YTD return", text=(d["Median YTD Return"]*100).map(lambda x:f"{x:+.1f}%"), textposition="outside"))
+    fig.add_trace(go.Scatter(x=d["Origin Country"], y=d["Positive Breadth"]*100, name="Positive breadth", mode="lines+markers+text", text=(d["Positive Breadth"]*100).map(lambda x:f"{x:.0f}%"), textposition="top center", yaxis="y2"))
+    fig.update_layout(yaxis=dict(title="Median YTD return (%)", ticksuffix="%"), yaxis2=dict(title="Positive breadth (%)", ticksuffix="%", overlaying="y", side="right", range=[0,105]))
+    return layout(fig, "Asia-Origin Country Performance & Breadth", CHART_FULL_HEIGHT)
+
+
+def asia_ytd_tab_html(pack):
+    if not pack or pack.get("securities", pd.DataFrame()).empty:
+        return '<div class="section"><h2>Asia-Origin YTD Performance</h2><div class="warning">No current-year Asia-origin security observations were available.</div></div>'
+    chart1 = div(chart_asia_ytd_grouped(pack["securities"]), False)
+    chart2 = div(chart_asia_country_breadth(pack["countries"]), False)
+    return (f'<div class="section"><h2>Asia-Origin YTD Performance & Breadth</h2>'
+            f'<div class="note"><b>Method:</b> Strict YTD uses the final available close before 1 January as the reference. '
+            f'New listings without a prior-year close are explicitly labelled as since-listing proxies. Country aggregates use primary local listings where available to avoid ADR double counting.</div>'
+            f'<h3>Executive KPI Summary</h3>{table(metrics_df(pack["summary"]),"asia_ytd_summary")}'
+            f'<h3>Grouped Interactive YTD Chart</h3><div class="chart-block">{chart1}</div>'
+            f'<h3>Country Performance & Breadth</h3><div class="chart-block">{chart2}</div>{table(pack["countries"],"asia_ytd_countries")}'
+            f'<h3>Asia-Origin Security Smart Table</h3>{table(pack["securities"].drop(columns=["Country Order"], errors="ignore"),"asia_ytd_securities")}'
+            f'<h3>Subsector YTD Summary</h3>{table(pack["subsectors"],"asia_ytd_subsectors")}'
+            f'<h3>Exclusion / Availability Log</h3>{table(pack["exclusions"] if not pack["exclusions"].empty else pd.DataFrame([{"Status":"No exclusions"}]),"asia_ytd_exclusions")}</div>')
+
 # ============================================================
 # 8. STREAMLIT APPLICATION LAYER
 # ============================================================
-STREAMLIT_APP_VERSION = "2.4.0"
+STREAMLIT_APP_VERSION = "2.5.0"
 
 st.set_page_config(
-    page_title="Global Semiconductor Institutional Platform",
+    page_title="Global Semiconductor & Asia YTD Institutional Platform",
     page_icon="◼",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -2178,7 +2430,8 @@ def load_institutional_platform():
     institutional_results = analyze_supertrend_institutional(results, ohlcv_map, close)
     cross_listing = compute_cross_listing_analysis(close)
     contagion_pack = build_global_semiconductor_contagion_pack(close, institutional_results)
-    return close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack
+    asia_ytd_pack = build_asia_origin_ytd_pack(close, institutional_results)
+    return close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack, asia_ytd_pack
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -2191,8 +2444,8 @@ def _render_masthead():
         f"""
         <div class="mk-masthead">
           <div class="mk-kicker">MK FinTECH LabGEN · Institutional Analytics</div>
-          <div class="mk-title">Global AI / Semiconductor Institutional Platform</div>
-          <div class="mk-subtitle">SupertrendPro Institutional + Hedge Fund Management Cockpit · Version {STREAMLIT_APP_VERSION} · Daily Yahoo Finance data · No synthetic prices</div>
+          <div class="mk-title">Global AI / Semiconductor & Asia YTD Institutional Platform</div>
+          <div class="mk-subtitle">SupertrendPro Institutional + Asia YTD + Hedge Fund Management Cockpit · Version {STREAMLIT_APP_VERSION} · Daily Yahoo Finance data · No synthetic prices</div>
         </div>
         """, unsafe_allow_html=True,
     )
@@ -2548,6 +2801,65 @@ def _render_cross_listing(cross):
     _show_df(cross.get("exclusions", pd.DataFrame()), height=300, key="xl_ex")
 
 
+
+def _render_asia_ytd_performance(pack):
+    st.markdown('<div class="mk-note"><b>Governance rule:</b> Strict YTD is measured from the final available close before 1 January. New listings without a prior-year observation are shown as since-listing proxies and are never silently treated as full-year returns. Country summaries prioritize primary local listings to prevent ADR double counting.</div>', unsafe_allow_html=True)
+    if not pack or pack.get("securities", pd.DataFrame()).empty:
+        st.warning("No Asia-origin current-year price observations are available.")
+        if pack and not pack.get("exclusions", pd.DataFrame()).empty:
+            _show_df(pack["exclusions"], height=420, key="asia_ytd_exclusions_empty")
+        return
+    summary = pack["summary"]
+    _metric_grid([
+        ("As of", summary.get("As of Date", "—")),
+        ("Listed Instruments", _safe_metric_value(summary.get("Asian-Origin Listed Instruments"), "int")),
+        ("Unique Issuers", _safe_metric_value(summary.get("Unique Asian Issuers"), "int")),
+        ("Countries", _safe_metric_value(summary.get("Origin Countries"), "int")),
+        ("Gainers / Decliners", f'{summary.get("Gainers",0)} / {summary.get("Decliners",0)}'),
+        ("Median YTD", _safe_metric_value(summary.get("Median Security YTD Return"), "percent")),
+        ("Best YTD", summary.get("Best YTD Security", "—")),
+        ("Worst YTD", summary.get("Worst YTD Security", "—")),
+    ], columns=4)
+
+    securities = pack["securities"].copy()
+    countries = list(securities["Origin Country"].dropna().unique())
+    selected_countries = st.multiselect("Origin country filter", countries, default=countries, key="asia_ytd_country_filter")
+    listing_types = list(securities["Listing Type"].dropna().unique())
+    selected_listing_types = st.multiselect("Listing type filter", listing_types, default=listing_types, key="asia_ytd_listing_filter")
+    direction = st.radio("Performance filter", ["All", "Gainers", "Decliners"], horizontal=True, key="asia_ytd_direction_filter")
+    filtered = securities[securities["Origin Country"].isin(selected_countries) & securities["Listing Type"].isin(selected_listing_types)].copy()
+    if direction == "Gainers": filtered = filtered[filtered["YTD Return"] > 0]
+    elif direction == "Decliners": filtered = filtered[filtered["YTD Return"] < 0]
+
+    _section("Grouped interactive YTD performance", "Each country is displayed as a separate vertical panel; green bars are gains and red bars are losses.")
+    _plot(chart_asia_ytd_grouped(filtered), key="asia_ytd_grouped_chart")
+    _section("Country performance and market breadth", "Country aggregates use primary local listings where available.")
+    _plot(chart_asia_country_breadth(pack["countries"]), key="asia_ytd_country_breadth")
+    _show_df(pack["countries"], height=380, key="asia_ytd_country_table")
+
+    _section("Asia-origin security smart table", "Sortable numeric table covering YTD, tactical returns, volatility, drawdown and institutional decision scores.")
+    display = filtered.drop(columns=["Country Order"], errors="ignore").copy()
+    percent_cols = ["YTD Return","1D Return","5D Return","20D Return","60D Return","Distance to YTD High","YTD Max Drawdown","EWMA Volatility","Volatility Percentile"]
+    for c in percent_cols:
+        if c in display.columns: display[c] = display[c] * 100
+    column_config = {
+        c: st.column_config.NumberColumn(c.replace(" Return", " Return %") if "Return" in c else c+" %", format="%.2f")
+        for c in percent_cols if c in display.columns
+    }
+    if "Latest Price" in display.columns: column_config["Latest Price"] = st.column_config.NumberColumn("Latest Price", format="%.2f")
+    if "Reference Price" in display.columns: column_config["Reference Price"] = st.column_config.NumberColumn("Reference Price", format="%.2f")
+    if "Institutional Score" in display.columns: column_config["Institutional Score"] = st.column_config.NumberColumn("Institutional Score", format="%.1f")
+    if "Confidence Score" in display.columns: column_config["Confidence Score"] = st.column_config.NumberColumn("Confidence Score", format="%.1f")
+    st.dataframe(display, width="stretch", height=720, hide_index=True, column_config=column_config, key="asia_ytd_smart_table")
+    st.download_button("Download Asia YTD smart table CSV", filtered.drop(columns=["Country Order"], errors="ignore").to_csv(index=False).encode("utf-8"), file_name="Asia_Origin_Companies_YTD_Performance.csv", mime="text/csv", width="stretch")
+
+    _section("Subsector performance summary")
+    _show_df(pack["subsectors"], height=520, key="asia_ytd_subsector_table")
+    _section("Data availability and exclusions")
+    if pack["exclusions"].empty: st.success("All configured Asia-origin securities returned usable current-year data.")
+    else: _show_df(pack["exclusions"], height=420, key="asia_ytd_exclusion_table")
+
+
 def _render_hedge_fund_management_brief(res, inst, close):
     pack = build_hedge_fund_management_pack(res, inst, close)
     summary = pack["summary"]
@@ -2602,14 +2914,14 @@ def _render_news_and_governance(res, inst, close, contagion_pack=None):
     st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily observations only; no synthetic security prices and no portfolio ETF constituents.<br><b>Event discipline:</b> News affects the monitoring universe and risk posture, but never overrides quantitative data validation or creates synthetic observations.</div>', unsafe_allow_html=True)
 
 
-def _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack=None):
+def _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack=None, asia_ytd_pack=None):
     st.markdown('<div class="mk-note">HTML, Excel and standalone QS Engine reports are generated only when requested. This prevents expensive report generation on every Streamlit rerun.</div>', unsafe_allow_html=True)
     if st.button("Generate full institutional report package", type="primary", width="stretch"):
         with st.spinner("Generating QS Engine, HTML and Excel outputs..."):
             qs_reports = generate_qs_reports_cached()
             management_packs = {r["name"]: build_hedge_fund_management_pack(r, institutional_results.get(r["name"], {}), close) for r in results}
-            create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack)
-            export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack)
+            create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack, asia_ytd_pack)
+            export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack, asia_ytd_pack)
         st.success("Report package generated.")
     files = [
         (REPORT_OUTPUT, "Full Institutional HTML", "text/html"),
@@ -2635,7 +2947,7 @@ def streamlit_main():
 
     try:
         with st.spinner("Loading Yahoo Finance data and institutional analytics..."):
-            close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack = load_institutional_platform()
+            close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack, asia_ytd_pack = load_institutional_platform()
     except Exception as exc:
         st.error("Institutional platform could not complete the Yahoo Finance data pipeline.")
         st.exception(exc)
@@ -2656,6 +2968,7 @@ def streamlit_main():
         "Executive Dashboard",
         "Hedge Fund Management Brief",
         "Global Semiconductor Contagion",
+        "Asia YTD Performance",
         "Strategy & Signal",
         "Market Data",
         "Technical Analytics",
@@ -2676,37 +2989,38 @@ def streamlit_main():
     with tabs[0]: _render_executive(res, inst, close)
     with tabs[1]: _render_hedge_fund_management_brief(res, inst, close)
     with tabs[2]: _render_global_semiconductor_contagion(contagion_pack)
-    with tabs[3]:
+    with tabs[3]: _render_asia_ytd_performance(asia_ytd_pack)
+    with tabs[4]:
         if selected_asset: _render_strategy_signal(inst, selected_asset)
         else: st.info("No security has sufficient history for the selected strategy analysis.")
-    with tabs[4]:
+    with tabs[5]:
         if selected_asset: _render_market_data(inst, selected_asset, res)
         else: st.info("No security has sufficient market data.")
-    with tabs[5]:
+    with tabs[6]:
         if selected_asset: _render_technical_analytics(inst, selected_asset)
         else: st.info("No security has sufficient technical history.")
-    with tabs[6]:
+    with tabs[7]:
         if selected_asset: _render_ewma_volatility(inst, selected_asset, res)
         else: st.info("No security has sufficient EWMA history.")
-    with tabs[7]:
+    with tabs[8]:
         if selected_asset: _render_backtest_risk(inst, selected_asset, res)
         else: st.info("No security has sufficient backtest history.")
-    with tabs[8]:
+    with tabs[9]:
         if selected_asset: _render_strategy_diagnostics(inst, selected_asset)
         else: st.info("No security has sufficient diagnostic history.")
-    with tabs[9]: _render_blue_chip_screener(res, inst)
-    with tabs[10]: _render_capital_gain_leaders(inst)
-    with tabs[11]: _render_portfolio_lab(res)
-    with tabs[12]:
+    with tabs[10]: _render_blue_chip_screener(res, inst)
+    with tabs[11]: _render_capital_gain_leaders(inst)
+    with tabs[12]: _render_portfolio_lab(res)
+    with tabs[13]:
         if selected_asset: _render_leading_signal_lab(inst, selected_asset)
         else: st.info("No security has sufficient leading-signal history.")
-    with tabs[13]:
+    with tabs[14]:
         if selected_asset: _render_institutional_decision(inst, selected_asset, res)
         else: st.info("No security has sufficient institutional decision history.")
-    with tabs[14]: _render_sox(sox)
-    with tabs[15]: _render_cross_listing(cross_listing)
-    with tabs[16]: _render_news_and_governance(res, inst, close, contagion_pack)
-    with tabs[17]: _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack)
+    with tabs[15]: _render_sox(sox)
+    with tabs[16]: _render_cross_listing(cross_listing)
+    with tabs[17]: _render_news_and_governance(res, inst, close, contagion_pack)
+    with tabs[18]: _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack, asia_ytd_pack)
 
     st.caption(AUTHOR_LINE + " · Institutional analytical model; not investment advice or an automatic order system.")
 
