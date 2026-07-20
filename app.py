@@ -51,7 +51,7 @@ import os
 # ============================================================
 # 2. CONFIGURATION
 # ============================================================
-REPORT_TITLE = "Global AI / Semiconductor Institutional Hedge Fund Management Report — Asia YTD & Contagion Integrated"
+REPORT_TITLE = "Global AI / Semiconductor Institutional Hedge Fund Management Report — USD-Normalized Engine"
 AUTHOR_LINE = "MK FinTECH LabGEN @2026 Istanbul, Murat KONUKLAR"
 NEWS_SOURCE_URL = "https://www.investing.com/news/stock-market-news/korea-sinks-as-ai-chip-selloff-deepens-japan-suppliers-tumble-4772256"
 NEWS_SOURCE_TITLE = "Korea sinks as AI-chip selloff deepens; Japan suppliers tumble"
@@ -105,6 +105,46 @@ ASIA_ORIGIN_SECURITIES = {
 }
 ASIA_ORIGIN_COUNTRY_ORDER = ["South Korea", "Taiwan", "Japan"]
 
+
+# -------------------------------------------------------------------------
+# USD-NORMALIZED GLOBAL PORTFOLIO ENGINE
+# -------------------------------------------------------------------------
+USD_ENGINE_VERSION = "3.0.0"
+USD_ENGINE_BASE_CURRENCY = "USD"
+USD_ENGINE_FX_TOLERANCE_DAYS = 5
+USD_ENGINE_MIN_FX_COVERAGE = 0.90
+
+# Yahoo Finance FX conventions are stated explicitly. LOCAL_PER_USD means the
+# downloaded rate is local-currency units per 1 USD, so local price / FX = USD.
+# USD_PER_LOCAL means the downloaded rate is USD per 1 local-currency unit,
+# so local price * FX = USD. No synthetic FX series or proxy currency is used.
+FX_CONVERSION_CONFIG = {
+    "USD": {"ticker": None, "mode": "IDENTITY", "description": "USD base currency"},
+    "KRW": {"ticker": "KRW=X", "mode": "LOCAL_PER_USD", "description": "South Korean won per USD"},
+    "TWD": {"ticker": "TWD=X", "mode": "LOCAL_PER_USD", "description": "New Taiwan dollar per USD"},
+    "JPY": {"ticker": "JPY=X", "mode": "LOCAL_PER_USD", "description": "Japanese yen per USD"},
+    "EUR": {"ticker": "EURUSD=X", "mode": "USD_PER_LOCAL", "description": "USD per euro"},
+    "CHF": {"ticker": "CHF=X", "mode": "LOCAL_PER_USD", "description": "Swiss franc per USD"},
+    "AUD": {"ticker": "AUDUSD=X", "mode": "USD_PER_LOCAL", "description": "USD per Australian dollar"},
+    "INR": {"ticker": "INR=X", "mode": "LOCAL_PER_USD", "description": "Indian rupee per USD"},
+    "IDR": {"ticker": "IDR=X", "mode": "LOCAL_PER_USD", "description": "Indonesian rupiah per USD"},
+    "CNY": {"ticker": "CNY=X", "mode": "LOCAL_PER_USD", "description": "Chinese yuan per USD"},
+    "HKD": {"ticker": "HKD=X", "mode": "LOCAL_PER_USD", "description": "Hong Kong dollar per USD"},
+    "SGD": {"ticker": "SGD=X", "mode": "LOCAL_PER_USD", "description": "Singapore dollar per USD"},
+}
+
+# Explicit overrides cover indices, futures, ADRs and listings whose currency
+# cannot be inferred safely from a suffix alone.
+TICKER_CURRENCY_OVERRIDES = {
+    "^GSPC":"USD", "^IXIC":"USD", "^NDX":"USD", "^SOX":"USD",
+    "NQ=F":"USD", "ES=F":"USD", "CL=F":"USD", "DX-Y.NYB":"USD",
+    "^TNX":"USD", "^IRX":"USD", "SKHY":"USD", "TSM":"USD", "ASML":"USD",
+    "^KS11":"KRW", "^TWII":"TWD", "^N225":"JPY", "1306.T":"JPY",
+    "^STOXX50E":"EUR", "^GDAXI":"EUR", "^FCHI":"EUR", "^AEX":"EUR",
+    "^SSMI":"CHF", "^AXJO":"AUD", "^NSEI":"INR", "^JKSE":"IDR",
+    "000001.SS":"CNY", "000300.SS":"CNY", "^HSI":"HKD", "^STI":"SGD",
+}
+
 # Event-four securities and macro/regional risk factors. These are monitoring inputs,
 # not synthetic prices and not automatic portfolio constituents.
 NEWS_EVENT_4_TICKERS = ["005930.KS", "000660.KS", "2330.TW", "TSM", "NVDA", "AAPL", "ASML.AS", "ASML", "SKHY"]
@@ -122,7 +162,7 @@ MANAGEMENT_RISK_FACTORS = {
 }
 
 # SupertrendPro Institutional integration controls
-INSTITUTIONAL_ENGINE_VERSION = "2.2.0"
+INSTITUTIONAL_ENGINE_VERSION = "3.0.0"
 INSTITUTIONAL_MIN_OBS = 260
 INSTITUTIONAL_FORWARD_HORIZON = 60
 INSTITUTIONAL_TRANSACTION_COST_BPS = 8.0
@@ -168,8 +208,8 @@ OUTPUT_DIR = Path(os.environ.get("MULTI_UNIVERSE_OUTPUT_DIR", tempfile.gettempdi
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 NIKKEI_QS_HTML = str(OUTPUT_DIR / "QS_Engine_Nikkei_225_Index_Report.html")
 TOPIX_QS_HTML = str(OUTPUT_DIR / "QS_Engine_TOPIX_1306T_Benchmark_Proxy_Report.html")
-REPORT_OUTPUT = str(OUTPUT_DIR / "Global_Semiconductor_SupertrendPro_Institutional_QS_ENGINE.html")
-EXCEL_OUTPUT = str(OUTPUT_DIR / "Global_Semiconductor_SupertrendPro_Institutional_QS_ENGINE_Analytics.xlsx")
+REPORT_OUTPUT = str(OUTPUT_DIR / "Global_Semiconductor_SupertrendPro_USD_Normalized_Institutional_QS_ENGINE.html")
+EXCEL_OUTPUT = str(OUTPUT_DIR / "Global_Semiconductor_SupertrendPro_USD_Normalized_Institutional_Analytics.xlsx")
 
 TOPIX_BENCHMARK_PROXY = "1306.T"
 TOPIX_BENCHMARK_PROXY_NOTE = "ETF exception applies only to TOPIX benchmark: 1306.T NEXT FUNDS TOPIX ETF is used solely as a benchmark proxy because ^TOPX was unavailable from Yahoo Finance; it is never used as a portfolio constituent."
@@ -313,9 +353,9 @@ INDEX_BENCHMARKS = {
 
 UNIVERSE_CONFIGS = {
 "US Major Stocks 10M Portfolio":{"universe":US_MAJOR_UNIVERSE,"primary_benchmark":"^GSPC","benchmarks":["^GSPC","^IXIC"],"min_observations":756,"capital_mode":"whole_share_usd","description":"Original US major single-stock 10M USD portfolio. Existing feature set preserved."},
-"Article Shock Universe — AI Chip Selloff":{"universe":ARTICLE_SHOCK_UNIVERSE,"primary_benchmark":"^KS11","benchmarks":["^KS11","^N225","1306.T","^TWII","^HSI","^STI","^IXIC","^NDX","^SOX","^GSPC","^AXJO","^NSEI","^JKSE","000001.SS","000300.SS","NQ=F","ES=F"],"min_observations":60,"capital_mode":"equal_weight_return_index","description":"Companies and transmission channels identified across five Investing.com AI-chip articles. The fourth event adds renewed Korea selloff, TSMC earnings-risk, BOK tightening, regional-index dispersion and energy-inflation channels. Mixed currencies; analyzed as an actual-return equal-weight basket. New listings remain in the event monitor when long-history requirements are not met."},
+"Article Shock Universe — AI Chip Selloff":{"universe":ARTICLE_SHOCK_UNIVERSE,"primary_benchmark":"^KS11","benchmarks":["^KS11","^N225","1306.T","^TWII","^HSI","^STI","^IXIC","^NDX","^SOX","^GSPC","^AXJO","^NSEI","^JKSE","000001.SS","000300.SS","NQ=F","ES=F"],"min_observations":60,"capital_mode":"equal_weight_return_index","description":"Companies and transmission channels identified across five Investing.com AI-chip articles. The fourth event adds renewed Korea selloff, TSMC earnings-risk, BOK tightening, regional-index dispersion and energy-inflation channels. All eligible local listings and benchmarks are converted to observed USD-equivalent prices before return, portfolio, risk and correlation analytics. New listings remain in the event monitor when long-history requirements are not met."},
 "US Technology + AI + Chip 20+ Universe":{"universe":US_TECH_AI_CHIP_UNIVERSE,"primary_benchmark":"^IXIC","benchmarks":["^IXIC","^SOX","^NDX","^GSPC"],"min_observations":504,"capital_mode":"whole_share_usd","description":"US-listed technology, AI infrastructure, semiconductor and chip ecosystem single stocks, including TSM, ASML and new SKHY ADR. No ETFs."},
-"European Semiconductor Contagion Universe":{"universe":EUROPEAN_SEMICONDUCTOR_UNIVERSE,"primary_benchmark":"^STOXX50E","benchmarks":["^STOXX50E","^AEX","^GDAXI","^FCHI","^SSMI","^SOX","^NDX"],"min_observations":504,"capital_mode":"equal_weight_return_index","description":"European semiconductor, equipment and materials companies identified in Article 5. Mixed European currencies are analyzed as local-currency actual-return series; no synthetic FX conversion and no ETF constituents."}}
+"European Semiconductor Contagion Universe":{"universe":EUROPEAN_SEMICONDUCTOR_UNIVERSE,"primary_benchmark":"^STOXX50E","benchmarks":["^STOXX50E","^AEX","^GDAXI","^FCHI","^SSMI","^SOX","^NDX"],"min_observations":504,"capital_mode":"equal_weight_return_index","description":"European semiconductor, equipment and materials companies identified in Article 5. European local listings and benchmarks are converted to observed USD-equivalent prices before return, portfolio, risk and correlation analytics; no synthetic FX series and no ETF constituents."}}
 
 # ============================================================
 # 3. METRIC HELPERS
@@ -437,6 +477,7 @@ def download_all():
     for pair in CROSS_LISTING_PAIRS.values():
         symbols += [pair["local"], pair["adr"], pair["fx"]]
     symbols += list(MANAGEMENT_RISK_FACTORS.keys())
+    symbols += [cfg["ticker"] for cfg in FX_CONVERSION_CONFIG.values() if cfg.get("ticker")]
     symbols=list(dict.fromkeys(symbols+[RISK_FREE_TICKER]))
     print(f"[DATA] Downloading {len(symbols)} Yahoo Finance tickers with adjusted daily OHLCV...")
     raw=yf.download(symbols,start=start,end=end,interval="1d",auto_adjust=True,actions=False,group_by="ticker",threads=True,progress=False)
@@ -445,6 +486,148 @@ def download_all():
     if close.empty: raise RuntimeError("No Yahoo Finance data downloaded.")
     if RISK_FREE_TICKER not in close.columns: raise RuntimeError(f"Missing {RISK_FREE_TICKER}. No synthetic RF fallback used.")
     return close, ohlcv_map
+
+
+def infer_instrument_currency(ticker):
+    """Resolve the trading currency using explicit overrides before suffix rules."""
+    if ticker in TICKER_CURRENCY_OVERRIDES:
+        return TICKER_CURRENCY_OVERRIDES[ticker]
+    suffix_rules = [
+        (".KS", "KRW"), (".KQ", "KRW"), (".TW", "TWD"), (".T", "JPY"),
+        (".AS", "EUR"), (".PA", "EUR"), (".DE", "EUR"), (".SW", "CHF"),
+        (".AX", "AUD"), (".SS", "CNY"),
+    ]
+    for suffix, currency in suffix_rules:
+        if str(ticker).endswith(suffix):
+            return currency
+    return "USD"
+
+
+def _normalize_datetime_index(series):
+    s = pd.Series(series, dtype=float).replace([np.inf, -np.inf], np.nan).dropna().sort_index()
+    if s.empty:
+        return s
+    idx = pd.to_datetime(s.index)
+    if getattr(idx, "tz", None) is not None:
+        idx = idx.tz_localize(None)
+    s.index = idx
+    return s.loc[~s.index.duplicated(keep="last")]
+
+
+def align_observed_fx_to_price_dates(price_index, fx_series, tolerance_days=USD_ENGINE_FX_TOLERANCE_DAYS):
+    """Backward-asof align an observed FX quote to each local market date.
+
+    A maximum calendar tolerance covers weekends and non-overlapping market holidays.
+    No backfill from a future FX observation and no synthetic rate are permitted.
+    """
+    idx = pd.DatetimeIndex(pd.to_datetime(price_index))
+    if getattr(idx, "tz", None) is not None:
+        idx = idx.tz_localize(None)
+    left = pd.DataFrame({"Price Date": idx}).sort_values("Price Date")
+    fx = _normalize_datetime_index(fx_series)
+    if fx.empty:
+        return pd.DataFrame(index=idx, columns=["FX Rate", "FX Source Date", "FX Staleness Days"])
+    right = fx.rename("FX Rate").reset_index()
+    right.columns = ["FX Source Date", "FX Rate"]
+    right = right.sort_values("FX Source Date")
+    aligned = pd.merge_asof(
+        left, right,
+        left_on="Price Date", right_on="FX Source Date",
+        direction="backward", tolerance=pd.Timedelta(days=int(tolerance_days)),
+    )
+    aligned["FX Staleness Days"] = (aligned["Price Date"] - aligned["FX Source Date"]).dt.days
+    return aligned.set_index("Price Date").reindex(idx)
+
+
+def convert_local_series_to_usd(local_series, currency, close_matrix):
+    """Convert one observed local-currency price series to USD with an auditable FX trail."""
+    local = _normalize_datetime_index(local_series)
+    cfg = FX_CONVERSION_CONFIG.get(currency)
+    if local.empty or cfg is None:
+        return pd.Series(dtype=float), pd.DataFrame(), "Unsupported currency or empty local series"
+    if currency == "USD" or cfg["mode"] == "IDENTITY":
+        audit = pd.DataFrame({
+            "Local Price": local, "FX Rate": 1.0, "FX Source Date": local.index,
+            "FX Staleness Days": 0.0, "USD Price": local,
+        }, index=local.index)
+        return local.rename(local.name), audit, "Direct USD listing"
+    fx_ticker = cfg["ticker"]
+    if fx_ticker not in close_matrix.columns:
+        return pd.Series(dtype=float), pd.DataFrame(), f"Missing observed FX ticker {fx_ticker}"
+    fx_aligned = align_observed_fx_to_price_dates(local.index, close_matrix[fx_ticker])
+    audit = pd.DataFrame(index=local.index)
+    audit["Local Price"] = local
+    audit["FX Rate"] = pd.to_numeric(fx_aligned["FX Rate"], errors="coerce")
+    audit["FX Source Date"] = fx_aligned["FX Source Date"]
+    audit["FX Staleness Days"] = fx_aligned["FX Staleness Days"]
+    if cfg["mode"] == "LOCAL_PER_USD":
+        audit["USD Price"] = audit["Local Price"] / audit["FX Rate"].replace(0, np.nan)
+    elif cfg["mode"] == "USD_PER_LOCAL":
+        audit["USD Price"] = audit["Local Price"] * audit["FX Rate"]
+    else:
+        return pd.Series(dtype=float), pd.DataFrame(), f"Unsupported FX mode {cfg['mode']}"
+    usd = audit["USD Price"].replace([np.inf, -np.inf], np.nan).dropna()
+    return usd, audit, f"{currency} converted with {fx_ticker} ({cfg['mode']})"
+
+
+def build_usd_normalized_market_data(local_close, local_ohlcv_map):
+    """Build USD close and OHLCV datasets plus instrument-level FX governance audit."""
+    usd_close = pd.DataFrame(index=local_close.index)
+    usd_ohlcv_map = {}
+    audit_rows = []
+    fx_histories = {}
+    fx_tickers = {cfg["ticker"] for cfg in FX_CONVERSION_CONFIG.values() if cfg.get("ticker")}
+    analytical_symbols = [c for c in local_close.columns if c not in fx_tickers]
+    for ticker in analytical_symbols:
+        currency = infer_instrument_currency(ticker)
+        local_series = local_close[ticker]
+        usd_series, audit, note = convert_local_series_to_usd(local_series, currency, local_close)
+        if not usd_series.empty:
+            usd_close[ticker] = usd_series.reindex(usd_close.index)
+        local_valid = _normalize_datetime_index(local_series)
+        common = pd.concat([local_valid.rename("Local"), usd_series.rename("USD")], axis=1).dropna()
+        local_total = common["Local"].iloc[-1] / common["Local"].iloc[0] - 1 if len(common) > 1 else np.nan
+        usd_total = common["USD"].iloc[-1] / common["USD"].iloc[0] - 1 if len(common) > 1 else np.nan
+        fx_contribution = (1 + usd_total) / (1 + local_total) - 1 if pd.notna(local_total) and pd.notna(usd_total) and local_total > -1 else np.nan
+        coverage = len(common) / len(local_valid) if len(local_valid) else 0.0
+        max_stale = audit["FX Staleness Days"].max() if not audit.empty else np.nan
+        audit_rows.append({
+            "Ticker": ticker, "Currency": currency,
+            "FX Ticker": FX_CONVERSION_CONFIG.get(currency, {}).get("ticker") or "USD Identity",
+            "FX Mode": FX_CONVERSION_CONFIG.get(currency, {}).get("mode", "UNKNOWN"),
+            "Local Observations": int(len(local_valid)), "USD Observations": int(len(usd_series)),
+            "FX Coverage": float(coverage), "Maximum FX Staleness Days": max_stale,
+            "First USD Date": usd_series.index.min() if not usd_series.empty else pd.NaT,
+            "Last USD Date": usd_series.index.max() if not usd_series.empty else pd.NaT,
+            "Latest Local Price": float(local_valid.iloc[-1]) if not local_valid.empty else np.nan,
+            "Latest USD Price": float(usd_series.iloc[-1]) if not usd_series.empty else np.nan,
+            "Local Total Return": local_total, "USD Total Return": usd_total,
+            "FX Return Contribution": fx_contribution,
+            "Conversion Status": "PASS" if coverage >= USD_ENGINE_MIN_FX_COVERAGE else "REVIEW",
+            "Conversion Note": note,
+        })
+        if not audit.empty:
+            fx_histories[ticker] = audit
+        if ticker in local_ohlcv_map and not usd_series.empty:
+            d = local_ohlcv_map[ticker].copy().sort_index()
+            aligned = audit.reindex(d.index)
+            rate = pd.to_numeric(aligned["FX Rate"], errors="coerce")
+            cfg = FX_CONVERSION_CONFIG.get(currency, {})
+            converted = d.copy()
+            if currency == "USD" or cfg.get("mode") == "IDENTITY":
+                pass
+            elif cfg.get("mode") == "LOCAL_PER_USD":
+                for col in ["Open", "High", "Low", "Close"]:
+                    converted[col] = d[col] / rate.replace(0, np.nan)
+            elif cfg.get("mode") == "USD_PER_LOCAL":
+                for col in ["Open", "High", "Low", "Close"]:
+                    converted[col] = d[col] * rate
+            converted = converted.replace([np.inf, -np.inf], np.nan).dropna(subset=["Open", "High", "Low", "Close", "Volume"])
+            if not converted.empty:
+                usd_ohlcv_map[ticker] = converted
+    usd_close = usd_close.sort_index()
+    audit_df = pd.DataFrame(audit_rows)
+    return usd_close, usd_ohlcv_map, audit_df, fx_histories
 
 
 def download_sox_history():
@@ -547,7 +730,7 @@ def compute_sox_diagnostics():
 
     return {"close": close, "diag": diag, "breaches": breaches, "summary": summary}
 
-def prepare_universe(uname,cfg,close):
+def prepare_universe(uname,cfg,close,price_basis="Local Currency"):
     valid=[]; dq=[]; excl=[]; u=cfg["universe"]
     for t,m in u.items():
         if t not in close.columns:
@@ -567,18 +750,18 @@ def prepare_universe(uname,cfg,close):
     common=pd.concat([returns,br.rename("Primary_Benchmark"),rf.rename("RF_Daily")],axis=1).dropna(how="any")
     returns=common[valid]; prices=prices.reindex(common.index).dropna(how="any"); br=common["Primary_Benchmark"]; rf=common["RF_Daily"]
     brs={b: close[b].dropna().pct_change().dropna().reindex(returns.index).dropna() for b in bmarks}
-    return {"name":uname,"cfg":cfg,"valid":valid,"prices":prices,"returns":returns,"primary":primary,"primary_return":br,"benchmark_returns":brs,"rf":rf,"data_quality":pd.DataFrame(dq),"exclusions":pd.DataFrame(excl),"benchmark_exclusions":pd.DataFrame(bex),"start":returns.index.min(),"end":returns.index.max()}
+    return {"name":uname,"cfg":cfg,"valid":valid,"prices":prices,"returns":returns,"primary":primary,"primary_return":br,"benchmark_returns":brs,"rf":rf,"data_quality":pd.DataFrame(dq),"exclusions":pd.DataFrame(excl),"benchmark_exclusions":pd.DataFrame(bex),"start":returns.index.min(),"end":returns.index.max(),"price_basis":price_basis}
 
 def construct_portfolio(ud):
-    cfg=ud["cfg"]; u=cfg["universe"]; prices=ud["prices"]; returns=ud["returns"]; tickers=list(prices.columns); n=len(tickers); w=pd.Series(1/n,index=tickers)
+    cfg=ud["cfg"]; price_basis=ud.get("price_basis","Local Currency"); u=cfg["universe"]; prices=ud["prices"]; returns=ud["returns"]; tickers=list(prices.columns); n=len(tickers); w=pd.Series(1/n,index=tickers)
     if cfg["capital_mode"]=="whole_share_usd":
         first=prices.iloc[0]; target=INITIAL_CAPITAL_USD*w; shares=np.floor(target/first).astype(int); invested=shares*first; cash=INITIAL_CAPITAL_USD-invested.sum(); values=prices.mul(shares,axis=1); nav=values.sum(axis=1)+cash; ret=nav.pct_change().dropna(); latest=values.iloc[-1]; curw=latest/(latest.sum()+cash)
-        hold=pd.DataFrame({"Ticker":tickers,"Company":[u[t]["name"] for t in tickers],"Sector":[u[t].get("sector","N/A") for t in tickers],"Theme":[u[t].get("theme","N/A") for t in tickers],"Country":[u[t].get("country","United States") for t in tickers],"Initial Price":first.values,"Target Weight":w.values,"Target Dollars":target.values,"Whole Shares":shares.values,"Invested Dollars":invested.values,"Residual Cash Allocation":cash/n,"Latest Price":prices.iloc[-1].values,"Latest Market Value":latest.values,"Current Weight":curw.values}).sort_values("Current Weight",ascending=False)
-        note="Whole-share 10M USD implementation with residual cash."
+        hold=pd.DataFrame({"Ticker":tickers,"Company":[u[t]["name"] for t in tickers],"Sector":[u[t].get("sector","N/A") for t in tickers],"Theme":[u[t].get("theme","N/A") for t in tickers],"Country":[u[t].get("country","United States") for t in tickers],"Price Basis":[price_basis]*n,"Initial Price":first.values,"Target Weight":w.values,"Target Dollars":target.values,"Whole Shares":shares.values,"Invested Dollars":invested.values,"Residual Cash Allocation":cash/n,"Latest Price":prices.iloc[-1].values,"Latest Market Value":latest.values,"Current Weight":curw.values}).sort_values("Current Weight",ascending=False)
+        note=f"Whole-share 10M USD implementation with residual cash. Analytical price basis: {price_basis}."
     else:
         ret=returns.mul(w,axis=1).sum(axis=1); nav=INITIAL_CAPITAL_USD*(1+ret).cumprod(); curw=w; cash=0.0
-        hold=pd.DataFrame({"Ticker":tickers,"Company":[u[t]["name"] for t in tickers],"Sector":[u[t].get("sector","N/A") for t in tickers],"Theme":[u[t].get("theme","N/A") for t in tickers],"Country":[u[t].get("country","N/A") for t in tickers],"Article Role":[u[t].get("article_role","N/A") for t in tickers],"Target Weight":w.values,"Current Weight":w.values,"Latest Price":prices.iloc[-1].values,"Latest Market Value":np.nan}).sort_values("Ticker")
-        note="Equal-weight actual-return basket. Mixed currencies; no synthetic FX conversion or USD whole-share implementation."
+        hold=pd.DataFrame({"Ticker":tickers,"Company":[u[t]["name"] for t in tickers],"Sector":[u[t].get("sector","N/A") for t in tickers],"Theme":[u[t].get("theme","N/A") for t in tickers],"Country":[u[t].get("country","N/A") for t in tickers],"Article Role":[u[t].get("article_role","N/A") for t in tickers],"Price Basis":[price_basis]*n,"Target Weight":w.values,"Current Weight":w.values,"Latest Price":prices.iloc[-1].values,"Latest Market Value":np.nan}).sort_values("Ticker")
+        note=("Equal-weight USD-normalized return basket using observed FX conversion." if price_basis.startswith("USD") else "Equal-weight local-currency actual-return basket retained only for USD impact comparison.")
     return {"weights":w,"cash":cash,"portfolio_value":nav,"portfolio_return":ret,"current_weights":curw,"holdings":hold,"mode_note":note}
 
 # ============================================================
@@ -638,8 +821,8 @@ def optimize(returns,rf):
             ret,vol,sr=perf(w); rows.append({"Scenario":name,"Expected Return Ann.":ret,"Expected Volatility Ann.":vol,"Expected Sharpe":sr,"Max Single Name Weight":np.max(w),"Effective Number of Names":1/np.sum(w**2)})
         else: rows.append({"Scenario":name,"Expected Return Ann.":np.nan,"Expected Volatility Ann.":np.nan,"Expected Sharpe":np.nan,"Max Single Name Weight":np.nan,"Effective Number of Names":np.nan})
     return wt,pd.DataFrame(rows)
-def analyze(uname,cfg,close):
-    print(f"[UNIVERSE] {uname}"); ud=prepare_universe(uname,cfg,close); pf=construct_portfolio(ud); pr=pf["portfolio_return"]; primary=ud["primary"]; br=ud["primary_return"].reindex(pr.index); rf=ud["rf"].reindex(pr.index)
+def analyze(uname,cfg,close,price_basis="Local Currency"):
+    print(f"[UNIVERSE] {uname} | basis={price_basis}"); ud=prepare_universe(uname,cfg,close,price_basis=price_basis); pf=construct_portfolio(ud); pr=pf["portfolio_return"]; primary=ud["primary"]; br=ud["primary_return"].reindex(pr.index); rf=ud["rf"].reindex(pr.index)
     am=asset_metrics(ud); rc=risk_contrib(ud["returns"].reindex(pr.index).dropna(),pf["current_weights"],cfg["universe"]); bt=bench_table(pr,ud["benchmark_returns"],rf); st=stress_tests(pr,br,primary); ow,os=optimize(ud["returns"],ud["rf"])
     if not ow.empty:
         ow.insert(1,"Company",[cfg["universe"][t]["name"] for t in ow.Ticker]); ow.insert(2,"Sector",[cfg["universe"][t].get("sector","N/A") for t in ow.Ticker]); ow.insert(3,"Theme",[cfg["universe"][t].get("theme","N/A") for t in ow.Ticker])
@@ -1121,8 +1304,8 @@ PCT_COLS={"Target Weight","Current Weight","Missing % Raw","Annualized Return","
 MONEY_COLS={"Target Dollars","Invested Dollars","Residual Cash Allocation","Latest Market Value"}
 FLOAT_COLS={"Initial Price","Latest Price","Whole Shares","Observations","Observations Raw","Sharpe Ratio","Sortino Ratio","Calmar Ratio","Payoff Ratio","Profit Factor","Skewness","Excess Kurtosis","Tail Ratio 95/5","Jarque-Bera p-value","Information Ratio","Beta","R-squared","Correlation","Expected Sharpe","Effective Number of Names","Marginal Risk Contribution","Total Risk Contribution","Institutional Score","Confidence Score","Technical Grade","Positive 60D Probability %","+10% 60D Probability %","Outperform Benchmark 60D Probability %","Historical Analog Count","Best Strategy Sharpe","Latest Premium Z 20D","Return Correlation","Ordinary Shares per ADR"}
 DATE_COLS={"First Date","Last Date","Start","End","Date"}
-PCT_COLS.update({"1D Return","5D Return","20D Return","Current Drawdown","Current Weight","Risk Contribution %","Risk Budget Gap","EWMA Ann Vol","Vol Percentile","Momentum 20D","Momentum 63D","News Event Exposure","Buy Breadth","Sell Breadth","Portfolio EWMA Vol","Portfolio Vol Percentile","Portfolio 1D","Portfolio 5D","Portfolio 20D","Weight HHI","Negative Breadth","EWMA Volatility","Volatility Percentile","1D Basket Return","5D Basket Return","20D Basket Return","252D Return","Distance From 52W High","YTD Return","60D Return","Distance to YTD High","YTD Max Drawdown","Average YTD Return","Median YTD Return","Positive Breadth","Best YTD Return","Worst YTD Return","Average EWMA Volatility"})
-FLOAT_COLS.update({"Shock Z","Risk Pressure Z","Event Stress Score","Conviction Score","Risk Score","Average Institutional Score","Average Confidence","Contagion Score","Expectation Risk Score","SOX Same-Day Beta","SOX Lag-1 Beta","SOX Same-Day Correlation","SOX Lag-1 Correlation","Downside Shock Z","Reference Price","YTD High","YTD Low"})
+PCT_COLS.update({"FX Coverage","Local Total Return","USD Total Return","FX Return Contribution","Local YTD Return","USD YTD Return","FX YTD Contribution","Local Portfolio Total Return","USD Portfolio Total Return","Portfolio FX Impact","Local Annualized Return","USD Annualized Return","Local Annualized Volatility","USD Annualized Volatility","Local Max Drawdown","USD Max Drawdown","Correlation Change","1D Return","5D Return","20D Return","Current Drawdown","Current Weight","Risk Contribution %","Risk Budget Gap","EWMA Ann Vol","Vol Percentile","Momentum 20D","Momentum 63D","News Event Exposure","Buy Breadth","Sell Breadth","Portfolio EWMA Vol","Portfolio Vol Percentile","Portfolio 1D","Portfolio 5D","Portfolio 20D","Weight HHI","Negative Breadth","EWMA Volatility","Volatility Percentile","1D Basket Return","5D Basket Return","20D Basket Return","252D Return","Distance From 52W High","YTD Return","60D Return","Distance to YTD High","YTD Max Drawdown","Average YTD Return","Median YTD Return","Positive Breadth","Best YTD Return","Worst YTD Return","Average EWMA Volatility"})
+FLOAT_COLS.update({"Maximum FX Staleness Days","Latest Local Price","Latest USD Price","USD Reference Price","Shock Z","Risk Pressure Z","Event Stress Score","Conviction Score","Risk Score","Average Institutional Score","Average Confidence","Contagion Score","Expectation Risk Score","SOX Same-Day Beta","SOX Lag-1 Beta","SOX Same-Day Correlation","SOX Lag-1 Correlation","Downside Shock Z","Reference Price","YTD High","YTD Low"})
 DATE_COLS.update({"Reference Date","Latest Date"})
 def fmt(df):
     if df is None or df.empty: return pd.DataFrame({"Info":["No data available"]})
@@ -1223,12 +1406,15 @@ def section(res,js=False):
     name=res["name"]; uid=abs(hash(name))%10000000; figs=[chart_growth(res),chart_nav(res),chart_dd(res),chart_vol(res),chart_beta(res),chart_weights(res),chart_sector(res),chart_rc(res),chart_rr(res),chart_corr(res),chart_var(res),chart_opt(res),chart_monthly(res)]; ds=[div(f,js and i==0) for i,f in enumerate(figs)]
     ex=res["ud"]["exclusions"] if not res["ud"]["exclusions"].empty else pd.DataFrame([{"Ticker":"—","Name":"—","Reason":"No exclusions"}])
     bex=res["ud"]["benchmark_exclusions"] if not res["ud"]["benchmark_exclusions"].empty else pd.DataFrame([{"Benchmark":"—","Name":"—","Reason":"No benchmark exclusions"}])
-    return f"""<div class="section"><h2>{name}</h2><div class="note"><b>Description:</b> {res["ud"]["cfg"]["description"]}<br><b>Implementation:</b> {res["pf"]["mode_note"]}<br><b>Primary benchmark:</b> {res["ud"]["primary"]} — {INDEX_BENCHMARKS.get(res["ud"]["primary"],{}).get("name",res["ud"]["primary"])}<br><b>Sample:</b> {res["ud"]["start"].date()} to {res["ud"]["end"].date()}</div><br><div class="kpi-grid">{kpis(res)}</div><h3>Interactive Charts</h3>{''.join([f'<div class="chart-block">{x}</div>' for x in ds])}<h3>Portfolio Metrics</h3>{table(metrics_df(res["pm"]),"m"+str(uid))}<h3>Holdings / Constituents</h3>{table(res["pf"]["holdings"],"h"+str(uid))}<h3>Asset Metrics</h3>{table(res["am"].sort_values("Sharpe Ratio",ascending=False),"a"+str(uid))}<h3>Risk Contribution</h3>{table(res["rc"],"r"+str(uid))}<h3>Multi-Benchmark Comparison</h3>{table(res["bt"],"b"+str(uid))}<h3>Stress Tests</h3>{table(res["st"],"s"+str(uid))}<h3>Optimization Summary</h3>{table(res["os"],"os"+str(uid))}<h3>Optimization Weights</h3>{table(res["ow"],"ow"+str(uid))}<h3>Data Quality</h3>{table(res["ud"]["data_quality"],"dq"+str(uid))}<h3>Security Exclusion Log</h3>{table(ex,"ex"+str(uid))}<h3>Benchmark Exclusion Log</h3>{table(bex,"bex"+str(uid))}</div>"""
-def create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None, asia_ytd_pack=None):
+    return f"""<div class="section"><h2>{name}</h2><div class="note"><b>Description:</b> {res["ud"]["cfg"]["description"]}<br><b>Implementation:</b> {res["pf"]["mode_note"]}<br><b>Analytical basis:</b> {res["ud"].get("price_basis","N/A")}<br><b>Primary benchmark:</b> {res["ud"]["primary"]} — {INDEX_BENCHMARKS.get(res["ud"]["primary"],{}).get("name",res["ud"]["primary"])}<br><b>Sample:</b> {res["ud"]["start"].date()} to {res["ud"]["end"].date()}</div><br><div class="kpi-grid">{kpis(res)}</div><h3>Interactive Charts</h3>{''.join([f'<div class="chart-block">{x}</div>' for x in ds])}<h3>Portfolio Metrics</h3>{table(metrics_df(res["pm"]),"m"+str(uid))}<h3>Holdings / Constituents</h3>{table(res["pf"]["holdings"],"h"+str(uid))}<h3>Asset Metrics</h3>{table(res["am"].sort_values("Sharpe Ratio",ascending=False),"a"+str(uid))}<h3>Risk Contribution</h3>{table(res["rc"],"r"+str(uid))}<h3>Multi-Benchmark Comparison</h3>{table(res["bt"],"b"+str(uid))}<h3>Stress Tests</h3>{table(res["st"],"s"+str(uid))}<h3>Optimization Summary</h3>{table(res["os"],"os"+str(uid))}<h3>Optimization Weights</h3>{table(res["ow"],"ow"+str(uid))}<h3>Data Quality</h3>{table(res["ud"]["data_quality"],"dq"+str(uid))}<h3>Security Exclusion Log</h3>{table(ex,"ex"+str(uid))}<h3>Benchmark Exclusion Log</h3>{table(bex,"bex"+str(uid))}</div>"""
+def create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None, asia_ytd_pack=None, usd_engine_pack=None):
     ac,ai=article_tables(); all_rows=[]
     for uname,cfg in UNIVERSE_CONFIGS.items():
         for t,m in cfg["universe"].items(): all_rows.append({"Universe":uname,"Ticker":t,"Company":m["name"],"Sector":m.get("sector","N/A"),"Theme":m.get("theme","N/A"),"Country":m.get("country","United States")})
     tabs=['<button class="tablink active" onclick="openTab(event, \'source\')">News Source & Universes</button>']; contents=[f'<div id="source" class="tabcontent active-content"><div class="section"><h2>News Source & Project Scope</h2><div class="note"><b>News 1:</b> {NEWS_SOURCE_TITLE}<br><b>URL 1:</b> {NEWS_SOURCE_URL}<br><b>News 2:</b> {NEWS_SOURCE_TITLE_2}<br><b>URL 2:</b> {NEWS_SOURCE_URL_2}<br><b>News 3:</b> {NEWS_SOURCE_TITLE_3}<br><b>URL 3:</b> {NEWS_SOURCE_URL_3}<br><b>News 4:</b> {NEWS_SOURCE_TITLE_4}<br><b>URL 4:</b> {NEWS_SOURCE_URL_4}<br><b>News 5:</b> {NEWS_SOURCE_TITLE_5}<br><b>URL 5:</b> {NEWS_SOURCE_URL_5}<br><b>Rule:</b> Existing features preserved. Added Article Shock Universe from all five Investing.com articles and US Technology + AI + Chip Universe. The third article adds the SKHY cross-listing channel; the fourth adds renewed Korea selloff and macro-risk monitoring; the fifth adds U.S.-to-Europe semiconductor contagion, WFE/materials breadth and expectations de-rating analysis. The Asia YTD cockpit groups all configured South Korean, Taiwanese and Japanese-origin issuers by country, listing type and subsector with strict YTD governance. SKHY, TSM, ASML.AS, ASML and related listings are analyzed where real Yahoo history permits. No ETF constituents in investment universes. Interactive charts are rendered in full horizontal page width. <b>TOPIX exception:</b> because Yahoo Finance did not return ^TOPX index data, TOPIX benchmark exposure is represented only by 1306.T, NEXT FUNDS TOPIX ETF. This ETF is used solely as a benchmark proxy, never as a portfolio constituent. No synthetic fallback.<br><b>SOX diagnostics:</b> Philadelphia Semiconductor Index <code>^SOX</code> is separately downloaded from 2018-01-01. The report includes daily log returns, 20D rolling mean, 20D ±2σ bands, breach counts and largest breach dates.</div><h3>Structured News Event Register</h3>{table(news_event_register(),"news_events")}<h3>Article Companies</h3>{table(ac,"articlec")}<h3>Article Indices / Benchmarks</h3>{table(ai,"articlei")}<h3>All Configured Universes</h3>{table(pd.DataFrame(all_rows),"allu")}</div></div>']
+    if usd_engine_pack:
+        tabs.append("<button class='tablink' onclick=\"openTab(event, 'usdengine')\">USD-Normalized Engine</button>")
+        contents.append(f'<div id="usdengine" class="tabcontent">{usd_engine_tab_html(usd_engine_pack)}</div>')
     if management_packs:
         tabs.append("<button class='tablink' onclick=\"openTab(event, 'managementbrief')\">Hedge Fund Management Brief</button>")
         contents.append(f'<div id="managementbrief" class="tabcontent">{management_pack_html(management_packs)}</div>')
@@ -1259,7 +1445,7 @@ def create_report(results, sox, qs_reports, institutional_results, cross_listing
     first_js=False
     for i,res in enumerate(results):
         tid=f"tab{i}"; tabs.append(f'<button class="tablink" onclick="openTab(event, \'{tid}\')">{res["name"]}</button>'); contents.append(f'<div id="{tid}" class="tabcontent">{section(res,first_js)}</div>'); first_js=False
-    html=f"""<!DOCTYPE html><html><head><meta charset="utf-8"><title>{REPORT_TITLE}</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css"><style>:root{{--bg:#f7f8fa;--card:#fff;--ink:#182230;--muted:#667085;--line:#e4e7ec;--navy:#102a43;--blue:#315f86}}body{{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Aptos,"Segoe UI",Arial,Helvetica,sans-serif;font-size:14px;font-weight:300;letter-spacing:.005em;width:100%;overflow-x:hidden}}.header{{padding:34px 42px 26px;background:linear-gradient(90deg,#0f2437,#183b56);color:white}}.header h1{{margin:0 0 8px;font-size:28px;font-weight:400}}.header p{{margin:4px 0;color:#d8e3ec;font-weight:300}}.container{{padding:24px 14px 60px;width:calc(100vw - 28px);max-width:none;margin:0 auto;box-sizing:border-box}}.tabbar{{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}}.tablink{{border:1px solid var(--line);background:#fff;color:#182230;padding:10px 14px;border-radius:10px;cursor:pointer;font-size:13px}}.tablink.active{{background:#102a43;color:white}}.tabcontent{{display:none}}.active-content{{display:block}}.section{{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:22px;width:100%;box-sizing:border-box;box-shadow:0 1px 2px rgba(16,24,40,.04)}}.section h2{{margin:0 0 14px;font-size:20px;font-weight:500;color:var(--navy)}}.section h3{{margin-top:24px;font-size:16px;font-weight:500;color:var(--blue)}}.kpi-grid{{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:14px}}.kpi-card{{background:#fbfcfd;border:1px solid var(--line);border-radius:12px;padding:15px 16px}}.kpi-label{{color:var(--muted);font-size:12px;margin-bottom:6px}}.kpi-value{{color:var(--ink);font-size:21px;font-weight:500}}.note{{background:#f2f4f7;border-left:4px solid #315f86;padding:12px 14px;border-radius:8px;color:#344054;line-height:1.55}}.warning{{background:#fff8e6;border-left:4px solid #b7791f;padding:12px 14px;border-radius:8px;color:#3f2f0b;line-height:1.55}}.chart-block{{margin-top:26px;border-top:1px solid var(--line);padding-top:20px;width:100%;min-height:940px;box-sizing:border-box;overflow-x:visible}}.chart-block .plotly-graph-div{{width:100%!important;min-width:100%!important}}.chart-block .js-plotly-plot,.chart-block .plot-container,.chart-block .svg-container{{width:100%!important;min-width:100%!important}}table.dataTable{{width:100%!important;font-size:12px}}.footer{{text-align:center;color:var(--muted);font-size:12px;padding:26px}}@media(max-width:1000px){{.kpi-grid{{grid-template-columns:repeat(2,1fr)}}.container{{padding:18px;width:calc(100vw - 36px)}}}}</style></head><body><div class="header"><h1>{REPORT_TITLE}</h1><p>Daily frequency | Real Yahoo Finance data | No synthetic prices | No ETF constituents except TOPIX benchmark proxy</p><p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} | {AUTHOR_LINE}</p></div><div class="container"><div class="tabbar">{''.join(tabs)}</div>{''.join(contents)}<div class="section"><h2>Important Note</h2><div class="warning">This report is Simulation Pivotal analytical. It is not investment advice. Missing prices are not synthetically filled. <b>TOPIX exception:</b> 1306.T is used only as a TOPIX benchmark proxy because ^TOPX was unavailable from Yahoo Finance in the previous run; it is not included in any investment universe or portfolio holdings.</div></div></div><div class="footer">{AUTHOR_LINE}</div><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script><script>function resizeVisiblePlots(scope){{try{{var root=scope||document;var plots=root.getElementsByClassName('js-plotly-plot');for(var j=0;j<plots.length;j++){{Plotly.Plots.resize(plots[j]);}}}}catch(e){{}}}}
+    html=f"""<!DOCTYPE html><html><head><meta charset="utf-8"><title>{REPORT_TITLE}</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css"><style>:root{{--bg:#f7f8fa;--card:#fff;--ink:#182230;--muted:#667085;--line:#e4e7ec;--navy:#102a43;--blue:#315f86}}body{{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Aptos,"Segoe UI",Arial,Helvetica,sans-serif;font-size:14px;font-weight:300;letter-spacing:.005em;width:100%;overflow-x:hidden}}.header{{padding:34px 42px 26px;background:linear-gradient(90deg,#0f2437,#183b56);color:white}}.header h1{{margin:0 0 8px;font-size:28px;font-weight:400}}.header p{{margin:4px 0;color:#d8e3ec;font-weight:300}}.container{{padding:24px 14px 60px;width:calc(100vw - 28px);max-width:none;margin:0 auto;box-sizing:border-box}}.tabbar{{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}}.tablink{{border:1px solid var(--line);background:#fff;color:#182230;padding:10px 14px;border-radius:10px;cursor:pointer;font-size:13px}}.tablink.active{{background:#102a43;color:white}}.tabcontent{{display:none}}.active-content{{display:block}}.section{{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:22px;width:100%;box-sizing:border-box;box-shadow:0 1px 2px rgba(16,24,40,.04)}}.section h2{{margin:0 0 14px;font-size:20px;font-weight:500;color:var(--navy)}}.section h3{{margin-top:24px;font-size:16px;font-weight:500;color:var(--blue)}}.kpi-grid{{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:14px}}.kpi-card{{background:#fbfcfd;border:1px solid var(--line);border-radius:12px;padding:15px 16px}}.kpi-label{{color:var(--muted);font-size:12px;margin-bottom:6px}}.kpi-value{{color:var(--ink);font-size:21px;font-weight:500}}.note{{background:#f2f4f7;border-left:4px solid #315f86;padding:12px 14px;border-radius:8px;color:#344054;line-height:1.55}}.warning{{background:#fff8e6;border-left:4px solid #b7791f;padding:12px 14px;border-radius:8px;color:#3f2f0b;line-height:1.55}}.chart-block{{margin-top:26px;border-top:1px solid var(--line);padding-top:20px;width:100%;min-height:940px;box-sizing:border-box;overflow-x:visible}}.chart-block .plotly-graph-div{{width:100%!important;min-width:100%!important}}.chart-block .js-plotly-plot,.chart-block .plot-container,.chart-block .svg-container{{width:100%!important;min-width:100%!important}}table.dataTable{{width:100%!important;font-size:12px}}.footer{{text-align:center;color:var(--muted);font-size:12px;padding:26px}}@media(max-width:1000px){{.kpi-grid{{grid-template-columns:repeat(2,1fr)}}.container{{padding:18px;width:calc(100vw - 36px)}}}}</style></head><body><div class="header"><h1>{REPORT_TITLE}</h1><p>Daily frequency | Real Yahoo Finance local prices + observed FX | USD-normalized analytics | No synthetic prices | No ETF constituents except TOPIX benchmark proxy</p><p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} | {AUTHOR_LINE}</p></div><div class="container"><div class="tabbar">{''.join(tabs)}</div>{''.join(contents)}<div class="section"><h2>Important Note</h2><div class="warning">This report is institutional analytical research. It is not investment advice. Missing security or FX observations are not synthetically filled. Main portfolio, risk, correlation and decision analytics use USD-normalized prices. <b>TOPIX exception:</b> 1306.T is used only as a TOPIX benchmark proxy because ^TOPX was unavailable from Yahoo Finance in the previous run; it is not included in any investment universe or portfolio holdings.</div></div></div><div class="footer">{AUTHOR_LINE}</div><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script><script>function resizeVisiblePlots(scope){{try{{var root=scope||document;var plots=root.getElementsByClassName('js-plotly-plot');for(var j=0;j<plots.length;j++){{Plotly.Plots.resize(plots[j]);}}}}catch(e){{}}}}
 function openTab(evt,tabName){{var i,tc,tl;tc=document.getElementsByClassName('tabcontent');for(i=0;i<tc.length;i++){{tc[i].style.display='none';tc[i].classList.remove('active-content')}}tl=document.getElementsByClassName('tablink');for(i=0;i<tl.length;i++){{tl[i].className=tl[i].className.replace(' active','')}}var active=document.getElementById(tabName);active.style.display='block';active.classList.add('active-content');evt.currentTarget.className+=' active';setTimeout(function(){{resizeVisiblePlots(active)}},250);setTimeout(function(){{resizeVisiblePlots(active)}},900)}}
 $(document).ready(function(){{$('.smart-table').DataTable({{pageLength:15,lengthMenu:[[10,15,25,50,-1],[10,15,25,50,'All']],scrollX:true,order:[]}});setTimeout(function(){{resizeVisiblePlots(document)}},600);setTimeout(function(){{resizeVisiblePlots(document)}},1500);setTimeout(function(){{var active=document.getElementsByClassName('active-content')[0];if(active){{resizeVisiblePlots(active);}}}},2200);}});
 window.addEventListener('resize',function(){{resizeVisiblePlots(document)}});</script></body></html>"""
@@ -1267,7 +1453,7 @@ window.addEventListener('resize',function(){{resizeVisiblePlots(document)}});</s
 def sheet(s):
     for ch in r'\/*?:[]': s=s.replace(ch,'_')
     return s[:31]
-def export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None, asia_ytd_pack=None):
+def export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs=None, contagion_pack=None, asia_ytd_pack=None, usd_engine_pack=None, local_results=None):
     with pd.ExcelWriter(EXCEL_OUTPUT,engine="xlsxwriter") as writer:
         ac,ai=article_tables(); ac.to_excel(writer,"Article_Companies",index=False); ai.to_excel(writer,"Article_Indices",index=False); news_event_register().to_excel(writer,"News_Event_Register",index=False)
         sox["summary"].to_excel(writer, "SOX_Summary", index=False)
@@ -1285,6 +1471,21 @@ def export_excel(results, sox, qs_reports, institutional_results, cross_listing,
             for ticker,detail in inst["details"].items():
                 compact=detail["score"][[c for c in ["Close","EMA_20","EMA_50","EMA_200","ST_Line","ST_Dir","RSI","ADX","MACD","MACD_SIGNAL","Institutional Score","Confidence Score","Recommendation"] if c in detail["score"].columns]].tail(750)
                 compact.to_excel(writer,sheet("STP_"+ticker.replace(".","_")[:20]))
+        if usd_engine_pack:
+            metrics_df(usd_engine_pack.get("summary", {})).to_excel(writer,"USD_Engine_Summary",index=False)
+            usd_engine_pack.get("fx_audit", pd.DataFrame()).to_excel(writer,"USD_FX_Audit",index=False)
+            usd_engine_pack.get("currency_summary", pd.DataFrame()).to_excel(writer,"USD_Currency_Summary",index=False)
+            usd_engine_pack.get("universe_comparison", pd.DataFrame()).to_excel(writer,"USD_Universe_Comparison",index=False)
+            for uname, hist in usd_engine_pack.get("portfolio_histories", {}).items():
+                hist.to_excel(writer,sheet("USDComp_"+re.sub(r"[^A-Za-z0-9]+","_",uname)[:20]))
+            for uname, corr in usd_engine_pack.get("correlation_delta", {}).items():
+                corr.to_excel(writer,sheet("USDCorr_"+re.sub(r"[^A-Za-z0-9]+","_",uname)[:20]))
+        if local_results:
+            for local_res in local_results:
+                lp=sheet("LOCAL_"+local_res["name"].replace(" ","_")[:15])
+                metrics_df(local_res["pm"]).to_excel(writer,sheet(lp+"_Metrics"),index=False)
+                local_res["ud"]["prices"].to_excel(writer,sheet(lp+"_Prices"))
+                local_res["ud"]["returns"].to_excel(writer,sheet(lp+"_Returns"))
         if management_packs:
             for uname, pack in management_packs.items():
                 p=sheet("MGMT_"+re.sub(r"[^A-Za-z0-9]+","_",uname)[:14])
@@ -1372,7 +1573,7 @@ def _strict_ytd_snapshot(series):
     }
 
 
-def build_asia_origin_ytd_pack(close, institutional_results):
+def build_asia_origin_ytd_pack(close, institutional_results, usd_close=None):
     """Create security-, country- and subsector-level Asia-origin YTD analytics."""
     details = _all_institutional_details(institutional_results)
     rows, exclusions = [], []
@@ -1382,10 +1583,13 @@ def build_asia_origin_ytd_pack(close, institutional_results):
             continue
         s = pd.Series(close[ticker], dtype=float).replace([np.inf, -np.inf], np.nan).dropna().sort_index()
         snap = _strict_ytd_snapshot(s)
+        usd_s = pd.Series(usd_close[ticker], dtype=float).replace([np.inf, -np.inf], np.nan).dropna().sort_index() if usd_close is not None and ticker in usd_close.columns else pd.Series(dtype=float)
+        usd_snap = _strict_ytd_snapshot(usd_s) if not usd_s.empty else None
         if snap is None:
             exclusions.append({"Ticker":ticker,"Issuer":meta["issuer"],"Origin Country":meta["country"],"Reason":"No current-year observations available"})
             continue
-        ewma_vol, vol_pct, _ = _ewma_latest_from_returns(s.pct_change())
+        analytics_series = usd_s if not usd_s.empty else s
+        ewma_vol, vol_pct, _ = _ewma_latest_from_returns(analytics_series.pct_change())
         detail = details.get(ticker, {})
         decision = detail.get("decision", {}) if isinstance(detail, dict) else {}
         row = {
@@ -1397,17 +1601,29 @@ def build_asia_origin_ytd_pack(close, institutional_results):
             "Listing Type":meta["listing_type"],
             "Currency":meta["currency"],
             **snap,
-            "1D Return":_window_total_return(s, 1),
-            "5D Return":_window_total_return(s, 5),
-            "20D Return":_window_total_return(s, 20),
-            "60D Return":_window_total_return(s, 60),
+            "Local YTD Return":snap.get("YTD Return", np.nan),
+            "USD YTD Return":usd_snap.get("YTD Return", np.nan) if usd_snap else np.nan,
+            "FX YTD Contribution":((1+usd_snap.get("YTD Return"))/(1+snap.get("YTD Return"))-1) if usd_snap and pd.notna(snap.get("YTD Return")) and snap.get("YTD Return")>-1 else np.nan,
+            "USD Reference Price":usd_snap.get("Reference Price", np.nan) if usd_snap else np.nan,
+            "Latest USD Price":usd_snap.get("Latest Price", np.nan) if usd_snap else np.nan,
+            "1D Return":_window_total_return(usd_s if not usd_s.empty else s, 1),
+            "5D Return":_window_total_return(usd_s if not usd_s.empty else s, 5),
+            "20D Return":_window_total_return(usd_s if not usd_s.empty else s, 20),
+            "60D Return":_window_total_return(usd_s if not usd_s.empty else s, 60),
             "EWMA Volatility":ewma_vol,
             "Volatility Percentile":vol_pct,
             "Institutional Score":decision.get("Institutional Score", np.nan),
             "Confidence Score":decision.get("Confidence Score", np.nan),
             "Recommendation":decision.get("Recommendation", "INSUFFICIENT HISTORY"),
-            "Available Observations":int(len(s)),
+            "Available Observations":int(len(analytics_series)),
+            "Local Reference Price":snap.get("Reference Price", np.nan),
+            "Latest Local Price":snap.get("Latest Price", np.nan),
         }
+        if usd_snap:
+            for key in ["Reference Date","Reference Price","Latest Date","Latest Price","YTD High","YTD Low","Distance to YTD High","YTD Max Drawdown","YTD Positive Days","YTD Negative Days","Strict YTD"]:
+                row[key] = usd_snap.get(key, row.get(key))
+        row["YTD Return"] = row["USD YTD Return"] if pd.notna(row["USD YTD Return"]) else row["Local YTD Return"]
+        row["Performance Basis"] = "USD-normalized strict YTD" if usd_snap and usd_snap.get("Strict YTD") else ("USD-normalized since-listing proxy" if usd_snap else snap.get("Performance Basis"))
         row["YTD Direction"] = "GAIN" if row["YTD Return"] > 0.001 else ("LOSS" if row["YTD Return"] < -0.001 else "FLAT")
         rows.append(row)
     securities = pd.DataFrame(rows)
@@ -1529,7 +1745,7 @@ def asia_ytd_tab_html(pack):
     chart2 = div(chart_asia_country_breadth(pack["countries"]), False)
     return (f'<div class="section"><h2>Asia-Origin YTD Performance & Breadth</h2>'
             f'<div class="note"><b>Method:</b> Strict YTD uses the final available close before 1 January as the reference. '
-            f'New listings without a prior-year close are explicitly labelled as since-listing proxies. Country aggregates use primary local listings where available to avoid ADR double counting.</div>'
+            f'New listings without a prior-year close are explicitly labelled as since-listing proxies. Country aggregates use primary local listings where available to avoid ADR double counting; all ranking and breadth metrics use USD-normalized YTD returns.</div>'
             f'<h3>Executive KPI Summary</h3>{table(metrics_df(pack["summary"]),"asia_ytd_summary")}'
             f'<h3>Grouped Interactive YTD Chart</h3><div class="chart-block">{chart1}</div>'
             f'<h3>Country Performance & Breadth</h3><div class="chart-block">{chart2}</div>{table(pack["countries"],"asia_ytd_countries")}'
@@ -1540,7 +1756,7 @@ def asia_ytd_tab_html(pack):
 # ============================================================
 # 8. STREAMLIT APPLICATION LAYER
 # ============================================================
-STREAMLIT_APP_VERSION = "2.5.0"
+STREAMLIT_APP_VERSION = "3.0.0"
 
 st.set_page_config(
     page_title="Global Semiconductor & Asia YTD Institutional Platform",
@@ -2352,7 +2568,7 @@ def chart_regional_semiconductor_growth(pack):
     fig=go.Figure()
     for region,d in pack.get("regional_history",{}).items():
         if not d.empty: fig.add_trace(go.Scatter(x=d.index,y=d["Basket Equity"]*100,mode="lines",name=region))
-    fig.update_yaxes(title="Equal-weight local-return basket, base 100")
+    fig.update_yaxes(title="Equal-weight USD-normalized basket, base 100")
     return layout(fig,"Global Semiconductor Regional Basket Performance",CHART_EXTRA_LARGE_HEIGHT)
 
 
@@ -2408,7 +2624,7 @@ def _render_global_semiconductor_contagion(pack):
         ("Global Negative Breadth",_safe_metric_value(summary.get("Global Negative Breadth"),"percent")),
         ("European Live Names",_safe_metric_value(summary.get("European Live Names"),"int")),
     ],columns=4)
-    _section("Regional semiconductor performance","Equal-weight local-return baskets; no synthetic FX conversion.")
+    _section("Regional semiconductor performance","Equal-weight USD-normalized baskets using observed FX rates; no synthetic FX series.")
     _plot(chart_regional_semiconductor_growth(pack),key="gsc_growth")
     _section("Regional contagion risk pulse")
     _plot(chart_regional_contagion_risk(pack["regional"]),key="gsc_regional_chart")
@@ -2422,16 +2638,234 @@ def _render_global_semiconductor_contagion(pack):
     _plot(chart_subsector_stress(pack["segments"]),key="gsc_segments_chart")
     _show_df(pack["segments"],height=520,key="gsc_segments_table")
 
+
+# -------------------------------------------------------------------------
+# USD ENGINE GOVERNANCE, COMPARISON AND PRESENTATION LAYER
+# -------------------------------------------------------------------------
+def build_usd_engine_pack(local_close, usd_close, fx_audit, local_results, usd_results, fx_histories=None):
+    """Assemble governance, portfolio-impact and correlation diagnostics for the USD engine."""
+    fx_audit = fx_audit.copy() if isinstance(fx_audit, pd.DataFrame) else pd.DataFrame()
+    memberships = {}
+    for uname, cfg in UNIVERSE_CONFIGS.items():
+        for ticker in list(cfg["universe"].keys()) + list(cfg.get("benchmarks", [])):
+            memberships.setdefault(ticker, []).append(uname)
+    if not fx_audit.empty:
+        fx_audit["Universe Membership"] = fx_audit["Ticker"].map(lambda t: " | ".join(memberships.get(t, ["Monitoring / Factor"])))
+        fx_audit["Is Investment Security"] = fx_audit["Ticker"].isin({t for cfg in UNIVERSE_CONFIGS.values() for t in cfg["universe"]})
+    local_map = {r["name"]: r for r in local_results}
+    usd_map = {r["name"]: r for r in usd_results}
+    comparison_rows, portfolio_histories, correlation_delta = [], {}, {}
+    for uname in sorted(set(local_map).intersection(usd_map)):
+        lr, ur = local_map.get(uname), usd_map.get(uname)
+        if lr is None or ur is None:
+            continue
+        lpv = lr["pf"]["portfolio_value"].dropna()
+        upv = ur["pf"]["portfolio_value"].dropna()
+        ltot = lpv.iloc[-1] / lpv.iloc[0] - 1 if len(lpv) > 1 else np.nan
+        utot = upv.iloc[-1] / upv.iloc[0] - 1 if len(upv) > 1 else np.nan
+        comparison_rows.append({
+            "Universe": uname,
+            "Local Portfolio Total Return": ltot,
+            "USD Portfolio Total Return": utot,
+            "Portfolio FX Impact": (1 + utot) / (1 + ltot) - 1 if pd.notna(ltot) and pd.notna(utot) and ltot > -1 else np.nan,
+            "Local Annualized Return": lr["pm"].get("Annualized Return"),
+            "USD Annualized Return": ur["pm"].get("Annualized Return"),
+            "Local Annualized Volatility": lr["pm"].get("Annualized Volatility"),
+            "USD Annualized Volatility": ur["pm"].get("Annualized Volatility"),
+            "Local Sharpe": lr["pm"].get("Sharpe Ratio"),
+            "USD Sharpe": ur["pm"].get("Sharpe Ratio"),
+            "Local Max Drawdown": lr["pm"].get("Max Drawdown"),
+            "USD Max Drawdown": ur["pm"].get("Max Drawdown"),
+            "USD Valid Securities": len(ur["ud"]["valid"]),
+            "USD Observations": len(ur["ud"]["returns"]),
+        })
+        hist = pd.concat([
+            (lpv / lpv.iloc[0] * 100).rename("Local-Currency Basket"),
+            (upv / upv.iloc[0] * 100).rename("USD-Normalized Basket"),
+        ], axis=1).dropna(how="all")
+        portfolio_histories[uname] = hist
+        common_cols = [c for c in lr["ud"]["returns"].columns if c in ur["ud"]["returns"].columns]
+        if common_cols:
+            lc = lr["ud"]["returns"][common_cols].corr()
+            uc = ur["ud"]["returns"][common_cols].corr()
+            correlation_delta[uname] = uc - lc
+    universe_comparison = pd.DataFrame(comparison_rows)
+    investment_audit = fx_audit[fx_audit.get("Is Investment Security", False)].copy() if not fx_audit.empty else pd.DataFrame()
+    if not investment_audit.empty:
+        currency_summary = investment_audit.groupby("Currency", as_index=False).agg(
+            Instruments=("Ticker", "count"),
+            Average_FX_Coverage=("FX Coverage", "mean"),
+            Median_FX_Contribution=("FX Return Contribution", "median"),
+            Review_Instruments=("Conversion Status", lambda s: int((s != "PASS").sum())),
+            Maximum_Staleness_Days=("Maximum FX Staleness Days", "max"),
+        ).rename(columns={
+            "Average_FX_Coverage":"Average FX Coverage",
+            "Median_FX_Contribution":"Median FX Return Contribution",
+            "Review_Instruments":"Review Instruments",
+            "Maximum_Staleness_Days":"Maximum FX Staleness Days",
+        })
+    else:
+        currency_summary = pd.DataFrame()
+    summary = {
+        "USD Engine Version": USD_ENGINE_VERSION,
+        "Base Currency": USD_ENGINE_BASE_CURRENCY,
+        "Converted Investment Instruments": int(len(investment_audit)),
+        "Currencies Covered": int(investment_audit["Currency"].nunique()) if not investment_audit.empty else 0,
+        "Non-USD Instruments": int((investment_audit["Currency"] != "USD").sum()) if not investment_audit.empty else 0,
+        "Average FX Coverage": float(investment_audit["FX Coverage"].mean()) if not investment_audit.empty else np.nan,
+        "Review Instruments": int((investment_audit["Conversion Status"] != "PASS").sum()) if not investment_audit.empty else 0,
+        "FX Tolerance": f"Backward observed quote, maximum {USD_ENGINE_FX_TOLERANCE_DAYS} calendar days",
+        "Main Analytical Basis": "USD-normalized OHLCV, returns, benchmarks, portfolios, risk and correlations",
+        "Local Series Role": "Retained for audit and local-vs-USD attribution only",
+    }
+    return {
+        "summary": summary,
+        "fx_audit": fx_audit,
+        "investment_audit": investment_audit,
+        "currency_summary": currency_summary,
+        "universe_comparison": universe_comparison,
+        "portfolio_histories": portfolio_histories,
+        "correlation_delta": correlation_delta,
+        "fx_histories": fx_histories or {},
+    }
+
+
+def chart_usd_portfolio_basis(pack, universe_name):
+    hist = pack.get("portfolio_histories", {}).get(universe_name, pd.DataFrame())
+    fig = go.Figure()
+    for col in hist.columns:
+        fig.add_trace(go.Scatter(x=hist.index, y=hist[col], mode="lines", name=col))
+    fig.update_yaxes(title="Growth index (base 100)")
+    fig.update_xaxes(title="Date")
+    return layout(fig, f"{universe_name} — Local-Currency vs USD-Normalized Portfolio Path", CHART_EXTRA_LARGE_HEIGHT)
+
+
+def chart_usd_instrument_impact(pack, universe_name):
+    audit = pack.get("investment_audit", pd.DataFrame()).copy()
+    if not audit.empty:
+        audit = audit[audit["Universe Membership"].str.contains(re.escape(universe_name), regex=True, na=False)]
+        audit = audit.dropna(subset=["Local Total Return", "USD Total Return"]).copy()
+        audit = audit.sort_values("USD Total Return")
+    fig = go.Figure()
+    if not audit.empty:
+        fig.add_trace(go.Bar(y=audit["Ticker"], x=audit["Local Total Return"], orientation="h", name="Local-currency return"))
+        fig.add_trace(go.Bar(y=audit["Ticker"], x=audit["USD Total Return"], orientation="h", name="USD-normalized return"))
+    fig.update_layout(barmode="group")
+    fig.update_xaxes(title="Total return over common conversion sample", tickformat=".0%")
+    return layout(fig, f"{universe_name} — Instrument Return Impact of USD Conversion", max(CHART_BAR_MIN_HEIGHT, 38 * max(len(audit), 8)))
+
+
+def chart_fx_return_contribution(pack, universe_name):
+    audit = pack.get("investment_audit", pd.DataFrame()).copy()
+    if not audit.empty:
+        audit = audit[audit["Universe Membership"].str.contains(re.escape(universe_name), regex=True, na=False)]
+        audit = audit.dropna(subset=["FX Return Contribution"]).sort_values("FX Return Contribution")
+    fig = go.Figure()
+    if not audit.empty:
+        fig.add_trace(go.Bar(y=audit["Ticker"], x=audit["FX Return Contribution"], orientation="h", name="FX contribution"))
+    fig.add_vline(x=0, line_dash="dash")
+    fig.update_xaxes(title="Multiplicative FX contribution", tickformat=".0%")
+    return layout(fig, f"{universe_name} — FX Contribution to USD Return", max(CHART_BAR_MIN_HEIGHT, 38 * max(len(audit), 8)))
+
+
+def chart_fx_coverage(pack):
+    audit = pack.get("investment_audit", pd.DataFrame()).copy()
+    if not audit.empty:
+        audit = audit.sort_values("FX Coverage")
+    fig = go.Figure()
+    if not audit.empty:
+        fig.add_trace(go.Bar(y=audit["Ticker"], x=audit["FX Coverage"], orientation="h", name="FX coverage"))
+    fig.add_vline(x=USD_ENGINE_MIN_FX_COVERAGE, line_dash="dash", annotation_text="Governance threshold")
+    fig.update_xaxes(title="Share of local observations converted to USD", tickformat=".0%", range=[0, 1.02])
+    return layout(fig, "USD Engine — Instrument-Level FX Coverage", max(CHART_BAR_MIN_HEIGHT, 30 * max(len(audit), 10)))
+
+
+def chart_usd_correlation_delta(pack, universe_name):
+    delta = pack.get("correlation_delta", {}).get(universe_name, pd.DataFrame())
+    fig = go.Figure()
+    if not delta.empty:
+        fig.add_trace(go.Heatmap(z=delta.values, x=delta.columns, y=delta.index, zmid=0, colorbar=dict(title="USD − Local")))
+    fig.update_layout(xaxis=dict(tickangle=45))
+    return layout(fig, f"{universe_name} — Correlation Change After USD Normalization", max(CHART_MATRIX_HEIGHT, 38 * max(len(delta), 8)))
+
+
+def usd_engine_tab_html(pack):
+    summary = table(metrics_df(pack.get("summary", {})), "usd_engine_summary")
+    comparison = table(pack.get("universe_comparison", pd.DataFrame()), "usd_universe_comparison")
+    currency = table(pack.get("currency_summary", pd.DataFrame()), "usd_currency_summary")
+    audit = table(pack.get("investment_audit", pd.DataFrame()), "usd_fx_audit")
+    blocks = [
+        '<div class="section"><h2>USD-Normalized Global Portfolio Engine</h2>'
+        '<div class="note"><b>Authoritative analytical basis:</b> all eligible non-USD local prices, OHLC fields and regional benchmarks are converted with observed Yahoo Finance FX quotes before returns, portfolio NAV, risk contribution, optimization and correlation calculations. FX matching uses only a backward observed quote with a five-calendar-day maximum tolerance. Local-currency analytics are retained solely for attribution and audit.</div>'
+        f'<h3>Engine Summary</h3>{summary}<h3>Universe-Level Local vs USD Comparison</h3>{comparison}<h3>Currency Governance</h3>{currency}<h3>Instrument FX Audit</h3>{audit}'
+    ]
+    first = True
+    for uname in pack.get("portfolio_histories", {}):
+        figs = [chart_usd_portfolio_basis(pack, uname), chart_usd_instrument_impact(pack, uname), chart_fx_return_contribution(pack, uname), chart_usd_correlation_delta(pack, uname)]
+        rendered = []
+        for fig in figs:
+            rendered.append(f'<div class="chart-block">{div(fig, first)}</div>')
+            first = False
+        blocks.append(f'<h3>{uname}</h3>{"".join(rendered)}')
+    blocks.append(f'<h3>FX Coverage Control</h3><div class="chart-block">{div(chart_fx_coverage(pack), first)}</div></div>')
+    return "".join(blocks)
+
+
+def _render_usd_engine(pack, universe_name):
+    summary = pack.get("summary", {})
+    st.markdown(
+        '<div class="mk-note"><b>Authoritative basis:</b> USD-normalized adjusted OHLCV, benchmark and portfolio series. '
+        'Each non-USD observation is converted with a real Yahoo Finance FX quote observed on or before the local market date; '
+        f'no future backfill, proxy currency or synthetic FX is allowed. Maximum tolerance: {USD_ENGINE_FX_TOLERANCE_DAYS} calendar days.</div>',
+        unsafe_allow_html=True,
+    )
+    _metric_grid([
+        ("Base Currency", summary.get("Base Currency", "USD")),
+        ("Converted Instruments", _safe_metric_value(summary.get("Converted Investment Instruments"), "int")),
+        ("Currencies", _safe_metric_value(summary.get("Currencies Covered"), "int")),
+        ("Non-USD Instruments", _safe_metric_value(summary.get("Non-USD Instruments"), "int")),
+        ("Average FX Coverage", _safe_metric_value(summary.get("Average FX Coverage"), "percent")),
+        ("Review Instruments", _safe_metric_value(summary.get("Review Instruments"), "int")),
+    ], columns=3)
+    _section("Controlled data flow", "The local series remains available for audit; all principal analytics downstream of conversion use USD prices.")
+    st.markdown(
+        '<div class="mk-note" style="text-align:center;line-height:2.0">'
+        '<b>Yahoo Finance Market Data</b><br>↓<br><b>Local-Currency Adjusted OHLCV</b><br>↓<br>'
+        '<b>Observed FX Conversion to USD</b><br>↓<br><b>Multi-Market Calendar Alignment</b><br>↓<br>'
+        '<b>USD Instrument Analytics</b><br>↓<br><b>USD Portfolio, Risk Contribution & Optimization</b><br>↓<br>'
+        '<b>USD Correlation & Contagion Analytics</b><br>↓<br><b>Streamlit + Tabbed HTML + Excel Data Pack</b></div>',
+        unsafe_allow_html=True,
+    )
+    _section("Portfolio basis comparison")
+    _plot(chart_usd_portfolio_basis(pack, universe_name), key="usd_portfolio_basis")
+    _show_df(pack.get("universe_comparison", pd.DataFrame()), height=360, key="usd_universe_compare")
+    _section("Instrument-level USD conversion impact")
+    _plot(chart_usd_instrument_impact(pack, universe_name), key="usd_instrument_impact")
+    _plot(chart_fx_return_contribution(pack, universe_name), key="usd_fx_contribution")
+    audit = pack.get("investment_audit", pd.DataFrame()).copy()
+    if not audit.empty:
+        audit = audit[audit["Universe Membership"].str.contains(re.escape(universe_name), regex=True, na=False)]
+    _show_df(audit, height=700, key="usd_selected_audit")
+    _section("Correlation structure after USD normalization")
+    _plot(chart_usd_correlation_delta(pack, universe_name), key="usd_corr_delta")
+    _section("FX governance coverage")
+    _plot(chart_fx_coverage(pack), key="usd_fx_coverage")
+    _show_df(pack.get("currency_summary", pd.DataFrame()), height=360, key="usd_currency_summary")
+
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_institutional_platform():
-    close, ohlcv_map = download_all()
+    local_close, local_ohlcv_map = download_all()
+    usd_close, usd_ohlcv_map, fx_audit, fx_histories = build_usd_normalized_market_data(local_close, local_ohlcv_map)
     sox = compute_sox_diagnostics()
-    results = [analyze(uname, cfg, close) for uname, cfg in UNIVERSE_CONFIGS.items()]
-    institutional_results = analyze_supertrend_institutional(results, ohlcv_map, close)
-    cross_listing = compute_cross_listing_analysis(close)
-    contagion_pack = build_global_semiconductor_contagion_pack(close, institutional_results)
-    asia_ytd_pack = build_asia_origin_ytd_pack(close, institutional_results)
-    return close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack, asia_ytd_pack
+    local_results = [analyze(uname, cfg, local_close, price_basis="Local Currency — Audit Only") for uname, cfg in UNIVERSE_CONFIGS.items()]
+    results = [analyze(uname, cfg, usd_close, price_basis="USD-Normalized") for uname, cfg in UNIVERSE_CONFIGS.items()]
+    institutional_results = analyze_supertrend_institutional(results, usd_ohlcv_map, usd_close)
+    cross_listing = compute_cross_listing_analysis(local_close)
+    contagion_pack = build_global_semiconductor_contagion_pack(usd_close, institutional_results)
+    asia_ytd_pack = build_asia_origin_ytd_pack(local_close, institutional_results, usd_close=usd_close)
+    usd_engine_pack = build_usd_engine_pack(local_close, usd_close, fx_audit, local_results, results, fx_histories)
+    return local_close, usd_close, local_ohlcv_map, usd_ohlcv_map, sox, local_results, results, institutional_results, cross_listing, contagion_pack, asia_ytd_pack, usd_engine_pack
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -2444,8 +2878,8 @@ def _render_masthead():
         f"""
         <div class="mk-masthead">
           <div class="mk-kicker">MK FinTECH LabGEN · Institutional Analytics</div>
-          <div class="mk-title">Global AI / Semiconductor & Asia YTD Institutional Platform</div>
-          <div class="mk-subtitle">SupertrendPro Institutional + Asia YTD + Hedge Fund Management Cockpit · Version {STREAMLIT_APP_VERSION} · Daily Yahoo Finance data · No synthetic prices</div>
+          <div class="mk-title">Global AI / Semiconductor USD-Normalized Institutional Platform</div>
+          <div class="mk-subtitle">USD-Normalized Engine + SupertrendPro Institutional + Hedge Fund Management Cockpit · Version {STREAMLIT_APP_VERSION} · Daily Yahoo Finance data · USD-normalized observed FX engine · No synthetic prices</div>
         </div>
         """, unsafe_allow_html=True,
     )
@@ -2911,17 +3345,17 @@ def _render_news_and_governance(res, inst, close, contagion_pack=None):
         _show_df(contagion_pack.get("europe", pd.DataFrame()), height=650, key="news_europe_contagion")
     _section("Data governance")
     _show_df(res["ud"]["data_quality"], height=560, key="gov_dq")
-    st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily observations only; no synthetic security prices and no portfolio ETF constituents.<br><b>Event discipline:</b> News affects the monitoring universe and risk posture, but never overrides quantitative data validation or creates synthetic observations.</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="mk-note"><b>TOPIX benchmark rule:</b> {TOPIX_BENCHMARK_PROXY_NOTE}<br><b>Data rule:</b> Yahoo Finance daily local prices and observed FX quotes only. Principal analytics use USD-normalized prices; no synthetic security or FX prices and no portfolio ETF constituents.<br><b>Event discipline:</b> News affects the monitoring universe and risk posture, but never overrides quantitative data validation or creates synthetic observations.</div>', unsafe_allow_html=True)
 
 
-def _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack=None, asia_ytd_pack=None):
+def _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack=None, asia_ytd_pack=None, usd_engine_pack=None, local_results=None):
     st.markdown('<div class="mk-note">HTML, Excel and standalone QS Engine reports are generated only when requested. This prevents expensive report generation on every Streamlit rerun.</div>', unsafe_allow_html=True)
     if st.button("Generate full institutional report package", type="primary", width="stretch"):
         with st.spinner("Generating QS Engine, HTML and Excel outputs..."):
             qs_reports = generate_qs_reports_cached()
             management_packs = {r["name"]: build_hedge_fund_management_pack(r, institutional_results.get(r["name"], {}), close) for r in results}
-            create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack, asia_ytd_pack)
-            export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack, asia_ytd_pack)
+            create_report(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack, asia_ytd_pack, usd_engine_pack)
+            export_excel(results, sox, qs_reports, institutional_results, cross_listing, management_packs, contagion_pack, asia_ytd_pack, usd_engine_pack, local_results)
         st.success("Report package generated.")
     files = [
         (REPORT_OUTPUT, "Full Institutional HTML", "text/html"),
@@ -2939,15 +3373,15 @@ def streamlit_main():
     with st.sidebar:
         st.markdown("### Institutional Controls")
         universe_name = st.selectbox("Investment Universe", list(UNIVERSE_CONFIGS.keys()))
-        st.caption("Yahoo Finance data and institutional calculations are cached for one hour.")
+        st.caption("Yahoo Finance local prices, observed FX conversion and USD institutional calculations are cached for one hour.")
         if st.button("Refresh Yahoo Finance cache", width="stretch"):
             st.cache_data.clear(); st.rerun()
         st.divider()
-        st.caption("Real Yahoo Finance daily data · No synthetic security prices · TOPIX proxy exception only.")
+        st.caption("Real Yahoo Finance daily data · Main analytics in USD-normalized prices · No synthetic security or FX prices · TOPIX proxy exception only.")
 
     try:
         with st.spinner("Loading Yahoo Finance data and institutional analytics..."):
-            close, ohlcv_map, sox, results, institutional_results, cross_listing, contagion_pack, asia_ytd_pack = load_institutional_platform()
+            local_close, close, local_ohlcv_map, ohlcv_map, sox, local_results, results, institutional_results, cross_listing, contagion_pack, asia_ytd_pack, usd_engine_pack = load_institutional_platform()
     except Exception as exc:
         st.error("Institutional platform could not complete the Yahoo Finance data pipeline.")
         st.exception(exc)
@@ -2961,11 +3395,12 @@ def streamlit_main():
         asset_options = list(details.keys())
         selected_asset = st.selectbox("Institutional Asset", asset_options) if asset_options else None
         st.markdown(f"**Sample:** {res['ud']['start'].date()} → {res['ud']['end'].date()}")
-        st.markdown(f"**Primary benchmark:** {res['ud']['primary']}")
+        st.markdown(f"**Primary benchmark:** {res['ud']['primary']} (USD-normalized)")
         st.markdown(f"**Valid securities:** {len(res['ud']['valid'])}")
 
     tab_labels = [
         "Executive Dashboard",
+        "USD-Normalized Engine",
         "Hedge Fund Management Brief",
         "Global Semiconductor Contagion",
         "Asia YTD Performance",
@@ -2987,40 +3422,41 @@ def streamlit_main():
     ]
     tabs = st.tabs(tab_labels)
     with tabs[0]: _render_executive(res, inst, close)
-    with tabs[1]: _render_hedge_fund_management_brief(res, inst, close)
-    with tabs[2]: _render_global_semiconductor_contagion(contagion_pack)
-    with tabs[3]: _render_asia_ytd_performance(asia_ytd_pack)
-    with tabs[4]:
+    with tabs[1]: _render_usd_engine(usd_engine_pack, universe_name)
+    with tabs[2]: _render_hedge_fund_management_brief(res, inst, close)
+    with tabs[3]: _render_global_semiconductor_contagion(contagion_pack)
+    with tabs[4]: _render_asia_ytd_performance(asia_ytd_pack)
+    with tabs[5]:
         if selected_asset: _render_strategy_signal(inst, selected_asset)
         else: st.info("No security has sufficient history for the selected strategy analysis.")
-    with tabs[5]:
+    with tabs[6]:
         if selected_asset: _render_market_data(inst, selected_asset, res)
         else: st.info("No security has sufficient market data.")
-    with tabs[6]:
+    with tabs[7]:
         if selected_asset: _render_technical_analytics(inst, selected_asset)
         else: st.info("No security has sufficient technical history.")
-    with tabs[7]:
+    with tabs[8]:
         if selected_asset: _render_ewma_volatility(inst, selected_asset, res)
         else: st.info("No security has sufficient EWMA history.")
-    with tabs[8]:
+    with tabs[9]:
         if selected_asset: _render_backtest_risk(inst, selected_asset, res)
         else: st.info("No security has sufficient backtest history.")
-    with tabs[9]:
+    with tabs[10]:
         if selected_asset: _render_strategy_diagnostics(inst, selected_asset)
         else: st.info("No security has sufficient diagnostic history.")
-    with tabs[10]: _render_blue_chip_screener(res, inst)
-    with tabs[11]: _render_capital_gain_leaders(inst)
-    with tabs[12]: _render_portfolio_lab(res)
-    with tabs[13]:
+    with tabs[11]: _render_blue_chip_screener(res, inst)
+    with tabs[12]: _render_capital_gain_leaders(inst)
+    with tabs[13]: _render_portfolio_lab(res)
+    with tabs[14]:
         if selected_asset: _render_leading_signal_lab(inst, selected_asset)
         else: st.info("No security has sufficient leading-signal history.")
-    with tabs[14]:
+    with tabs[15]:
         if selected_asset: _render_institutional_decision(inst, selected_asset, res)
         else: st.info("No security has sufficient institutional decision history.")
-    with tabs[15]: _render_sox(sox)
-    with tabs[16]: _render_cross_listing(cross_listing)
-    with tabs[17]: _render_news_and_governance(res, inst, close, contagion_pack)
-    with tabs[18]: _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack, asia_ytd_pack)
+    with tabs[16]: _render_sox(sox)
+    with tabs[17]: _render_cross_listing(cross_listing)
+    with tabs[18]: _render_news_and_governance(res, inst, close, contagion_pack)
+    with tabs[19]: _render_exports(results, sox, institutional_results, cross_listing, close, contagion_pack, asia_ytd_pack, usd_engine_pack, local_results)
 
     st.caption(AUTHOR_LINE + " · Institutional analytical model; not investment advice or an automatic order system.")
 

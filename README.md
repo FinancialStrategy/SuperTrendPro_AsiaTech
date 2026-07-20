@@ -1,62 +1,94 @@
-# Global AI / Semiconductor Institutional Platform — V2.5.0
+# Global AI / Semiconductor Institutional Platform — V3.0.0 USD-Normalized Engine
 
-## Asia-Origin YTD Smart Analytics
+## Purpose
 
-This Streamlit release preserves the complete V2.4.0 Global Semiconductor Contagion and SupertrendPro Institutional codebase and adds an institutional Asia-origin year-to-date performance cockpit.
+This Streamlit platform evaluates a global technology, AI, semiconductor, memory, foundry, equipment, electronics and supply-chain universe under one institutional hedge-fund analytics framework.
 
-### New Streamlit tab
+The authoritative analytical basis is now USD. Local-market adjusted OHLCV observations are retained, but every eligible non-USD instrument and regional benchmark is converted with an observed Yahoo Finance FX quote before instrument returns, portfolio NAV, risk contribution, optimization, correlation, contagion and institutional decision analytics are calculated.
 
-**Asia YTD Performance** provides:
+## Controlled data flow
 
-- South Korea, Taiwan and Japan origin-country grouping.
-- Local primary listings and ADR/cross-listings displayed separately.
-- Strict YTD performance from the final observed close before 1 January.
-- Explicit since-listing proxy labels where a new security has no prior-year close.
-- Full-width vertically grouped interactive Plotly chart.
-- Gain/loss coloring and institutional hover details.
-- Country-level median YTD and positive breadth analysis.
-- Smart sortable table with country, subsector and listing filters.
-- 1D, 5D, 20D and 60D tactical returns.
-- EWMA volatility, volatility percentile and YTD maximum drawdown.
-- Institutional Score, Confidence Score and Recommendation.
-- Country and subsector summary tables.
-- CSV download and data-availability log.
+Yahoo Finance market data  
+→ Local-currency adjusted OHLCV  
+→ Observed FX conversion to USD  
+→ Multi-market calendar alignment  
+→ USD instrument-level analytics  
+→ USD portfolio-level analytics  
+→ USD risk contribution and optimization  
+→ USD correlation and contagion analytics  
+→ Streamlit dashboard + tabbed HTML report + Excel data pack
 
-### Asia-origin securities configured
+## FX governance
 
-- South Korea: Samsung Electronics, SK hynix, LG Innotek and SKHY ADR.
-- Taiwan: TSMC local/ADR, Foxconn and MediaTek.
-- Japan: Kioxia, Ibiden, Murata, Furukawa Electric, Mitsui Mining & Smelting, SoftBank Group and Kakaku.com.
+- No synthetic security prices.
+- No synthetic or proxy FX series.
+- FX is matched backward only: an FX observation must exist on or before the local-market date.
+- Maximum FX tolerance is five calendar days to cover weekends and non-overlapping market holidays.
+- Future FX observations are never backfilled.
+- Instruments below the 90% FX coverage threshold are flagged `REVIEW` in the audit table.
+- Local-currency analytics remain available only for local-vs-USD attribution and validation.
 
-Country aggregates prioritize primary local listings to prevent ADR double counting. No missing security price is synthetically filled.
+## Supported currencies
 
-### Export integration
+USD, KRW, TWD, JPY, EUR, CHF, AUD, INR, IDR, CNY, HKD and SGD.
 
-The full HTML report receives an **Asia YTD Performance** tab. Excel receives:
+The code explicitly records the Yahoo FX ticker and quote direction for every currency.
 
-- `Asia_YTD_Summary`
-- `Asia_YTD_Securities`
-- `Asia_YTD_Countries`
-- `Asia_YTD_Subsectors`
-- `Asia_YTD_Exclusions`
+## Main USD Engine outputs
 
-### Deployment
+- Instrument-level FX conversion audit
+- FX coverage and staleness controls
+- Local-return vs USD-return comparison
+- FX contribution to security returns
+- Local-currency vs USD-normalized portfolio path
+- Portfolio performance impact by universe
+- USD benchmark returns
+- USD correlation matrices
+- Correlation change after USD normalization
+- USD risk contribution
+- USD portfolio optimization
+- USD-based EWMA, Supertrend, Leading Signal and Institutional Decision analytics
+- USD-based regional semiconductor contagion
+- USD-based Asia YTD rankings and breadth
 
-Upload these files to the Streamlit Cloud repository root:
+## Streamlit tabs
+
+1. Executive Dashboard
+2. USD-Normalized Engine
+3. Hedge Fund Management Brief
+4. Global Semiconductor Contagion
+5. Asia YTD Performance
+6. Strategy & Signal
+7. Market Data
+8. Technical Analytics
+9. EWMA Volatility
+10. Backtest & Risk
+11. Strategy Diagnostics
+12. Blue-Chip Screener
+13. Capital Gain Leaders
+14. Portfolio Lab
+15. Leading Signal Lab
+16. Institutional Decision Engine
+17. SOX Diagnostics
+18. ADR / Local
+19. News & Governance
+20. Export Center
+
+## Deployment
+
+Upload the following to the root of the Streamlit Cloud repository:
 
 - `app.py`
 - `requirements.txt`
 - `runtime.txt`
+- `.streamlit/config.toml`
 
-Main module: `app.py`
+Set the main file path to `app.py`, clear the app cache and reboot the application.
 
-### Validation completed
+## Data policy
 
-- Python 3.10 syntax / `py_compile`: passed.
-- All V2.4.0 functions preserved.
-- Asia YTD engine controlled-series regression: passed.
-- Strict YTD and new-listing proxy governance: passed.
-- Country, subsector and ranking calculations: passed.
-- Grouped YTD and country-breadth Plotly chart generation: passed.
+Real Yahoo Finance daily data only. TOPIX uses `1306.T` solely as a documented benchmark proxy when the direct index series is unavailable. It is not a portfolio constituent.
 
-Live Yahoo Finance execution must be validated on Streamlit Cloud because the local build environment does not contain yfinance, Streamlit or QuantStats.
+## Disclaimer
+
+Institutional analytical research and decision support only. It is not investment advice and does not generate automatic orders.
